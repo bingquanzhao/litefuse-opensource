@@ -98,6 +98,26 @@ const EnvSchema = z.object({
     .positive()
     .default(5_000),
   LITEFUSE_OTEL_GROUPER_TICK_MS: z.coerce.number().positive().default(200),
+  // loop-cut fairness bounds (design: round-robin, not drain-one-lane). Per
+  // tick the single leader cuts one group from each ripe lane per round, up to
+  // MAX_CUTS_PER_LANE_PER_TICK rounds, capped at MAX_CUTS_PER_TICK total. A hot
+  // single-project lane gets K× the old one-per-tick throughput; co-tenant
+  // lanes still get a cut every round, so none starves. The total cap bounds
+  // the leader's tick when many lanes are ripe at once.
+  //
+  // K default 4: at ~5 ticks/s that is ~20 groups/s from a single hot lane —
+  // comfortably above the ~3 groups/s a 40w/s target needs, while staying below
+  // the consumer ceiling so cut production doesn't over-run what workers drain
+  // (over-producing just migrates the backlog from the compact pending list
+  // into heavier BullMQ job records). Raise it if the consumer pool grows.
+  LITEFUSE_OTEL_GROUPER_MAX_CUTS_PER_LANE_PER_TICK: z.coerce
+    .number()
+    .positive()
+    .default(4),
+  LITEFUSE_OTEL_GROUPER_MAX_CUTS_PER_TICK: z.coerce
+    .number()
+    .positive()
+    .default(64),
   // Self-contained group job (design §3.3): per-worker semaphores.
   // TRANSFORM bounds concurrent S3 download + JSON.parse (event-loop/heap
   // protection); LOAD bounds concurrent stream loads (global tablet-writer

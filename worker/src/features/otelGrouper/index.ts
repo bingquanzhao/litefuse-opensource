@@ -61,6 +61,10 @@ export type OtelGrouperConfig = {
   lockTtlMs: number;
   laneDomainLeaseTtlMs: number;
   tickMs: number;
+  /** loop-cut: max cuts per lane per tick (rounds of round-robin). */
+  maxCutsPerLanePerTick: number;
+  /** loop-cut: total cut budget per tick across all lanes (leader tick bound). */
+  maxCutsPerTick: number;
 };
 
 type Deps = {
@@ -130,6 +134,9 @@ export class OtelGrouper {
       lockTtlMs: env.LITEFUSE_OTEL_GROUPER_LOCK_TTL_MS,
       laneDomainLeaseTtlMs: env.LITEFUSE_OTEL_LANE_DOMAIN_LEASE_TTL_MS,
       tickMs: env.LITEFUSE_OTEL_GROUPER_TICK_MS,
+      maxCutsPerLanePerTick:
+        env.LITEFUSE_OTEL_GROUPER_MAX_CUTS_PER_LANE_PER_TICK,
+      maxCutsPerTick: env.LITEFUSE_OTEL_GROUPER_MAX_CUTS_PER_TICK,
       ...deps.config,
     };
     this.shardNames = deps.shardNames ?? OtelIngestionQueue.getShardNames();
@@ -210,7 +217,7 @@ export class OtelGrouper {
     }
 
     logger.info(
-      `[OtelGrouper] started (shards=${this.shardNames.join(",")}, target=${this.cfg.targetBytes}B/${this.cfg.targetRows}rows/${this.cfg.maxFiles}files, flush=${this.cfg.flushMs}ms)`,
+      `[OtelGrouper] started (shards=${this.shardNames.join(",")}, target=${this.cfg.targetBytes}B/${this.cfg.targetRows}rows/${this.cfg.maxFiles}files, flush=${this.cfg.flushMs}ms, loop-cut=${this.cfg.maxCutsPerLanePerTick}/lane/tick≤${this.cfg.maxCutsPerTick}/tick)`,
     );
     this.scheduleNext();
   }
@@ -428,36 +435,58 @@ export class OtelGrouper {
         );
       }
     }
-    // Phase 2a: residue-free lanes → one cut each (fair: one group per lane/tick).
-    for (const { lane, residue } of probes) {
-      if (residue || this.stopped) continue;
-      // #6: re-confirm domain ownership before EACH cut. A long tick (per-lane
-      // readiness Doris queries + serial recovers) can outlast the short
-      // domain-lease TTL; without this, an expired leader keeps cutting
-      // alongside the freshly elected one (dual-leader), defeating F1's fence —
-      // the per-lane token is a plain SET that the stale leader re-stamps. The
-      // renew also keeps a genuinely-live leader's lease fresh so a slow-but-
-      // alive tick is not spuriously taken over.
-      if (
-        !(await this.acquireOrRenew(
-          LANE_DOMAIN_LEASE,
-          this.cfg.laneDomainLeaseTtlMs,
-        ))
-      ) {
-        logger.warn(
-          "[OtelGrouper] lost lane-domain lease mid-tick — stopping cuts (a new leader now owns the domain)",
-        );
-        return;
+    // Phase 2a: residue-free lanes → ROUND-ROBIN loop-cut. Each round cuts one
+    // group from every still-ripe lane, up to maxCutsPerLanePerTick rounds and
+    // maxCutsPerTick total. Round-robin (not drain-one-lane-then-next) is what
+    // preserves the old one-per-lane fairness: a hot single-project lane gets
+    // K cuts/tick, but every co-tenant lane still gets a cut each round, so no
+    // lane starves. A lane that stops being ripe drops out of the rotation.
+    let ripeLanes = probes.filter((p) => !p.residue).map((p) => p.lane);
+    let cutsThisTick = 0;
+    for (
+      let round = 0;
+      round < this.cfg.maxCutsPerLanePerTick &&
+      ripeLanes.length > 0 &&
+      cutsThisTick < this.cfg.maxCutsPerTick &&
+      !this.stopped;
+      round++
+    ) {
+      const stillRipe: string[] = [];
+      for (const lane of ripeLanes) {
+        if (this.stopped || cutsThisTick >= this.cfg.maxCutsPerTick) break;
+        // #6: re-confirm domain ownership before EACH cut. A long tick (per-lane
+        // readiness Doris queries + serial recovers) can outlast the short
+        // domain-lease TTL; without this, an expired leader keeps cutting
+        // alongside the freshly elected one (dual-leader), defeating F1's fence —
+        // the per-lane token is a plain SET that the stale leader re-stamps. The
+        // renew also keeps a genuinely-live leader's lease fresh so a slow-but-
+        // alive tick is not spuriously taken over.
+        if (
+          !(await this.acquireOrRenew(
+            LANE_DOMAIN_LEASE,
+            this.cfg.laneDomainLeaseTtlMs,
+          ))
+        ) {
+          logger.warn(
+            "[OtelGrouper] lost lane-domain lease mid-tick — stopping cuts (a new leader now owns the domain)",
+          );
+          return;
+        }
+        try {
+          if (await this.tickLaneCut(lane)) {
+            cutsThisTick++;
+            stillRipe.push(lane); // ripe again next round
+          }
+          // no cut → lane fell below target/emptied; drop it from the rotation
+        } catch (e) {
+          // #9: cut failure is per-lane (tickLaneCut reconciles its own cut-Lua
+          // errors; this guards a publish/stamp failure from starving the rest).
+          logger.error(
+            `[OtelGrouper] lane ${lane} cut failed: ${e instanceof Error ? e.message : String(e)}`,
+          );
+        }
       }
-      try {
-        await this.tickLaneCut(lane);
-      } catch (e) {
-        // #9: cut failure is per-lane (tickLaneCut reconciles its own cut-Lua
-        // errors; this guards a publish/stamp failure from starving the rest).
-        logger.error(
-          `[OtelGrouper] lane ${lane} cut failed: ${e instanceof Error ? e.message : String(e)}`,
-        );
-      }
+      ripeLanes = stillRipe;
     }
   }
 
@@ -502,7 +531,8 @@ export class OtelGrouper {
    * writer) so the unchanged cut Lua fence `GET lock==token` passes; a handover
    * overwrites it, fencing the old leader's late cut.
    */
-  private async tickLaneCut(lane: string): Promise<void> {
+  /** Returns true iff a group was cut+published (false = lane not ripe/empty). */
+  private async tickLaneCut(lane: string): Promise<boolean> {
     const redis = this.redis!;
     await setOtelGrouperLease({
       redis,
@@ -525,7 +555,7 @@ export class OtelGrouper {
       await this.recoverStaged(lane);
       return null;
     });
-    if (!cut) return;
+    if (!cut) return false;
 
     recordIncrement("langfuse.otel_grouper.groups_cut", 1, { shard: lane });
     recordIncrement("langfuse.otel_grouper.files_grouped", cut.entries.length, {
@@ -538,6 +568,7 @@ export class OtelGrouper {
       `[OtelGrouper] cut lane=${lane} group=${cut.groupId.slice(0, 12)} files=${cut.entries.length} bytes=${(bytes / (1024 * 1024)).toFixed(1)}MB spans=${spans} waited=${waitedMs}ms`,
     );
     await this.publish(lane, cut);
+    return true;
   }
 
   /**
