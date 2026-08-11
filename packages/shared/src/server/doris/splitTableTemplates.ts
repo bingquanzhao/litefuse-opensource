@@ -39,16 +39,6 @@ const DYNAMIC_PARTITION_END = 3;
  */
 export const NO_TTL_START_DAYS = 3650;
 
-/**
- * History day-partitions pre-created at table creation (the late-data window).
- * Capped small so provisioning is light regardless of retention — a fresh
- * project has no historical data, this only buys tolerance for slightly-late
- * spans. Data later than this (but still within retention) has no pre-created
- * partition and is rejected; that is rare for near-real-time OTel and the
- * retention filter (Stage 1.6) drops genuinely-old rows upstream anyway.
- */
-export const LATE_DATA_HISTORY_DAYS = 7;
-
 /** Split-table DDL template (column+index+KEY body with a __TABLE__ placeholder,
  * split key/order) per logical table — the SINGLE source the per-project CREATE
  * is built from. Lives in doris/migrations WITHOUT a .up.sql suffix, so
@@ -86,14 +76,15 @@ export type SplitTailOpts = {
   replication: number;
 };
 
-/** dynamic_partition.start (days) + history count for a given retention. */
+/** dynamic_partition.start (days) + pre-created history for a given retention. */
 const partitionWindow = (
   retentionDays: number | null | undefined,
 ): { startDays: number; historyNum: number } => {
   const startDays = retentionDays ?? NO_TTL_START_DAYS;
-  // history_partition_num must not exceed the drop threshold, and stays capped
-  // small so provisioning a fresh project is light.
-  const historyNum = Math.min(LATE_DATA_HISTORY_DAYS, startDays);
+  // Doris rejects loads for an in-retention day when that day has no partition.
+  // Keep the complete retention window materialized so plan upgrades (for
+  // example 30d → 1095d) can immediately import historical telemetry.
+  const historyNum = startDays;
   return { startDays, historyNum };
 };
 

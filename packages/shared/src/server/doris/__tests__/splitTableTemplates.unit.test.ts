@@ -10,7 +10,6 @@ import {
   buildSplitTableStatements,
   resolveMigrationsDir,
   NO_TTL_START_DAYS,
-  LATE_DATA_HISTORY_DAYS,
 } from "../splitTableTemplates";
 
 describe("buildDynamicPartitionTail", () => {
@@ -27,6 +26,7 @@ describe("buildDynamicPartitionTail", () => {
     expect(tail).not.toContain("dynamic_partition.buckets");
     expect(tail).toContain('"dynamic_partition.enable" = "true"');
     expect(tail).toContain('"dynamic_partition.start" = "-30"');
+    expect(tail).toContain('"dynamic_partition.history_partition_num" = "30"');
     expect(tail).toContain('"dynamic_partition.time_zone" = "Etc/UTC"');
     expect(tail).toContain('"dynamic_partition.create_history_partition" = "true"');
     expect(tail).toContain('"replication_allocation" = "tag.location.default: 3"');
@@ -44,11 +44,11 @@ describe("buildDynamicPartitionTail", () => {
     expect(tail).toContain("DISTRIBUTED BY HASH(`id`) BUCKETS AUTO");
     expect(tail).toContain('"enable_unique_key_merge_on_write" = "true"');
     expect(tail).toContain('"dynamic_partition.start" = "-7"');
-    // history capped at min(7, retention) — here retention 7 → 7
+    // History spans the full retention window.
     expect(tail).toContain('"dynamic_partition.history_partition_num" = "7"');
   });
 
-  it("no TTL (retentionDays null) → 10-year threshold + capped history", () => {
+  it("no TTL (retentionDays null) → 10-year threshold + matching history", () => {
     const tail = buildDynamicPartitionTail({
       distributionColumn: "trace_id",
       mergeOnWrite: false,
@@ -58,9 +58,9 @@ describe("buildDynamicPartitionTail", () => {
     expect(tail).toContain(
       `"dynamic_partition.start" = "-${NO_TTL_START_DAYS}"`,
     );
-    // NOT thousands of history partitions — capped at the late-data window
+    // Historical imports remain valid for the full no-TTL window.
     expect(tail).toContain(
-      `"dynamic_partition.history_partition_num" = "${LATE_DATA_HISTORY_DAYS}"`,
+      `"dynamic_partition.history_partition_num" = "${NO_TTL_START_DAYS}"`,
     );
   });
 
@@ -81,7 +81,18 @@ describe("buildAlterTtlStatement (set/change TTL later)", () => {
     expect(
       buildAlterTtlStatement({ physicalTable: "events_full_pid", retentionDays: 14 }),
     ).toBe(
-      'ALTER TABLE `events_full_pid` SET ("dynamic_partition.start" = "-14", "dynamic_partition.history_partition_num" = "7")',
+      'ALTER TABLE `events_full_pid` SET ("dynamic_partition.start" = "-14", "dynamic_partition.history_partition_num" = "14")',
+    );
+  });
+
+  it("creates the complete paid history window on a plan upgrade", () => {
+    expect(
+      buildAlterTtlStatement({
+        physicalTable: "events_full_pid",
+        retentionDays: 1095,
+      }),
+    ).toBe(
+      'ALTER TABLE `events_full_pid` SET ("dynamic_partition.start" = "-1095", "dynamic_partition.history_partition_num" = "1095")',
     );
   });
 
