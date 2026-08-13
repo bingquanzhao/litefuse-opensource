@@ -370,6 +370,22 @@ export const projectsRouter = createTRPCRouter({
         ctx.prisma,
         redis,
       ).invalidateCachedProjectApiKeys(input.projectId);
+
+      // Re-provision the Doris split tables: the project's effective retention
+      // is derived from the (now different) org's paid status
+      // (getSplitRetentionDays), so the split tables' dynamic_partition.start
+      // must be re-applied — free→paid widens it (e.g. 30d → 3y), paid→free
+      // narrows it back. Mirrors the plan-change re-provision in billingService.
+      await enqueueDorisSplitTableProvisioning(input.projectId).catch(
+        (error) => {
+          // The transfer is already persisted; a transient queue failure must
+          // not fail the mutation. The provisioning reconciler retries later.
+          logger.error(
+            `[table-split] failed to re-provision project ${input.projectId} after transfer`,
+            error,
+          );
+        },
+      );
     }),
 
   environmentFilterOptions: protectedProjectProcedure
