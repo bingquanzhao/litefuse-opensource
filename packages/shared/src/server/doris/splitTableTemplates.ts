@@ -31,11 +31,10 @@ export const SPLIT_SCHEMA_VERSION = 2;
 const DYNAMIC_PARTITION_END = 3;
 
 /**
- * "No TTL" (retentionDays null): a 10-year drop threshold ≈ never drops. We do
- * NOT use AUTO PARTITION for the no-TTL case because you cannot later ALTER a
- * dynamic_partition onto an AUTO table and have it drop the pre-existing
- * partitions (verified on Doris 4.0.6) — so tables are dynamic_partition from
- * creation and TTL is set later via buildAlterTtlStatement.
+ * "No TTL" (retentionDays null): a 10-year drop threshold ≈ never drops.
+ * dynamic_partition is present from creation (alongside AUTO PARTITION), so
+ * TTL is retrofittable at any time via ALTER dynamic_partition.start
+ * (buildAlterTtlStatement) and its scheduler drops the auto-created partitions.
  */
 export const NO_TTL_START_DAYS = 3650;
 
@@ -76,34 +75,36 @@ export type SplitTailOpts = {
   replication: number;
 };
 
-/** dynamic_partition.start (days) + pre-created history for a given retention. */
-const partitionWindow = (
-  retentionDays: number | null | undefined,
-): { startDays: number; historyNum: number } => {
-  const startDays = retentionDays ?? NO_TTL_START_DAYS;
-  // Doris rejects loads for an in-retention day when that day has no partition.
-  // Keep the complete retention window materialized so plan upgrades (for
-  // example 30d → 1095d) can immediately import historical telemetry.
-  const historyNum = startDays;
-  return { startDays, historyNum };
-};
+/** dynamic_partition.start magnitude (days) for a given retention. AUTO
+ * PARTITION creates in-retention days on write, so no history pre-creation is
+ * needed — only the drop threshold matters. */
+const startDaysFor = (retentionDays: number | null | undefined): number =>
+  retentionDays ?? NO_TTL_START_DAYS;
 
 /**
- * The dynamic_partition tail that replaces the shared table's `AUTO PARTITION BY
- * … DISTRIBUTED … PROPERTIES(…)`. Tables are ALWAYS dynamic_partition (never
- * AUTO) so TTL can be applied/changed later by altering dynamic_partition.start;
- * an AUTO table cannot have TTL retro-fitted (its pre-existing partitions are
- * not managed by a later-added dynamic_partition).
+ * The partition/distribution/properties tail appended to each split table.
+ *
+ * AUTO PARTITION (by day) + dynamic_partition together (verified on Doris 4.0.6):
+ *   - AUTO PARTITION creates a day partition ON WRITE for whatever start_time
+ *     arrives — including back-dated/late telemetry — so there is NO need to
+ *     pre-materialize history partitions (no create_history_partition /
+ *     history_partition_num, which previously had to span the whole retention
+ *     window and made provisioning heavy).
+ *   - dynamic_partition (from creation) still owns TTL: its scheduler DROPS any
+ *     partition older than `start` days, auto-created ones included, so retention
+ *     works and is retrofittable via ALTER dynamic_partition.start
+ *     (buildAlterTtlStatement). `end` pre-creates a few near-future days as a
+ *     clock-skew buffer so the current day's first write isn't blocked on an
+ *     auto-create.
  *
  * Bucketing is DELEGATED to Doris: emit `DISTRIBUTED BY HASH(col) BUCKETS AUTO`
- * and set NO dynamic_partition.buckets — no magic number in our DDL. Doris Auto
- * Bucket derives the bucket count from estimate_partition_size (default 10GB)
- * and the cluster; a freshly-created (empty) table's partitions land at the
- * 10-bucket default (observed on 4.0.6 via SHOW PARTITIONS — the test partitions
- * held no data). We let Doris own the sizing rather than pin a number.
+ * and set NO dynamic_partition.buckets — no magic number in our DDL. The
+ * cluster's `autobucket_min_buckets` FE config floors the count (a fresh
+ * auto-partition day starts empty, so Auto Bucket would otherwise land at 1);
+ * we let Doris own the sizing rather than pin a number.
  */
 export const buildDynamicPartitionTail = (opts: SplitTailOpts): string => {
-  const { startDays, historyNum } = partitionWindow(opts.retentionDays);
+  const startDays = startDaysFor(opts.retentionDays);
   const props: Array<[string, string]> = [
     ["replication_allocation", `tag.location.default: ${opts.replication}`],
     ...(opts.mergeOnWrite
@@ -115,12 +116,10 @@ export const buildDynamicPartitionTail = (opts: SplitTailOpts): string => {
     ["dynamic_partition.start", `-${startDays}`],
     ["dynamic_partition.end", String(DYNAMIC_PARTITION_END)],
     ["dynamic_partition.prefix", "p"],
-    ["dynamic_partition.create_history_partition", "true"],
-    ["dynamic_partition.history_partition_num", String(historyNum)],
   ];
   const propsSql = props.map(([k, v]) => `    "${k}" = "${v}"`).join(",\n");
   return [
-    `PARTITION BY RANGE(\`start_time\`) ()`,
+    `AUTO PARTITION BY RANGE (date_trunc(\`start_time\`, 'day')) ()`,
     `DISTRIBUTED BY HASH(\`${opts.distributionColumn}\`) BUCKETS AUTO`,
     `PROPERTIES (`,
     propsSql,
@@ -138,11 +137,10 @@ export const buildAlterTtlStatement = (params: {
   physicalTable: string;
   retentionDays?: number | null;
 }): string => {
-  const { startDays, historyNum } = partitionWindow(params.retentionDays);
+  const startDays = startDaysFor(params.retentionDays);
   return (
     `ALTER TABLE \`${params.physicalTable}\` SET (` +
-    `"dynamic_partition.start" = "-${startDays}", ` +
-    `"dynamic_partition.history_partition_num" = "${historyNum}")`
+    `"dynamic_partition.start" = "-${startDays}")`
   );
 };
 
