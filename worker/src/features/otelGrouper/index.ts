@@ -49,7 +49,10 @@ const LANE_READINESS_BACKOFF_MS = 10_000;
 /** `lane-<pid>` → `<pid>`. */
 const laneToProjectId = (lane: string): string =>
   lane.startsWith("lane-") ? lane.slice("lane-".length) : lane;
-import { groupJobLoadLimiter } from "../../queues/otelGroupJobProcessor";
+import {
+  groupJobLoadLimiter,
+  emitGroupJobHealth,
+} from "../../queues/otelGroupJobProcessor";
 
 type RedisHandle = Redis | Cluster;
 
@@ -300,6 +303,15 @@ export class OtelGrouper {
         "langfuse.otel_group.loads_pending",
         groupJobLoadLimiter.pendingCount,
       );
+    }
+    // Human-readable write-path health line every ~60s (the gauge cadence is
+    // ~5s). Leadership-independent — every worker reports its OWN load-path
+    // occupancy + completion percentiles, so a stuck/idle replica is visible
+    // in its own log stream, not hidden behind an aggregate.
+    const emitHealth =
+      this.tickCount % Math.max(1, Math.round(60_000 / this.cfg.tickMs)) === 0;
+    if (emitHealth) {
+      emitGroupJobHealth();
     }
     // ── project-lane domain ──
     if (this.stopped) return;

@@ -119,6 +119,77 @@ const ndjsonBody = (rows: Record<string, unknown>[]): StreamLoadBodySource => {
 const LOAD_OPTS = { format: "json" as const, timeout: 600 };
 
 // ---------------------------------------------------------------------------
+// Rolling per-worker completion stats — backs the periodic
+// [OtelGroupJob.health] line (emitted from the grouper tick). Process-local,
+// like the load semaphore: each worker reports its OWN in-flight loads +
+// completions, so summing the per-replica lines gives the cluster view.
+// ---------------------------------------------------------------------------
+
+type GroupJobSample = {
+  ts: number;
+  /** events_full load time, semaphore wait excluded. */
+  eventsLoadMs: number;
+  eventsMB: number;
+  e2eLagMs: number;
+  deadFiles: number;
+  attempt: number;
+};
+
+const groupJobSamples: GroupJobSample[] = [];
+// Backstop: the health emitter prunes by time every ~60s, but cap length too
+// so a stalled emitter can never grow this unbounded.
+const MAX_GROUP_JOB_SAMPLES = 10_000;
+
+const recordGroupJobSample = (sample: GroupJobSample): void => {
+  groupJobSamples.push(sample);
+  if (groupJobSamples.length > MAX_GROUP_JOB_SAMPLES) {
+    groupJobSamples.splice(0, groupJobSamples.length - MAX_GROUP_JOB_SAMPLES);
+  }
+};
+
+const percentile = (values: number[], p: number): number => {
+  if (values.length === 0) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  return sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))];
+};
+
+/**
+ * Emit one [OtelGroupJob.health] line summarizing THIS worker's group write
+ * path over the trailing window: current load-semaphore occupancy plus
+ * completion aggregates (throughput, load-ms and e2e-lag percentiles). Called
+ * on a ~60s cadence from the grouper tick (which runs on every worker).
+ * Consumed samples are pruned as a side effect.
+ */
+export const emitGroupJobHealth = (
+  windowMs = 60_000,
+  now = Date.now(),
+): void => {
+  const cutoff = now - windowMs;
+  while (groupJobSamples.length > 0 && groupJobSamples[0].ts < cutoff) {
+    groupJobSamples.shift();
+  }
+  const active = groupJobLoadLimiter.activeCount;
+  const pending = groupJobLoadLimiter.pendingCount;
+  const loadsPart = `loads=${active}/${env.LITEFUSE_OTEL_LOAD_CONCURRENCY}${pending > 0 ? `(+${pending} queued)` : ""}`;
+  const windowSec = Math.round(windowMs / 1000);
+  if (groupJobSamples.length === 0) {
+    logger.info(
+      `[OtelGroupJob.health] ${loadsPart} | last ${windowSec}s: idle (0 groups completed)`,
+    );
+    return;
+  }
+  const totalMB = groupJobSamples.reduce((a, s) => a + s.eventsMB, 0);
+  const mbps = ((totalMB * 1000) / windowMs).toFixed(1);
+  const loadMs = groupJobSamples.map((s) => s.eventsLoadMs);
+  const lagSec = groupJobSamples.map((s) => s.e2eLagMs / 1000);
+  const dead = groupJobSamples.reduce((a, s) => a + s.deadFiles, 0);
+  const retries = groupJobSamples.filter((s) => s.attempt > 1).length;
+  logger.info(
+    `[OtelGroupJob.health] ${loadsPart} | last ${windowSec}s: groups=${groupJobSamples.length} events=${totalMB.toFixed(1)}MB@${mbps}MB/s | load ms p50=${percentile(loadMs, 0.5)} p95=${percentile(loadMs, 0.95)} | e2e_lag s p50=${percentile(lagSec, 0.5).toFixed(1)} p95=${percentile(lagSec, 0.95).toFixed(1)}${dead > 0 ? ` | dead_files=${dead}` : ""}${retries > 0 ? ` | retries=${retries}` : ""}`,
+  );
+};
+
+// ---------------------------------------------------------------------------
 // Per-file transform (real implementation; tests fake it via deps)
 // ---------------------------------------------------------------------------
 
@@ -499,6 +570,21 @@ export const processOtelGroupJob = async (
   logger.info(
     `[OtelGroupJob] group=${groupId.slice(0, 12)} files=${entries.length}${deadFiles > 0 ? ` dead_files=${deadFiles}` : ""}${attemptPart} | transform=${transformMs}ms(dl:Σ${downloadMsTotal} xform:Σ${transformCpuMsTotal}) | events_full: ${eventsPart} | scalar: ${scalarPart} | ledger=${ledgerMs}ms | total=${totalMs}ms e2e_lag=${((Date.now() - oldestTs) / 1000).toFixed(1)}s`,
   );
+
+  // Feed the trailing-window aggregates behind [OtelGroupJob.health]. Skip
+  // label-deduped completions: those are idempotent replays that wrote nothing
+  // to Doris, so counting their bytes would inflate the health throughput and
+  // their ~0 load ms would skew the load-ms percentiles low.
+  if (!outcome.dedupedByLabel) {
+    recordGroupJobSample({
+      ts: Date.now(),
+      eventsLoadMs,
+      eventsMB,
+      e2eLagMs: Date.now() - oldestTs,
+      deadFiles,
+      attempt: ctx?.attempt ?? 1,
+    });
+  }
 };
 
 // The ledger lives in POSTGRES (otel_file_ledger), not Doris. Its Doris
