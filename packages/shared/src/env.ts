@@ -101,6 +101,12 @@ const EnvSchema = z.object({
   // DORIS_REPLICATION_NUM the shared-table migrations use): 3 for reliability,
   // 1 for single-BE dev boxes and compute-storage-separated / cloud Doris.
   DORIS_REPLICATION_NUM: z.coerce.number().int().positive().default(3),
+  // Storage page size, in bytes, for newly provisioned events_full tables.
+  LITEFUSE_STORAGE_PAGE_SIZE: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(262_144),
 
   // Analytics backend selection (Doris only)
   LITEFUSE_ANALYTICS_BACKEND: z.enum(["doris"]).default("doris"),

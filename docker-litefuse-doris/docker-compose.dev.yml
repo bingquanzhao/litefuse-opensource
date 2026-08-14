@@ -75,6 +75,9 @@ services:
       DORIS_DB: ${DORIS_DB:-litefuse}
       DORIS_USER: ${DORIS_USER:-root}
       DORIS_PASSWORD: ${DORIS_PASSWORD:-}
+      # This dev compose file runs a single Doris BE; production can override
+      # the value when multiple backends are available.
+      DORIS_REPLICATION_NUM: ${DORIS_REPLICATION_NUM:-1}
       DORIS_MAX_OPEN_CONNECTIONS: ${DORIS_MAX_OPEN_CONNECTIONS:-100}
       DORIS_REQUEST_TIMEOUT_MS: ${DORIS_REQUEST_TIMEOUT_MS:-30000}
       HOSTNAME: "0.0.0.0"

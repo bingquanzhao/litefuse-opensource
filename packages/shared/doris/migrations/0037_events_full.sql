@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS __TABLE__ (
     INDEX idx_source (`source`) USING INVERTED COMMENT 'inverted index for source (otel/ingestion-api-dual-write)',
     INDEX idx_name (`name`) USING INVERTED COMMENT 'inverted index for name (trace/observation name search)',
     INDEX idx_trace_name (`trace_name`) USING INVERTED COMMENT 'inverted index for trace_name (trace name search)',
-    INDEX idx_input (`input`) USING INVERTED PROPERTIES("parser" = "unicode", "support_phrase" = "true") COMMENT 'full-text index for input content search',
-    INDEX idx_output (`output`) USING INVERTED PROPERTIES("parser" = "unicode", "support_phrase" = "true") COMMENT 'full-text index for output content search'
+    INDEX idx_input (`input`) USING INVERTED PROPERTIES("parser" = "unicode", "support_phrase" = "false") COMMENT 'full-text index for input content search',
+    INDEX idx_output (`output`) USING INVERTED PROPERTIES("parser" = "unicode", "support_phrase" = "false") COMMENT 'full-text index for output content search'
 ) ENGINE=OLAP
 DUPLICATE KEY(`trace_id`, `span_id`)

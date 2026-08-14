@@ -55,20 +55,20 @@ export const dorisSearchCondition = (
     }
   }
 
-  // Content search: input/output use the unicode inverted index + MATCH_PHRASE
-  // (phrase / substring semantics, see migration 0037). An empty or
+  // Content search: input/output use the unicode inverted index + MATCH_ALL.
+  // An empty or
   // punctuation-only query does not error, it just matches nothing, so no extra
   // guard is needed.
   if (searchType && searchType.includes("content")) {
     if (context?.type === "observations") {
       conditions.push(
-        `o.input MATCH_PHRASE {searchPhrase: String} OR o.output MATCH_PHRASE {searchPhrase: String}`,
+        `o.input MATCH_ALL {searchPhrase: String} OR o.output MATCH_ALL {searchPhrase: String}`,
       );
     } else {
       // traces queries usually don't search input/output, but it's supported
       // here if the query joins the observations rows.
       conditions.push(
-        `input MATCH_PHRASE {searchPhrase: String} OR output MATCH_PHRASE {searchPhrase: String}`,
+        `input MATCH_ALL {searchPhrase: String} OR output MATCH_ALL {searchPhrase: String}`,
       );
     }
   }
@@ -76,7 +76,7 @@ export const dorisSearchCondition = (
   const params: Record<string, unknown> = {
     searchQuery: searchParam,
   };
-  // MATCH_PHRASE takes the bare term (no % wildcards).
+  // MATCH_ALL takes bare terms (no % wildcards).
   if (searchType?.includes("content")) {
     params.searchPhrase = query;
   }
