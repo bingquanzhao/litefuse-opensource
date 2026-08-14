@@ -166,3 +166,57 @@ describe("projectsRouter.create - project limit enforcement", () => {
     },
   );
 });
+
+describe("projectsRouter.transfer - project limit enforcement", () => {
+  it("rejects a transfer into a cloud:hobby organization with three active projects", async () => {
+    const targetOrgId = "target-project-limit-org";
+    const prisma = {
+      project: {
+        findUnique: jest.fn().mockResolvedValue({
+          id: "project-to-transfer",
+          orgId: ORG_ID,
+        }),
+        count: jest.fn().mockResolvedValue(3),
+        update: jest.fn(),
+      },
+      projectMembership: {
+        deleteMany: jest.fn(),
+      },
+      $queryRaw: jest.fn().mockResolvedValue([]),
+    };
+    const transaction = jest.fn(
+      async (callback: (tx: typeof prisma) => Promise<unknown>) =>
+        callback(prisma),
+    );
+    const session = createSession({ plan: "cloud:hobby" });
+    session.user.organizations[0].projects.push({
+      id: "project-to-transfer",
+      name: "Project To Transfer",
+      role: Role.OWNER,
+    });
+    session.user.organizations.push({
+      id: targetOrgId,
+      name: "Target Project Limit Organization",
+      role: Role.OWNER,
+      plan: "cloud:hobby",
+      cloudConfig: undefined,
+      metadata: {},
+      aiFeaturesEnabled: false,
+      projects: [],
+    });
+    const caller = projectsRouter.createCaller({
+      session,
+      prisma: { ...prisma, $transaction: transaction } as never,
+    } as never);
+
+    await expect(
+      caller.transfer({
+        projectId: "project-to-transfer",
+        targetOrgId,
+      }),
+    ).rejects.toThrow("Free plan allows up to 3 projects per organization");
+
+    expect(prisma.project.update).not.toHaveBeenCalled();
+    expect(prisma.projectMembership.deleteMany).not.toHaveBeenCalled();
+  });
+});

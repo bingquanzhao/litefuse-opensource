@@ -10,7 +10,6 @@ import {
   buildSplitTableStatements,
   resolveMigrationsDir,
   NO_TTL_START_DAYS,
-  LATE_DATA_HISTORY_DAYS,
 } from "../splitTableTemplates";
 
 describe("buildDynamicPartitionTail", () => {
@@ -21,15 +20,23 @@ describe("buildDynamicPartitionTail", () => {
       retentionDays: 30,
       replication: 3,
     });
-    expect(tail).toContain("PARTITION BY RANGE(`start_time`) ()");
+    // AUTO PARTITION by day: partitions are created on write, including for
+    // back-dated telemetry — no history pre-creation needed.
+    expect(tail).toContain(
+      "AUTO PARTITION BY RANGE (date_trunc(`start_time`, 'day')) ()",
+    );
     // Bucketing delegated to Doris: BUCKETS AUTO + no dynamic_partition.buckets.
     expect(tail).toContain("DISTRIBUTED BY HASH(`trace_id`) BUCKETS AUTO");
     expect(tail).not.toContain("dynamic_partition.buckets");
     expect(tail).toContain('"dynamic_partition.enable" = "true"');
     expect(tail).toContain('"dynamic_partition.start" = "-30"');
     expect(tail).toContain('"dynamic_partition.time_zone" = "Etc/UTC"');
-    expect(tail).toContain('"dynamic_partition.create_history_partition" = "true"');
-    expect(tail).toContain('"replication_allocation" = "tag.location.default: 3"');
+    // AUTO PARTITION replaces history pre-creation entirely.
+    expect(tail).not.toContain("history_partition_num");
+    expect(tail).not.toContain("create_history_partition");
+    expect(tail).toContain(
+      '"replication_allocation" = "tag.location.default: 3"',
+    );
     // DUPLICATE table → no MoW property
     expect(tail).not.toContain("enable_unique_key_merge_on_write");
   });
@@ -44,11 +51,9 @@ describe("buildDynamicPartitionTail", () => {
     expect(tail).toContain("DISTRIBUTED BY HASH(`id`) BUCKETS AUTO");
     expect(tail).toContain('"enable_unique_key_merge_on_write" = "true"');
     expect(tail).toContain('"dynamic_partition.start" = "-7"');
-    // history capped at min(7, retention) — here retention 7 → 7
-    expect(tail).toContain('"dynamic_partition.history_partition_num" = "7"');
   });
 
-  it("no TTL (retentionDays null) → 10-year threshold + capped history", () => {
+  it("no TTL (retentionDays null) → 10-year drop threshold", () => {
     const tail = buildDynamicPartitionTail({
       distributionColumn: "trace_id",
       mergeOnWrite: false,
@@ -58,30 +63,29 @@ describe("buildDynamicPartitionTail", () => {
     expect(tail).toContain(
       `"dynamic_partition.start" = "-${NO_TTL_START_DAYS}"`,
     );
-    // NOT thousands of history partitions — capped at the late-data window
-    expect(tail).toContain(
-      `"dynamic_partition.history_partition_num" = "${LATE_DATA_HISTORY_DAYS}"`,
-    );
-  });
-
-  it("short retention caps history at the retention (never > drop threshold)", () => {
-    const tail = buildDynamicPartitionTail({
-      distributionColumn: "trace_id",
-      mergeOnWrite: false,
-      retentionDays: 3,
-      replication: 1,
-    });
-    expect(tail).toContain('"dynamic_partition.start" = "-3"');
-    expect(tail).toContain('"dynamic_partition.history_partition_num" = "3"');
   });
 });
 
 describe("buildAlterTtlStatement (set/change TTL later)", () => {
   it("sets dynamic_partition.start to the new retention", () => {
     expect(
-      buildAlterTtlStatement({ physicalTable: "events_full_pid", retentionDays: 14 }),
+      buildAlterTtlStatement({
+        physicalTable: "events_full_pid",
+        retentionDays: 14,
+      }),
     ).toBe(
-      'ALTER TABLE `events_full_pid` SET ("dynamic_partition.start" = "-14", "dynamic_partition.history_partition_num" = "7")',
+      'ALTER TABLE `events_full_pid` SET ("dynamic_partition.start" = "-14")',
+    );
+  });
+
+  it("moves the drop threshold on a plan upgrade (AUTO PARTITION back-fills)", () => {
+    expect(
+      buildAlterTtlStatement({
+        physicalTable: "events_full_pid",
+        retentionDays: 1095,
+      }),
+    ).toBe(
+      'ALTER TABLE `events_full_pid` SET ("dynamic_partition.start" = "-1095")',
     );
   });
 
@@ -90,7 +94,9 @@ describe("buildAlterTtlStatement (set/change TTL later)", () => {
       physicalTable: "events_full_pid",
       retentionDays: null,
     });
-    expect(sql).toContain(`"dynamic_partition.start" = "-${NO_TTL_START_DAYS}"`);
+    expect(sql).toContain(
+      `"dynamic_partition.start" = "-${NO_TTL_START_DAYS}"`,
+    );
   });
 });
 
@@ -100,15 +106,21 @@ describe("buildSplitTableFromTemplate", () => {
       templateSql: readSplitTemplate("events_full"),
       sharedTable: "events_full",
       physicalTable: "events_full_cmqpid",
-      tail: { ...SPLIT_BASE_TABLE_SHAPES.events_full, retentionDays: 14, replication: 1 },
+      tail: {
+        ...SPLIT_BASE_TABLE_SHAPES.events_full,
+        retentionDays: 14,
+        replication: 1,
+      },
     });
     // placeholder replaced everywhere; renamed with IF NOT EXISTS
     expect(ddl).toMatch(/^CREATE TABLE IF NOT EXISTS `events_full_cmqpid`/);
     expect(ddl).not.toContain("__TABLE__");
     // split KEY drops project_id (constant within a split table)
     expect(ddl).toContain("DUPLICATE KEY(`trace_id`, `span_id`)");
-    // dynamic_partition tail appended (bucketing delegated: BUCKETS AUTO)
-    expect(ddl).toContain("PARTITION BY RANGE(`start_time`) ()");
+    // AUTO PARTITION + dynamic_partition tail appended (bucketing delegated)
+    expect(ddl).toContain(
+      "AUTO PARTITION BY RANGE (date_trunc(`start_time`, 'day')) ()",
+    );
     expect(ddl).toContain("DISTRIBUTED BY HASH(`trace_id`) BUCKETS AUTO");
     expect(ddl).not.toContain("dynamic_partition.buckets");
     expect(ddl).toContain('"dynamic_partition.start" = "-14"');
@@ -120,7 +132,11 @@ describe("buildSplitTableFromTemplate", () => {
         templateSql: "CREATE TABLE `events_full` (`x` int) ENGINE=OLAP",
         sharedTable: "events_full",
         physicalTable: "events_full_x",
-        tail: { ...SPLIT_BASE_TABLE_SHAPES.events_full, retentionDays: 1, replication: 1 },
+        tail: {
+          ...SPLIT_BASE_TABLE_SHAPES.events_full,
+          retentionDays: 1,
+          replication: 1,
+        },
       }),
     ).toThrow(/no __TABLE__ placeholder/);
   });
@@ -139,7 +155,9 @@ describe("buildSplitTableStatements (reads OUR split templates)", () => {
       new RegExp("^CREATE TABLE IF NOT EXISTS `events_full_" + PID + "`"),
     );
     expect(eventsFull).toContain('"dynamic_partition.start" = "-30"');
-    expect(eventsFull).not.toContain("AUTO PARTITION");
+    expect(eventsFull).toContain(
+      "AUTO PARTITION BY RANGE (date_trunc(`start_time`, 'day')) ()",
+    );
     // split key shape + full column schema flowed through (not a truncated stub)
     expect(eventsFull).toContain("DUPLICATE KEY(`trace_id`, `span_id`)");
     expect(eventsFull).toContain("`experiment_id`");
@@ -152,7 +170,9 @@ describe("buildSplitTableStatements (reads OUR split templates)", () => {
       new RegExp("^CREATE TABLE IF NOT EXISTS `traces_scalar_" + PID + "`"),
     );
     expect(tracesScalar).toContain("UNIQUE KEY(`id`, `start_time`)");
-    expect(tracesScalar).toContain('"enable_unique_key_merge_on_write" = "true"');
+    expect(tracesScalar).toContain(
+      '"enable_unique_key_merge_on_write" = "true"',
+    );
     expect(tracesScalar).not.toContain("`start_time_date`");
     expect(tracesScalar).not.toContain("`event_ts`");
     // traces_scalar is MoW-mutated (bookmark/public/tags) → keeps real updated_at
@@ -173,7 +193,10 @@ describe("split-table schema drift guard", () => {
     const offenders: string[] = [];
     for (const f of readdirSync(dir)) {
       if (!f.endsWith(".up.sql")) continue;
-      if (f.includes("create_events_full") || f.includes("create_traces_scalar"))
+      if (
+        f.includes("create_events_full") ||
+        f.includes("create_traces_scalar")
+      )
         continue;
       const sql = readFileSync(`${dir}/${f}`, "utf8");
       // strip line comments so the ALTER example inside a comment doesn't trip it
@@ -202,6 +225,8 @@ describe("buildTraceMetricsAggMV", () => {
       "SUM(CASE WHEN is_root = 0       THEN 1 ELSE 0 END) AS tm_observation_count",
     );
     expect(mv).toContain("MAX(created_at) AS tm_max_created_at");
-    expect(mv).toContain("GROUP BY project_id, trace_id, date_trunc(start_time, 'day')");
+    expect(mv).toContain(
+      "GROUP BY project_id, trace_id, date_trunc(start_time, 'day')",
+    );
   });
 });

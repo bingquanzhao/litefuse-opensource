@@ -235,6 +235,15 @@ local ripe = bytes >= targetBytes or rows >= targetRows
 if not ripe then
   return nil
 end
+-- Which trigger fired (precedence: size caps → file cap → corrupt → timeout).
+-- Surfaced on the [OtelGrouper] cut line so a timeout-dominated stream (groups
+-- consistently below target) is distinguishable from a size/rate-driven one.
+local reason
+if bytes >= targetBytes then reason = 'bytes'
+elseif rows >= targetRows then reason = 'rows'
+elseif window >= maxFiles then reason = 'files'
+elseif sawBad then reason = 'bad'
+else reason = 'timeout' end
 -- Quarantine pass (writes start here): move undecodable entries aside so the
 -- LTRIM below can consume the whole window without losing them.
 if sawBad then
@@ -256,7 +265,7 @@ local groupId = redis.sha1hex(table.concat(fileKeys, ','))
 local manifest = '[' .. table.concat(raws, ',') .. ']'
 redis.call('HSET', KEYS[3], groupId, manifest)
 redis.call('LTRIM', KEYS[2], window, -1)
-return { groupId, manifest }
+return { groupId, manifest, reason }
 `;
 
 /**
@@ -342,7 +351,7 @@ type PipelineCommands = RedisHandle & {
     maxFiles: number,
     nowMs: number,
     flushMs: number,
-  ): Promise<[string, string] | null>;
+  ): Promise<[string, string, string] | null>;
   otelReconcile(
     pendingKey: string,
     windowSize: number,
@@ -426,11 +435,26 @@ export const removeLaneFromIndex = async (
   await redis.srem(otelLaneIndexKey(), lane);
 };
 
+/**
+ * Which dispatch-gate condition triggered the cut (see CUT_GROUP_LUA).
+ * "recovery" is not a live trigger — it tags a manifest republished by crash
+ * recovery, whose original trigger was not persisted.
+ */
+export type OtelCutReason =
+  | "bytes"
+  | "rows"
+  | "files"
+  | "bad"
+  | "timeout"
+  | "recovery";
+
 export type OtelGroupCut = {
   groupId: string;
   entries: OtelPendingEntryType[];
   /** Raw manifest exactly as persisted in staging (reconcile needs it). */
   rawEntries: string[];
+  /** The dispatch-gate trigger for this cut. */
+  reason: OtelCutReason;
 };
 
 /** Parse a staging manifest (JSON array of raw entry objects). */
@@ -459,8 +483,15 @@ export const cutOtelGroup = async (params: {
   flushMs: number;
   now?: number;
 }): Promise<OtelGroupCut | null> => {
-  const { redis, groupingKey, token, targetBytes, targetRows, maxFiles, flushMs } =
-    params;
+  const {
+    redis,
+    groupingKey,
+    token,
+    targetBytes,
+    targetRows,
+    maxFiles,
+    flushMs,
+  } = params;
   const result = await ensureCommands(redis).otelCutGroup(
     otelGrouperLockKey(groupingKey),
     otelPendingListKey(groupingKey),
@@ -474,9 +505,14 @@ export const cutOtelGroup = async (params: {
     flushMs,
   );
   if (!result) return null;
-  const [groupId, manifest] = result;
+  const [groupId, manifest, reason] = result;
   const { entries, rawEntries } = parseManifest(manifest);
-  return { groupId, entries, rawEntries };
+  return {
+    groupId,
+    entries,
+    rawEntries,
+    reason: (reason as OtelCutReason) ?? "timeout",
+  };
 };
 
 /**
@@ -578,7 +614,7 @@ export const readOtelStagingManifest = async (params: {
   if (manifest == null) return null;
   try {
     const { entries, rawEntries } = parseManifest(manifest);
-    return { groupId, entries, rawEntries };
+    return { groupId, entries, rawEntries, reason: "recovery" };
   } catch (e) {
     // A manifest that no longer parses is a bug, but it must not wedge the
     // recovery scan: surface loudly and let the operator inspect the field.
@@ -598,14 +634,18 @@ export const clearOtelStagingManifest = async (params: {
   groupingKey: string;
   groupId: string;
 }): Promise<void> => {
-  await params.redis.hdel(otelStagingHashKey(params.groupingKey), params.groupId);
+  await params.redis.hdel(
+    otelStagingHashKey(params.groupingKey),
+    params.groupId,
+  );
 };
 
 /** Depth probes for monitoring (pending backlog / quarantine). */
 export const otelPendingDepth = async (params: {
   redis: RedisHandle;
   groupingKey: string;
-}): Promise<number> => params.redis.llen(otelPendingListKey(params.groupingKey));
+}): Promise<number> =>
+  params.redis.llen(otelPendingListKey(params.groupingKey));
 
 export const otelQuarantineDepth = async (params: {
   redis: RedisHandle;
@@ -621,7 +661,10 @@ export const otelPendingOldestAgeMs = async (params: {
   groupingKey: string;
   now?: number;
 }): Promise<number | null> => {
-  const head = await params.redis.lindex(otelPendingListKey(params.groupingKey), 0);
+  const head = await params.redis.lindex(
+    otelPendingListKey(params.groupingKey),
+    0,
+  );
   if (head == null) return null;
   try {
     const entry = OtelPendingEntry.parse(JSON.parse(head));

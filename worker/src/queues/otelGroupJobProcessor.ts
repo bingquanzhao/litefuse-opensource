@@ -119,6 +119,77 @@ const ndjsonBody = (rows: Record<string, unknown>[]): StreamLoadBodySource => {
 const LOAD_OPTS = { format: "json" as const, timeout: 600 };
 
 // ---------------------------------------------------------------------------
+// Rolling per-worker completion stats — backs the periodic
+// [OtelGroupJob.health] line (emitted from the grouper tick). Process-local,
+// like the load semaphore: each worker reports its OWN in-flight loads +
+// completions, so summing the per-replica lines gives the cluster view.
+// ---------------------------------------------------------------------------
+
+type GroupJobSample = {
+  ts: number;
+  /** events_full load time, semaphore wait excluded. */
+  eventsLoadMs: number;
+  eventsMB: number;
+  e2eLagMs: number;
+  deadFiles: number;
+  attempt: number;
+};
+
+const groupJobSamples: GroupJobSample[] = [];
+// Backstop: the health emitter prunes by time every ~60s, but cap length too
+// so a stalled emitter can never grow this unbounded.
+const MAX_GROUP_JOB_SAMPLES = 10_000;
+
+const recordGroupJobSample = (sample: GroupJobSample): void => {
+  groupJobSamples.push(sample);
+  if (groupJobSamples.length > MAX_GROUP_JOB_SAMPLES) {
+    groupJobSamples.splice(0, groupJobSamples.length - MAX_GROUP_JOB_SAMPLES);
+  }
+};
+
+const percentile = (values: number[], p: number): number => {
+  if (values.length === 0) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  return sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))];
+};
+
+/**
+ * Emit one [OtelGroupJob.health] line summarizing THIS worker's group write
+ * path over the trailing window: current load-semaphore occupancy plus
+ * completion aggregates (throughput, load-ms and e2e-lag percentiles). Called
+ * on a ~60s cadence from the grouper tick (which runs on every worker).
+ * Consumed samples are pruned as a side effect.
+ */
+export const emitGroupJobHealth = (
+  windowMs = 60_000,
+  now = Date.now(),
+): void => {
+  const cutoff = now - windowMs;
+  while (groupJobSamples.length > 0 && groupJobSamples[0].ts < cutoff) {
+    groupJobSamples.shift();
+  }
+  const active = groupJobLoadLimiter.activeCount;
+  const pending = groupJobLoadLimiter.pendingCount;
+  const loadsPart = `loads=${active}/${env.LITEFUSE_OTEL_LOAD_CONCURRENCY}${pending > 0 ? `(+${pending} queued)` : ""}`;
+  const windowSec = Math.round(windowMs / 1000);
+  if (groupJobSamples.length === 0) {
+    logger.info(
+      `[OtelGroupJob.health] ${loadsPart} | last ${windowSec}s: idle (0 groups completed)`,
+    );
+    return;
+  }
+  const totalMB = groupJobSamples.reduce((a, s) => a + s.eventsMB, 0);
+  const mbps = ((totalMB * 1000) / windowMs).toFixed(1);
+  const loadMs = groupJobSamples.map((s) => s.eventsLoadMs);
+  const lagSec = groupJobSamples.map((s) => s.e2eLagMs / 1000);
+  const dead = groupJobSamples.reduce((a, s) => a + s.deadFiles, 0);
+  const retries = groupJobSamples.filter((s) => s.attempt > 1).length;
+  logger.info(
+    `[OtelGroupJob.health] ${loadsPart} | last ${windowSec}s: groups=${groupJobSamples.length} events=${totalMB.toFixed(1)}MB@${mbps}MB/s | load ms p50=${percentile(loadMs, 0.5)} p95=${percentile(loadMs, 0.95)} | e2e_lag s p50=${percentile(lagSec, 0.5).toFixed(1)} p95=${percentile(lagSec, 0.95).toFixed(1)}${dead > 0 ? ` | dead_files=${dead}` : ""}${retries > 0 ? ` | retries=${retries}` : ""}`,
+  );
+};
+
+// ---------------------------------------------------------------------------
 // Per-file transform (real implementation; tests fake it via deps)
 // ---------------------------------------------------------------------------
 
@@ -145,7 +216,11 @@ export type GroupJobDeps = {
     body: StreamLoadBodySource,
     recordCount: number,
     options: Record<string, unknown>,
-  ) => Promise<StreamLoadOutcome>;
+    // waitedMs: time this load spent queued on the load semaphore before the
+    // actual Doris call. Threaded back so the per-group line can split wall
+    // into wait vs load — a saturated semaphore no longer masquerades as a
+    // slow Doris (high ms, low MB/s).
+  ) => Promise<StreamLoadOutcome & { waitedMs?: number }>;
   ledgerExists: (groupId: string) => Promise<boolean>;
   /** Idempotent PG write of the completion ledger (one row per fileKey). */
   persistLedger: (params: {
@@ -172,6 +247,10 @@ export type GroupJobDeps = {
 export const processOtelGroupJob = async (
   payload: OtelGroupIngestionEventType,
   deps: GroupJobDeps,
+  // BullMQ owns all retries (a load never retries internally), so a retry
+  // re-runs the WHOLE job — surfaced as attempt=N on the completion line so a
+  // slow group that is actually a replay is not mistaken for a slow load.
+  ctx?: { attempt?: number },
 ): Promise<void> => {
   const startedAt = Date.now();
   const { groupId } = payload;
@@ -235,12 +314,19 @@ export const processOtelGroupJob = async (
   // lives on); anything else fails the job → BullMQ replay.
   const limit = pLimit(deps.transformConcurrency);
   const transformed: TransformedFile[] = [];
+  // Σ over files (they run concurrently under the transform semaphore, so
+  // these can exceed the phase wall — they are for the download-bound vs
+  // cpu-bound ratio, not a wall-clock breakdown).
+  let downloadMsTotal = 0;
+  let transformCpuMsTotal = 0;
   await Promise.all(
     entries.map((entry) =>
       limit(async () => {
         let raw: string;
         try {
+          const tDl = Date.now();
           raw = await deps.downloadFile(entry.fileKey);
+          downloadMsTotal += Date.now() - tDl;
         } catch (e) {
           // S3 errors are transient by presumption — fail the job.
           throw new Error(
@@ -248,7 +334,9 @@ export const processOtelGroupJob = async (
           );
         }
         try {
+          const tXform = Date.now();
           const t = await deps.transformFile(entry, raw);
+          transformCpuMsTotal += Date.now() - tXform;
           transformed.push({ entry, ...t });
         } catch (e) {
           if (isDeterministicIngestError(e)) {
@@ -315,7 +403,7 @@ export const processOtelGroupJob = async (
   const hadEventsBody = eventsBody !== null;
   const eventsBytes = eventsBody?.byteLength ?? 0;
   const tEvents = Date.now();
-  let outcome: StreamLoadOutcome;
+  let outcome: StreamLoadOutcome & { waitedMs?: number };
   try {
     outcome = eventsBody
       ? await deps.streamLoadBody(eventsTable, eventsBody, eventRowCount, {
@@ -344,6 +432,8 @@ export const processOtelGroupJob = async (
   }
   eventsBody = null; // release the group-sized Buffers before the scalar load
   const eventsMs = Date.now() - tEvents;
+  const eventsWaitMs = outcome.waitedMs ?? 0;
+  const eventsLoadMs = Math.max(0, eventsMs - eventsWaitMs);
 
   // ④ traces_scalar (MoW, no label). Delete-protection gate — DUAL condition
   // (design §3.3-3 / review B1): skip ONLY when the label deduped AND the
@@ -361,6 +451,7 @@ export const processOtelGroupJob = async (
   }
   const tScalar = Date.now();
   let scalarDeduped = false;
+  let scalarWaitMs = 0;
   if (scalarRows && scalarRowCount > 0 && !skipScalar) {
     const scalarBody = ndjsonBody(scalarRows);
     scalarRows = null;
@@ -376,6 +467,7 @@ export const processOtelGroupJob = async (
         { ...LOAD_OPTS, label: labelForGroupTable(groupId, "traces_scalar") },
       );
       scalarDeduped = scalarOutcome.dedupedByLabel;
+      scalarWaitMs = scalarOutcome.waitedMs ?? 0;
     } catch (e) {
       // Same "table doesn't exist" three-way as the events load (③). Reachable
       // only when traces_scalar_<pid> is lost AFTER go-live (ops DROP, rebuild
@@ -403,6 +495,7 @@ export const processOtelGroupJob = async (
   }
   scalarRows = null;
   const scalarMs = Date.now() - tScalar;
+  const scalarLoadMs = Math.max(0, scalarMs - scalarWaitMs);
 
   // ⑤ Side effects BEFORE ack. Eval scheduling is best-effort (impl swallows
   // errors — replays may re-schedule, declared boundary); trace_sessions
@@ -421,7 +514,7 @@ export const processOtelGroupJob = async (
   >();
   for (const t of transformed) {
     for (const [sessionId, environment] of t.sessions) {
-      sessions.set(`${t.entry.projectId} ${sessionId}`, {
+      sessions.set(`${t.entry.projectId}\u0000${sessionId}`, {
         id: sessionId,
         projectId: t.entry.projectId,
         environment,
@@ -456,21 +549,42 @@ export const processOtelGroupJob = async (
   const totalMs = Date.now() - startedAt;
   const eventsMB = eventsBytes / (1024 * 1024);
   const oldestTs = Math.min(...entries.map((e) => e.ts));
+  // MB/s is computed off LOAD ms (wall minus semaphore wait) so a saturated
+  // load semaphore no longer deflates the reported Doris throughput.
+  const mbps = (mb: number, ms: number): string =>
+    ms > 0 ? ((mb * 1000) / ms).toFixed(1) : "∞";
   const eventsPart = outcome.dedupedByLabel
     ? "LABEL_DEDUP"
     : hadEventsBody
-      ? `${eventsMs}ms ${eventsMB.toFixed(1)}MB ${eventRowCount}rows ${eventsMs > 0 ? ((eventsMB * 1000) / eventsMs).toFixed(1) : "∞"}MB/s`
+      ? `wall=${eventsMs}ms(wait=${eventsWaitMs} load=${eventsLoadMs}) ${eventsMB.toFixed(1)}MB ${eventRowCount}rows ${mbps(eventsMB, eventsLoadMs)}MB/s`
       : "none";
   const scalarPart = skipScalar
     ? "SKIPPED(gate)"
     : scalarDeduped
       ? "LABEL_DEDUP"
       : scalarRowCount > 0
-        ? `${scalarMs}ms ${scalarRowCount}rows`
+        ? `wall=${scalarMs}ms(wait=${scalarWaitMs} load=${scalarLoadMs}) ${scalarRowCount}rows`
         : "none";
+  const attemptPart =
+    ctx?.attempt && ctx.attempt > 1 ? ` attempt=${ctx.attempt}` : "";
   logger.info(
-    `[OtelGroupJob] group=${groupId.slice(0, 12)} files=${entries.length}${deadFiles > 0 ? ` dead_files=${deadFiles}` : ""} | transform=${transformMs}ms | events_full: ${eventsPart} | scalar: ${scalarPart} | ledger=${ledgerMs}ms | total=${totalMs}ms e2e_lag=${((Date.now() - oldestTs) / 1000).toFixed(1)}s`,
+    `[OtelGroupJob] group=${groupId.slice(0, 12)} files=${entries.length}${deadFiles > 0 ? ` dead_files=${deadFiles}` : ""}${attemptPart} | transform=${transformMs}ms(dl:Σ${downloadMsTotal} xform:Σ${transformCpuMsTotal}) | events_full: ${eventsPart} | scalar: ${scalarPart} | ledger=${ledgerMs}ms | total=${totalMs}ms e2e_lag=${((Date.now() - oldestTs) / 1000).toFixed(1)}s`,
   );
+
+  // Feed the trailing-window aggregates behind [OtelGroupJob.health]. Skip
+  // label-deduped completions: those are idempotent replays that wrote nothing
+  // to Doris, so counting their bytes would inflate the health throughput and
+  // their ~0 load ms would skew the load-ms percentiles low.
+  if (!outcome.dedupedByLabel) {
+    recordGroupJobSample({
+      ts: Date.now(),
+      eventsLoadMs,
+      eventsMB,
+      e2eLagMs: Date.now() - oldestTs,
+      deadFiles,
+      attempt: ctx?.attempt ?? 1,
+    });
+  }
 };
 
 // The ledger lives in POSTGRES (otel_file_ledger), not Doris. Its Doris
@@ -513,7 +627,7 @@ export const buildGroupJobDeps = (params: {
     // [OtelGroupJob] line.
     streamLoadBody: async (table, body, recordCount, options) => {
       const enqueued = Date.now();
-      return groupJobLoadLimiter(() => {
+      return groupJobLoadLimiter(async () => {
         const waitedMs = Date.now() - enqueued;
         recordHistogram("langfuse.otel_group.load_semaphore_wait_ms", waitedMs);
         if (waitedMs > 1_000) {
@@ -521,7 +635,15 @@ export const buildGroupJobDeps = (params: {
             `[OtelGroupJob] load semaphore wait ${waitedMs}ms for ${table} (pending=${groupJobLoadLimiter.pendingCount}) — LITEFUSE_OTEL_LOAD_CONCURRENCY saturated; per-load ms in the job line includes this wait`,
           );
         }
-        return client.streamLoadBody(table, body, recordCount, options);
+        const outcome = await client.streamLoadBody(
+          table,
+          body,
+          recordCount,
+          options,
+        );
+        // Thread the semaphore wait back so the caller can split wall into
+        // wait vs load (the [OtelGroupJob] line does this per table).
+        return { ...outcome, waitedMs };
       });
     },
     ledgerExists: async (groupId) => {

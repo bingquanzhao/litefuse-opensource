@@ -240,6 +240,47 @@ export const toTraceScalarRecord = (
 export class IngestionService {
   private promptService: PromptService;
 
+  // Group-scoped in-memory memo for the two per-span enrichment lookups. This
+  // instance lives for exactly one otel group job (constructed per job in
+  // otelIngestionQueue), so these are bounded by the group's DISTINCT (model)
+  // and (prompt, version) keys — a handful — collapsing the 10k+ per-span
+  // Redis/PG round-trips that dominated transform time (each findModel /
+  // getPrompt does a Redis GET even on cache hit). Promises (not resolved
+  // values) are stored so concurrent spans/files sharing this instance dedupe
+  // even an in-flight lookup. A rejected lookup stays cached: it fails the
+  // job, which is the intended transient-error path (BullMQ replays with a
+  // fresh instance → fresh memo).
+  private modelMemo = new Map<string, ReturnType<typeof findModel>>();
+  private promptMemo = new Map<
+    string,
+    ReturnType<PromptService["getPrompt"]>
+  >();
+
+  private getModelMemoized(params: {
+    projectId: string;
+    model: string;
+  }): ReturnType<typeof findModel> {
+    const key = `${params.projectId}\u0000${params.model}`;
+    let cached = this.modelMemo.get(key);
+    if (!cached) {
+      cached = findModel(params);
+      this.modelMemo.set(key, cached);
+    }
+    return cached;
+  }
+
+  private getPromptMemoized(
+    params: Parameters<PromptService["getPrompt"]>[0],
+  ): ReturnType<PromptService["getPrompt"]> {
+    const key = `${params.projectId}\u0000${params.promptName}\u0000${params.version ?? ""}\u0000${params.label ?? ""}`;
+    let cached = this.promptMemo.get(key);
+    if (!cached) {
+      cached = this.promptService.getPrompt(params);
+      this.promptMemo.set(key, cached);
+    }
+    return cached;
+  }
+
   constructor(
     private redis: Redis | Cluster,
     private prisma: PrismaClient,
@@ -324,7 +365,7 @@ export class IngestionService {
     const [prompt, generationUsage] = await Promise.all([
       // Lookup prompt by name and version
       eventData.promptName && eventData.promptVersion
-        ? this.promptService.getPrompt({
+        ? this.getPromptMemoized({
             projectId: eventData.projectId,
             promptName: eventData.promptName,
             version:
@@ -1292,7 +1333,7 @@ export class IngestionService {
     const { projectId, observationRecord } = params;
     const { model: internalModel, pricingTiers } =
       observationRecord.provided_model_name
-        ? await findModel({
+        ? await this.getModelMemoized({
             projectId,
             model: observationRecord.provided_model_name,
           })

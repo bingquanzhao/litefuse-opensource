@@ -219,6 +219,7 @@ const isGroupPayload = (
  */
 const processGroupShapedJob = async (
   payload: OtelGroupIngestionEventType,
+  ctx?: { attempt?: number },
 ): Promise<void> => {
   if (!redis) throw new Error("Redis not available");
   if (!prisma) throw new Error("Prisma not available");
@@ -290,7 +291,7 @@ const processGroupShapedJob = async (
   };
 
   try {
-    await processOtelGroupJob(payload, deps);
+    await processOtelGroupJob(payload, deps, ctx);
   } catch (e) {
     logger.error(
       `Failed otel group job ${payload.groupId} (${payload.entries.length} files)`,
@@ -308,7 +309,10 @@ export const otelIngestionQueueProcessor: Processor = async (
   // path below (kept for the grouping-off mode and in-flight jobs during
   // rollout).
   if (isGroupPayload(job.data.payload)) {
-    return processGroupShapedJob(job.data.payload);
+    return processGroupShapedJob(job.data.payload, {
+      // attemptsMade is 0 on the first run; present it 1-based.
+      attempt: (job.attemptsMade ?? 0) + 1,
+    });
   }
   const payload = job.data.payload;
   try {

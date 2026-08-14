@@ -11,6 +11,8 @@ import {
   startSplitCacheRefresh,
 } from "@langfuse/shared/src/server";
 
+const DEFAULT_INITIAL_PROJECT_RETENTION_DAYS = 30;
+
 // Doris per-project table-split (universal): keep the split-project snapshot
 // warm so the synchronous isSplitProject can answer from memory. Loads the PG
 // control table; an empty table just means every project reads the shared
@@ -98,9 +100,12 @@ if (env.LITEFUSE_INIT_ORG_ID) {
 
   // Create Project: Org -> Project
   if (env.LITEFUSE_INIT_PROJECT_ID) {
-    let retentionDays: number | null = null;
+    // Seeded dev projects must start with a bounded retention window even when
+    // the org is later upgraded; otherwise a paid project with no explicit
+    // Project.retentionDays defaults to the three-year paid window.
+    let retentionDays = DEFAULT_INITIAL_PROJECT_RETENTION_DAYS;
     const hasRetentionEntitlement = hasEntitlementBasedOnPlan({
-      plan: getOrganizationPlanServerSide(),
+      plan: getOrganizationPlanServerSide(cloudConfig),
       entitlement: "data-retention",
     });
     if (env.LITEFUSE_INIT_PROJECT_RETENTION && hasRetentionEntitlement) {
