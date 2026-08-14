@@ -116,7 +116,7 @@ describe("buildSplitTableFromTemplate", () => {
     expect(ddl).toMatch(/^CREATE TABLE IF NOT EXISTS `events_full_cmqpid`/);
     expect(ddl).not.toContain("__TABLE__");
     // split KEY drops project_id (constant within a split table)
-    expect(ddl).toContain("DUPLICATE KEY(`trace_id`, `span_id`)");
+    expect(ddl).toContain("DUPLICATE KEY(`trace_id`, `start_time`, `span_id`)");
     // AUTO PARTITION + dynamic_partition tail appended (bucketing delegated)
     expect(ddl).toContain(
       "AUTO PARTITION BY RANGE (date_trunc(`start_time`, 'day')) ()",
@@ -159,7 +159,7 @@ describe("buildSplitTableStatements (reads OUR split templates)", () => {
       "AUTO PARTITION BY RANGE (date_trunc(`start_time`, 'day')) ()",
     );
     // split key shape + full column schema flowed through (not a truncated stub)
-    expect(eventsFull).toContain("DUPLICATE KEY(`trace_id`, `span_id`)");
+    expect(eventsFull).toContain("DUPLICATE KEY(`trace_id`, `start_time`, `span_id`)");
     expect(eventsFull).toContain("`experiment_id`");
     // removed columns must NOT be present
     expect(eventsFull).not.toContain("`is_deleted`");

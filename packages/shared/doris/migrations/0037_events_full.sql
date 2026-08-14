@@ -10,17 +10,19 @@
 --   * table name is a __TABLE__ placeholder;
 --   * DUPLICATE KEY drops project_id — a split table holds ONE project, so
 --     project_id is constant and wasted in the sort key. Key = (trace_id,
---     span_id); columns are reordered so the key is an ordered prefix
---     (project_id moves below span_id);
+--     start_time, span_id): start_time sits in the sort key so within a
+--     day-partition rows order by time, giving segment min/max prefix pruning
+--     on start_time-range scans. Columns are reordered so the key is an ordered
+--     prefix (start_time moves above span_id; project_id moves below it);
 --   * no partition/dist/PROPERTIES tail here — appended per-project at build
 --     time (dynamic_partition for retrofittable TTL).
 -- See 0037 for the per-column semantics/comments.
 
 CREATE TABLE IF NOT EXISTS __TABLE__ (
     `trace_id` varchar(64),
+    `start_time` DateTime(3) NOT NULL,
     `span_id` varchar(64) NOT NULL,
     `project_id` varchar(64) NOT NULL,
-    `start_time` DateTime(3) NOT NULL,
 
     `parent_span_id` String,
     `is_root` TINYINT DEFAULT '0',
@@ -116,4 +118,4 @@ CREATE TABLE IF NOT EXISTS __TABLE__ (
     INDEX idx_input (`input`) USING INVERTED PROPERTIES("parser" = "unicode", "support_phrase" = "true") COMMENT 'full-text index for input content search',
     INDEX idx_output (`output`) USING INVERTED PROPERTIES("parser" = "unicode", "support_phrase" = "true") COMMENT 'full-text index for output content search'
 ) ENGINE=OLAP
-DUPLICATE KEY(`trace_id`, `span_id`)
+DUPLICATE KEY(`trace_id`, `start_time`, `span_id`)

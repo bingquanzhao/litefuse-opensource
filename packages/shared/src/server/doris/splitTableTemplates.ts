@@ -25,7 +25,7 @@ import { join } from "path";
  */
 
 /** Bump when the generated tail/MV shape changes; recorded in the schema-version gate. */
-export const SPLIT_SCHEMA_VERSION = 3;
+export const SPLIT_SCHEMA_VERSION = 4;
 
 /** Future day-partitions dynamic_partition pre-creates (clock-skew buffer). */
 const DYNAMIC_PARTITION_END = 3;
