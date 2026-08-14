@@ -119,6 +119,7 @@ export const provisionSplitTablesForProject = async (params: {
     projectId,
     retentionDays: params.retentionDays ?? null,
     replication,
+    storagePageSize: env.LITEFUSE_STORAGE_PAGE_SIZE,
   });
 
   await commandDoris({

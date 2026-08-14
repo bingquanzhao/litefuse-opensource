@@ -47,6 +47,7 @@ services:
       DORIS_PASSWORD: ${DORIS_PASSWORD:-}
       DORIS_MAX_OPEN_CONNECTIONS: ${DORIS_MAX_OPEN_CONNECTIONS:-100}
       DORIS_REQUEST_TIMEOUT_MS: ${DORIS_REQUEST_TIMEOUT_MS:-30000}
+      LITEFUSE_STORAGE_PAGE_SIZE: ${LITEFUSE_STORAGE_PAGE_SIZE:-262144}
       # Single-BE bundled Doris: tables must be created with 1 replica
       # (migration runner default is the reliability-safe 3).
       DORIS_REPLICATION_NUM: ${DORIS_REPLICATION_NUM:-1}

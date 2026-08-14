@@ -150,6 +150,7 @@ describe("buildSplitTableStatements (reads OUR split templates)", () => {
       projectId: PID,
       retentionDays: 30,
       replication: 1,
+      storagePageSize: 262_144,
     });
     expect(eventsFull).toMatch(
       new RegExp("^CREATE TABLE IF NOT EXISTS `events_full_" + PID + "`"),
@@ -161,6 +162,7 @@ describe("buildSplitTableStatements (reads OUR split templates)", () => {
     // split key shape + full column schema flowed through (not a truncated stub)
     expect(eventsFull).toContain("DUPLICATE KEY(`trace_id`, `start_time`, `span_id`)");
     expect(eventsFull).toContain("`experiment_id`");
+    expect(eventsFull).toContain('"storage_page_size" = "262144"');
     // removed columns must NOT be present
     expect(eventsFull).not.toContain("`is_deleted`");
     expect(eventsFull).not.toContain("`event_ts`");
@@ -170,6 +172,7 @@ describe("buildSplitTableStatements (reads OUR split templates)", () => {
       new RegExp("^CREATE TABLE IF NOT EXISTS `traces_scalar_" + PID + "`"),
     );
     expect(tracesScalar).toContain("UNIQUE KEY(`id`, `start_time`)");
+    expect(tracesScalar).not.toContain("storage_page_size");
     expect(tracesScalar).toContain(
       '"enable_unique_key_merge_on_write" = "true"',
     );

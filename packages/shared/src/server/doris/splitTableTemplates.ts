@@ -73,6 +73,8 @@ export type SplitTailOpts = {
   retentionDays?: number | null;
   /** Replication factor (tag.location.default). */
   replication: number;
+  /** Optional storage page size, in bytes. Only events_full supplies this. */
+  storagePageSize?: number;
 };
 
 /** dynamic_partition.start magnitude (days) for a given retention. AUTO
@@ -107,6 +109,12 @@ export const buildDynamicPartitionTail = (opts: SplitTailOpts): string => {
   const startDays = startDaysFor(opts.retentionDays);
   const props: Array<[string, string]> = [
     ["replication_allocation", `tag.location.default: ${opts.replication}`],
+    ...(opts.storagePageSize !== undefined
+      ? ([["storage_page_size", String(opts.storagePageSize)]] as [
+          string,
+          string,
+        ][])
+      : []),
     ...(opts.mergeOnWrite
       ? ([["enable_unique_key_merge_on_write", "true"]] as [string, string][])
       : []),
@@ -251,14 +259,20 @@ export const buildSplitTableStatements = (params: {
   /** null/undefined = provision with no TTL; set later via buildAlterTtlStatement. */
   retentionDays?: number | null;
   replication: number;
+  /** events_full storage page size, in bytes. */
+  storagePageSize: number;
 }): { eventsFull: string; tracesScalar: string; mv: string } => {
-  const { projectId, retentionDays, replication } = params;
+  const { projectId, retentionDays, replication, storagePageSize } = params;
   const tailBase = { retentionDays, replication };
   const eventsFull = buildSplitTableFromTemplate({
     templateSql: readSplitTemplate("events_full"),
     sharedTable: "events_full",
     physicalTable: `events_full_${projectId}`,
-    tail: { ...SPLIT_BASE_TABLE_SHAPES.events_full, ...tailBase },
+    tail: {
+      ...SPLIT_BASE_TABLE_SHAPES.events_full,
+      ...tailBase,
+      storagePageSize,
+    },
   });
   const tracesScalar = buildSplitTableFromTemplate({
     templateSql: readSplitTemplate("traces_scalar"),

@@ -13,7 +13,11 @@ vi.mock("../../logger", () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
 }));
 vi.mock("../../../env", () => ({
-  env: { DORIS_DB: "litefuse", DORIS_REPLICATION_NUM: 1 },
+  env: {
+    DORIS_DB: "litefuse",
+    DORIS_REPLICATION_NUM: 1,
+    LITEFUSE_STORAGE_PAGE_SIZE: 131_072,
+  },
 }));
 
 import {
@@ -46,10 +50,12 @@ describe("getSplitMvStatus", () => {
   it("falls back to DESC … ALL when no alter job is retained", async () => {
     const mv = `trace_metrics_agg_${PID}`;
     // no alter row → then DESC shows the index → finished
-    queryMock.mockResolvedValueOnce([]).mockResolvedValueOnce([
-      { IndexName: `events_full_${PID}` },
-      { IndexName: mv },
-    ]);
+    queryMock
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        { IndexName: `events_full_${PID}` },
+        { IndexName: mv },
+      ]);
     expect(await getSplitMvStatus(`events_full_${PID}`, mv)).toBe("finished");
 
     // no alter row, DESC lacks the index → absent
@@ -63,9 +69,15 @@ describe("getSplitMvStatus", () => {
 describe("provisionSplitTablesForProject (idempotent MV)", () => {
   it("creates both base tables then the MV when absent", async () => {
     queryMock.mockResolvedValueOnce([]).mockResolvedValueOnce([]); // MV status: absent
-    await provisionSplitTablesForProject({ projectId: PID, retentionDays: null });
+    await provisionSplitTablesForProject({
+      projectId: PID,
+      retentionDays: null,
+    });
     const issued = commandMock.mock.calls.map((c) => c[0].query);
-    expect(issued[0]).toContain(`CREATE TABLE IF NOT EXISTS \`events_full_${PID}\``);
+    expect(issued[0]).toContain(
+      `CREATE TABLE IF NOT EXISTS \`events_full_${PID}\``,
+    );
+    expect(issued[0]).toContain('"storage_page_size" = "131072"');
     expect(issued[1]).toContain(
       `CREATE TABLE IF NOT EXISTS \`traces_scalar_${PID}\``,
     );
@@ -82,7 +94,10 @@ describe("provisionSplitTablesForProject (idempotent MV)", () => {
     queryMock.mockResolvedValueOnce([
       { RollupIndexName: `trace_metrics_agg_${PID}`, State: "RUNNING" },
     ]);
-    await provisionSplitTablesForProject({ projectId: PID, retentionDays: null });
+    await provisionSplitTablesForProject({
+      projectId: PID,
+      retentionDays: null,
+    });
     const issued = commandMock.mock.calls.map((c) => c[0].query);
     expect(issued.some((q) => q.includes("CREATE MATERIALIZED VIEW"))).toBe(
       false,
@@ -95,7 +110,10 @@ describe("provisionSplitTablesForProject (idempotent MV)", () => {
     queryMock.mockResolvedValueOnce([
       { RollupIndexName: `trace_metrics_agg_${PID}`, State: "CANCELLED" },
     ]);
-    await provisionSplitTablesForProject({ projectId: PID, retentionDays: null });
+    await provisionSplitTablesForProject({
+      projectId: PID,
+      retentionDays: null,
+    });
     const issued = commandMock.mock.calls.map((c) => c[0].query);
     expect(issued.some((q) => q.includes("CREATE MATERIALIZED VIEW"))).toBe(
       true,
