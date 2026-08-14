@@ -557,7 +557,10 @@ export class OtelGrouper {
     });
     if (!cut) return false;
 
-    recordIncrement("langfuse.otel_grouper.groups_cut", 1, { shard: lane });
+    recordIncrement("langfuse.otel_grouper.groups_cut", 1, {
+      shard: lane,
+      reason: cut.reason,
+    });
     recordIncrement("langfuse.otel_grouper.files_grouped", cut.entries.length, {
       shard: lane,
     });
@@ -565,7 +568,7 @@ export class OtelGrouper {
     const spans = cut.entries.reduce((a, e) => a + e.spanCount, 0);
     const waitedMs = Date.now() - Math.min(...cut.entries.map((e) => e.ts));
     logger.info(
-      `[OtelGrouper] cut lane=${lane} group=${cut.groupId.slice(0, 12)} files=${cut.entries.length} bytes=${(bytes / (1024 * 1024)).toFixed(1)}MB spans=${spans} waited=${waitedMs}ms`,
+      `[OtelGrouper] cut lane=${lane} group=${cut.groupId.slice(0, 12)} reason=${cut.reason} files=${cut.entries.length} bytes=${(bytes / (1024 * 1024)).toFixed(1)}MB spans=${spans} waited=${waitedMs}ms`,
     );
     await this.publish(lane, cut);
     return true;
