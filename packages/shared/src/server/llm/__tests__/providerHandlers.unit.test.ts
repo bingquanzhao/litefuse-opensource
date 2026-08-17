@@ -213,7 +213,7 @@ describe("OpenAI-compatible provider handlers", () => {
       hasStructuredOutput: true,
     });
     const fetch = vi.fn(
-      async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      async (_input: string | URL | Request, _init?: RequestInit) =>
         new Response(
           JSON.stringify({
             error: { message: "intercepted request" },
@@ -229,11 +229,23 @@ describe("OpenAI-compatible provider handlers", () => {
       configuration: { fetch },
     });
 
-    await chatModel
-      .withStructuredOutput(
-        zodV3.object({ score: zodV3.string(), reasoning: zodV3.string() }),
-        config?.structuredOutput,
-      )
+    const responseSchema: zodV3.ZodTypeAny = zodV3.object({
+      score: zodV3.string(),
+      reasoning: zodV3.string(),
+    });
+    // View the model through a shallow interface for the structured-output call:
+    // langchain's withStructuredOutput overload resolution instantiates a type
+    // deep enough to trip tsc's TS2589 (excessively deep / possibly infinite)
+    // under the shared build's tsc. Casting the receiver (this-binding intact)
+    // to a shallow signature collapses that inference.
+    const modelForStructured = chatModel as unknown as {
+      withStructuredOutput: (
+        schema: unknown,
+        config?: unknown,
+      ) => { invoke: (input: unknown) => Promise<unknown> };
+    };
+    await modelForStructured
+      .withStructuredOutput(responseSchema, config?.structuredOutput)
       .invoke([new HumanMessage("Return JSON")])
       .catch(() => undefined);
 
