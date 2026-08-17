@@ -337,6 +337,42 @@ describe("Litefuse Pro billing", () => {
     ).toBeNull();
   });
 
+  it("uses the Developer billing cycle after a Pro subscription has expired", async () => {
+    const { org } = await createBillingOrg();
+    const customerId = parseCloudConfig(org.cloudConfig)?.stripe?.customerId!;
+    const subscriptionId = `sub_${uuidv4()}`;
+
+    await syncSubscriptionToOrganization(
+      createSubscription({
+        orgId: org.id,
+        customerId,
+        status: "active",
+        subscriptionId,
+      }),
+    );
+
+    await syncSubscriptionToOrganization(
+      createSubscription({
+        orgId: org.id,
+        customerId,
+        status: "canceled",
+        subscriptionId,
+      }),
+      true,
+    );
+
+    await expect(
+      getBillingStatus(org.id, undefined, new Date("2026-09-14T12:00:00.000Z")),
+    ).resolves.toMatchObject({
+      plan: "cloud:hobby",
+      billingCycle: {
+        // The canceled Pro period ended on Nov 15. Developer usage now
+        // resets on the next monthly occurrence of that cycle anchor.
+        end: new Date("2026-09-15T22:13:20.000Z"),
+      },
+    });
+  });
+
   it("keeps Pro on past_due subscriptions", async () => {
     const { org } = await createBillingOrg();
     const customerId = parseCloudConfig(org.cloudConfig)?.stripe?.customerId!;

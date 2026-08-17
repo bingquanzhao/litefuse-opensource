@@ -371,6 +371,7 @@ async function getBillingOrganization(orgId: string) {
 export async function getBillingStatus(
   orgId: string,
   stripeClient?: BillingStatusStripeClient,
+  now: Date = new Date(),
 ) {
   let org = await getBillingOrganization(orgId);
   let cloudConfig = parseCloudConfig(org.cloudConfig);
@@ -447,8 +448,9 @@ export async function getBillingStatus(
       ? getPaidBillingUsage({
           organization: org,
           customerId: stripeCustomerId,
+          now,
         })
-      : getFreshBillingUsage({ organization: org }).then((usage) => ({
+      : getFreshBillingUsage({ organization: org, now }).then((usage) => ({
           ...usage,
           reportedUnits: null,
           pendingUnits: null,
@@ -466,10 +468,15 @@ export async function getBillingStatus(
     reportedThrough,
     updatedAt: usageUpdatedAt,
   } = await usagePromise;
-  // Stripe's stored period end is authoritative for paid subscriptions. This
-  // is important for Test Clocks, whose Stripe time can be ahead of the app's
-  // real wall clock.
-  const cycleEnd = currentPeriodEnd ?? getBillingCycleEnd(org, new Date());
+  // Stripe's stored period end is authoritative while a paid plan remains
+  // active. Once an expired subscription has downgraded to Developer, its
+  // historical period end must not be shown as the free-tier reset date.
+  // This still supports Stripe Test Clocks whose active period is ahead of the
+  // app's wall clock.
+  const cycleEnd =
+    plan !== "cloud:hobby" && currentPeriodEnd && currentPeriodEnd > now
+      ? currentPeriodEnd
+      : getBillingCycleEnd(org, now);
 
   return {
     plan,
