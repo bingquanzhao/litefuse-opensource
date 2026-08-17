@@ -1879,20 +1879,22 @@ export const getCostByEvaluatorIds = async (
 ): Promise<Array<{ evaluatorId: string; totalCost: number }>> => {
   if (evaluatorIds.length === 0) return [];
 
-  // metadata is read via to_json(metadata) — the raw MAP text form does not
-  // escape inner quotes
-  // arrays (no MAP), so the legacy metadata['key'] reads are rewritten as
-  // element_at(values, array_position(names, key)).
+  // metadata is a Doris VARIANT column: a bare subfield read (metadata['key'])
+  // yields a VARIANT-typed expression, which Doris rejects in filter/group
+  // by/order by ("... variant column must use with specific function, and
+  // don't support filter, group by or order by"). Wrap the subfield in
+  // CAST(... AS STRING) — the accepted idiom (see traces-ui-table-service) —
+  // which returns the bare unquoted scalar so IN-matching and GROUP BY work.
   const query = `
       SELECT
-        metadata['job_configuration_id'] as evaluator_id,
+        CAST(metadata['job_configuration_id'] AS STRING) as evaluator_id,
         sum(COALESCE(total_cost, 0)) as total_cost
       FROM ${tableFor(projectId, "events_full")}
       WHERE project_id = {projectId: String}
-        AND metadata['job_configuration_id'] IN ({evaluatorIds: Array(String)})
+        AND CAST(metadata['job_configuration_id'] AS STRING) IN ({evaluatorIds: Array(String)})
         AND type = 'GENERATION'
         AND start_time > DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-      GROUP BY metadata['job_configuration_id']
+      GROUP BY CAST(metadata['job_configuration_id'] AS STRING)
     `;
 
   const rows = await queryDoris<{

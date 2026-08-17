@@ -3087,19 +3087,23 @@ export const getAvgCostByEvaluatorIds = async (
 > => {
   if (evaluatorIds.length === 0) return [];
 
-  // metadata is read via to_json(metadata) — raw MAP text does not escape inner quotes.
+  // metadata is a Doris VARIANT column: a bare subfield read (metadata['key'])
+  // yields a VARIANT-typed expression, which Doris rejects in filter/group
+  // by/order by. Wrap the subfield in CAST(... AS STRING) — the accepted idiom
+  // (see traces-ui-table-service) — which returns the bare unquoted scalar so
+  // IN-matching and GROUP BY work.
   const query = `
     SELECT
-      o.metadata['job_configuration_id'] as evaluator_id,
+      CAST(o.metadata['job_configuration_id'] AS STRING) as evaluator_id,
       avg(o.total_cost) as avg_cost,
       count(*) as execution_count
     FROM ${tableFor(projectId, "events_full")} o
     WHERE o.project_id = {projectId: String}
     AND o.type = 'GENERATION'
-    AND o.metadata['job_configuration_id'] IS NOT NULL
-    AND o.metadata['job_configuration_id'] IN ({evaluatorIds: Array(String)})
+    AND CAST(o.metadata['job_configuration_id'] AS STRING) IS NOT NULL
+    AND CAST(o.metadata['job_configuration_id'] AS STRING) IN ({evaluatorIds: Array(String)})
     AND o.start_time >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 7 DAY)
-    GROUP BY o.metadata['job_configuration_id']
+    GROUP BY CAST(o.metadata['job_configuration_id'] AS STRING)
   `;
 
   const rows = await queryDoris<{
