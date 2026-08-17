@@ -346,7 +346,14 @@ const getSessionsTableGeneric = async <T>(props: FetchSessionsTableProps) => {
           `
         : `
         WITH top_sessions AS (
-          SELECT session_id, MIN(start_time) AS min_timestamp
+          -- Expose the session key as top_session_id, NOT session_id: phase 2
+          -- reuses sharedClause verbatim, and that fragment references the
+          -- column bare (no table prefix). If top_sessions also exposed
+          -- session_id, the phase-2 join (traces_scalar t JOIN top_sessions s)
+          -- would make bare session_id ambiguous. Renaming the key here leaves
+          -- t.session_id as the only session_id in scope, so the shared bare
+          -- clause resolves unambiguously in both phases.
+          SELECT session_id AS top_session_id, MIN(start_time) AS min_timestamp
           FROM ${tableFor(projectId, "traces_scalar")}
           WHERE project_id = {projectId: String}
             AND session_id IS NOT NULL AND session_id != ''
@@ -370,7 +377,7 @@ const getSessionsTableGeneric = async <T>(props: FetchSessionsTableProps) => {
             array_remove(group_array_union(t.tags), '') AS trace_tags,
             any_value(t.environment) as trace_environment
           FROM ${tableFor(projectId, "traces_scalar")} t
-          INNER JOIN top_sessions s ON t.session_id = s.session_id
+          INNER JOIN top_sessions s ON t.session_id = s.top_session_id
           WHERE t.project_id = {projectId: String}
             ${sharedClause ? `AND ${sharedClause}` : ""}
           GROUP BY t.session_id
