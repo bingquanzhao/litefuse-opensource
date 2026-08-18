@@ -45,7 +45,8 @@ We recommend checking out DeepWiki to familiarize yourself with the project:
   - NextJS 14, pages router
   - NextAuth.js / Auth.js
   - tRPC: Frontend APIs
-  - Prisma ORM
+  - Prisma ORM (PostgreSQL, transactional data)
+  - Apache Doris: OLAP store for observability data (MySQL wire protocol)
   - Zod v4
   - Tailwind CSS
   - shadcn/ui tailwind components (using Radix and tanstack)
@@ -69,7 +70,7 @@ flowchart TB
         Worker["Async Worker<br/>(litefuse/worker)"]
         Postgres["Postgres - OLTP<br/>(Transactional Data)"]
         Cache["Redis/Valkey<br/>(Cache, Queue)"]
-        Clickhouse["Clickhouse - OLAP<br/>(Observability Data)"]
+        Doris["Apache Doris - OLAP<br/>(Observability Data)"]
         S3["S3 / Blob Storage<br/>(Raw events, multi-modal attachments)"]
     end
     LLM["LLM API/Gateway<br/>(optional)"]
@@ -78,11 +79,11 @@ flowchart TB
     Web --> S3
     Web --> Postgres
     Web --> Cache
-    Web --> Clickhouse
+    Web --> Doris
     Web -.->|"optional for playground"| LLM
 
     Cache --> Worker
-    Worker --> Clickhouse
+    Worker --> Doris
     Worker --> Postgres
     Worker --> S3
     Worker -.->|"optional for evals"| LLM
@@ -90,9 +91,14 @@ flowchart TB
 
 ### Database Overview
 
-The diagram below may not show all relationships if the foreign key is not defined in the database schema. For instance, `trace_id` in the `observation` table is not defined as a foreign key to the `trace` table to allow unordered ingestion of these objects, but it is still a foreign key in the application code.
+The PostgreSQL schema (via Prisma) holds transactional data — projects, users,
+organizations, datasets, prompts, media metadata, and so on. Observability data
+— traces, spans, observations, and scores — lives in the Apache Doris analytics
+store (per-project split tables), not in Postgres. Some foreign-key
+relationships are enforced only in application code rather than the schema, to
+allow unordered ingestion.
 
-Full database schema: [packages/shared/prisma/schema.prisma](packages/shared/prisma/schema.prisma)
+Full Postgres schema: [packages/shared/prisma/schema.prisma](packages/shared/prisma/schema.prisma)
 
 ## Repository Structure
 
@@ -111,8 +117,8 @@ Requirements
 
 - Node.js 24 as specified in the [.nvmrc](.nvmrc)
 - Pnpm v.9.5.0
-- Docker to run the database locally
-- Clickhouse client
+- Docker to run the databases locally (Postgres, Redis, MinIO, and Apache Doris FE + BE)
+- A MySQL client — Apache Doris speaks the MySQL wire protocol; the Doris migration runner (`packages/shared/doris/scripts/up.sh`) uses it
 
 **Note:** You can also simply run Litefuse in a **GitHub Codespace** via the provided devcontainer. To do this, click on the green "Code" button in the top right corner of the repository and select "Open with Codespaces".
 
@@ -153,14 +159,14 @@ Notes:
 - It does **not** start the full Litefuse stack. Local development still uses
   Docker and `pnpm run dx` / `pnpm run dev`.
 - Running the full application inside Codex requires external services for
-  PostgreSQL, Redis, ClickHouse, and object storage, plus matching environment
+  PostgreSQL, Redis, Apache Doris, and object storage, plus matching environment
   variables in the Codex UI.
 
 **Steps**
 
 1. Install development dependencies:
-   - [golang-migrate](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate#migrate-cli) as CLI
-   - [clickhouse binary](https://clickhouse.com/docs/install) on macOS with brew: `brew install --cask clickhouse`
+   - A MySQL client (`mysql`) — the Doris schema migrations are applied by `packages/shared/doris/scripts/up.sh` over the MySQL protocol. On macOS: `brew install mysql-client`.
+   - [golang-migrate](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate#migrate-cli) — only needed for the legacy ClickHouse migrations, which the default Doris dev stack does not run.
 
 2. Fork the repository and clone it locally
 
@@ -189,7 +195,7 @@ Notes:
    pnpm run dev # any subsequent runs
    ```
 
-   You will be asked whether you want to reset Postgres and ClickHouse. Confirm both with 'Y' and press enter.
+   You will be asked whether you want to reset Postgres (Prisma migrate reset). Confirm with 'Y' and press enter. The Doris analytics store is reset by wiping its Docker volume (`infra:dev:prune`), so it needs no separate confirmation.
 
 6. Open the web app in your browser to start using Litefuse:
    - [Sign up page, http://localhost:3000](http://localhost:3000)
@@ -241,16 +247,25 @@ pnpm run db:seed:examples
 
 ## System behavior
 
-### Ingestion API `(/public/api/ingestion)`
+### Ingestion
 
-- the ingestion API takes different event types (creation and updates of traces, generations, spans, events)
-- The API loops through each event and:
-  - validates the event
-  - stores the event raw in the events table
-  - calculates tokens for `generations`
-  - matches models from the `models` table to model for `generations` events
-  - upserts the event in the `traces` or `observations` table
-- returns a `207` HTTP status code with a list of errors if any event failed to be ingested
+Litefuse ingests telemetry over OpenTelemetry (`/api/public/otel/v1/traces`); the
+legacy Litefuse ingestion API (`/api/public/ingestion`, which accepts creation/
+update events for traces, generations, spans, and events) is still accepted for
+backwards compatibility. In both cases the **web server does not write the
+analytics store synchronously** — it validates each event, durably stores the raw
+payload in blob storage (S3 / MinIO), and enqueues it for the async worker.
+
+The worker consumes the queue and writes the per-project split tables in Apache
+Doris:
+
+- `spans_<projectId>` — every OTel span (root and child), the append-only base table.
+- `traces_scalar_<projectId>` — one scalar row per trace (the root span's fields), the flat trace-list fast path.
+- `trace_metrics_agg_<projectId>` — a synchronous materialized view on `spans_<projectId>` for per-trace metrics.
+
+Token/cost calculation for generations and model matching against the `models`
+table happen during this async processing. The ingestion endpoint returns a
+`207` HTTP status code with a list of errors if any event failed validation.
 
 ## Commit messages
 
@@ -274,7 +289,7 @@ Then, a different PostgreSQL and Redis are used for the tests.
 The `.env.test` file only overrides the set values and falls back on `.env` for all undefined values.
 
 - **PostgreSQL**: Uses separate `litefuse_test` database for isolation
-- **ClickHouse**: Uses shared `default` database for now
+- **Apache Doris**: Uses the shared dev Doris instance (analytics data is not isolated per test run)
 - **Redis**: Uses database 1 instead of 0 for isolation (Redis data is not cleaned between tests)
 
 Tests automatically create the PostgreSQL test database if it doesn't exist and clean up data between runs.
