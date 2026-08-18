@@ -14,6 +14,10 @@
 --     day-partition rows order by time, giving segment min/max prefix pruning
 --     on start_time-range scans. Columns are reordered so the key is an ordered
 --     prefix (start_time moves above span_id; project_id moves below it);
+--   * no inverted index on project_id — it is constant within a split table
+--     (zero selectivity), so an index just wastes write/storage; same reason
+--     traces_scalar (0039) omits it. Reads still carry WHERE project_id = ...
+--     harmlessly (a constant match), they just don't need an index for it;
 --   * no partition/dist/PROPERTIES tail here — appended per-project at build
 --     time (dynamic_partition for retrofittable TTL).
 -- See 0037 for the per-column semantics/comments.
@@ -104,7 +108,6 @@ CREATE TABLE IF NOT EXISTS __TABLE__ (
 
     INDEX idx_span_id (`span_id`) USING INVERTED COMMENT 'inverted index for span_id',
     INDEX idx_is_root (`is_root`) USING INVERTED COMMENT 'inverted index for is_root (root-span flag, WHERE is_root=1)',
-    INDEX idx_project_id (`project_id`) USING INVERTED COMMENT 'inverted index for project_id',
     INDEX idx_user_id (`user_id`) USING INVERTED COMMENT 'inverted index for user_id',
     INDEX idx_session_id (`session_id`) USING INVERTED COMMENT 'inverted index for session_id',
     INDEX idx_tags (`tags`) USING INVERTED COMMENT 'inverted index for tags',
