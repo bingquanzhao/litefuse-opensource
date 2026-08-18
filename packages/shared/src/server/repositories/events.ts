@@ -699,7 +699,7 @@ export const getTraceByIdFromEventsTable = async ({
   // matching what getTraceById (the migrated sibling in traces.ts) returns.
   // Falls back to the spans root row when the scalar row is missing
   // (a trace still in flight — OTel exports the root span last — or data
-  // predating the dual-write), mirroring getTraceById's fallback.
+  // predating traces_scalar), mirroring getTraceById's fallback.
   const scalarQuery = `
     SELECT
       id,

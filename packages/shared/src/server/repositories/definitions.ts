@@ -787,11 +787,12 @@ export const eventRecordInsertSchema = eventRecordBaseSchema.extend({
 });
 export type EventRecordInsertType = z.infer<typeof eventRecordInsertSchema>;
 
-// traces_scalar: one row per trace — the root span's scalar fields, dual-written
-// at ingestion next to spans (see migration 0039). Timestamps are epoch-ms
+// traces_scalar: one row per trace — the root span's scalar fields, written by
+// the OTel-lane job next to spans (from the transform's scalar records; see
+// migration 0039). Timestamps are epoch-ms
 // numbers like the other *InsertType shapes. Empty-string user_id/session_id/
-// release/version are normalized to null at the dual-write site so filters match
-// the MV's NULLIF(x, '') semantics. Partition prunes natively from start_time (no
+// release/version are normalized to null when the scalar row is built so filters
+// match the MV's NULLIF(x, '') semantics. Partition prunes natively from start_time (no
 // start_time_date mirror). Unlike spans (append-only), this UNIQUE+MoW
 // table is mutated post-ingestion (bookmark/public/tags UPDATEs), so it keeps a
 // real updated_at ("last modified") distinct from created_at.

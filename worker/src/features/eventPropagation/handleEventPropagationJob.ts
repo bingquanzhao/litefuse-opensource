@@ -31,7 +31,7 @@ export const getLastProcessedPartition = async (): Promise<string | null> => {
   try {
     return await redis!.get(LAST_PROCESSED_PARTITION_KEY);
   } catch (error) {
-    logger.error("[DUAL WRITE] Failed to get last processed partition", error);
+    logger.error("[event-propagation] Failed to get last processed partition", error);
     return null;
   }
 };
@@ -46,11 +46,11 @@ export const updateLastProcessedPartition = async (
   try {
     await redis!.set(LAST_PROCESSED_PARTITION_KEY, partition);
     logger.info(
-      `[DUAL WRITE] Updated last processed partition to ${partition}`,
+      `[event-propagation] Updated last processed partition to ${partition}`,
     );
   } catch (error) {
     logger.error(
-      "[DUAL WRITE] Failed to update last processed partition",
+      "[event-propagation] Failed to update last processed partition",
       error,
     );
     // Don't throw - allow processing to continue
@@ -96,7 +96,7 @@ export const handleEventPropagationJob = async (
 
   if (env.LITEFUSE_EXPERIMENT_EARLY_EXIT_EVENT_BATCH_JOB === "true") {
     logger.info(
-      "[DUAL WRITE] Early exit for event propagation job due to experiment flag",
+      "[event-propagation] Early exit for event propagation job due to experiment flag",
     );
     return;
   }
@@ -105,7 +105,7 @@ export const handleEventPropagationJob = async (
     // Step 1: Get the last processed partition from Redis and find the next one to process
     const lastProcessedPartition = await getLastProcessedPartition();
     logger.info(
-      `[DUAL WRITE] Last processed partition: ${lastProcessedPartition ?? "none"}`,
+      `[event-propagation] Last processed partition: ${lastProcessedPartition ?? "none"}`,
     );
 
     // Track delay based on the Redis key so we have a reference even if no processing happens
@@ -148,14 +148,14 @@ export const handleEventPropagationJob = async (
 
     if (partitions.length === 0) {
       logger.info(
-        `[DUAL WRITE] No partitions available for processing (last processed: ${lastProcessedPartition ?? "none"})`,
+        `[event-propagation] No partitions available for processing (last processed: ${lastProcessedPartition ?? "none"})`,
       );
       return;
     }
 
     const partitionToProcess = partitions[0].partition;
     logger.info(
-      `[DUAL WRITE] Processing partition ${partitionToProcess} for events table fill`,
+      `[event-propagation] Processing partition ${partitionToProcess} for events table fill`,
     );
 
     // Step 2: Join observations_batch_staging with traces and insert into events
@@ -282,7 +282,7 @@ export const handleEventPropagationJob = async (
     });
 
     logger.info(
-      `[DUAL WRITE] Successfully propagated observations from partition ${partitionToProcess} to events table`,
+      `[event-propagation] Successfully propagated observations from partition ${partitionToProcess} to events table`,
     );
 
     // Track delay of the partition we just processed
@@ -300,7 +300,7 @@ export const handleEventPropagationJob = async (
     await updateLastProcessedPartition(partitionToProcess);
   } catch (error) {
     logger.error(
-      "[DUAL WRITE] Failed to process event propagation batch",
+      "[event-propagation] Failed to process event propagation batch",
       error,
     );
     traceException(error);

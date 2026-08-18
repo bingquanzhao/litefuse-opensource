@@ -832,8 +832,10 @@ export enum TableName {
   BlobStorageFileLog = "blob_storage_file_log",
   DatasetRunItems = "dataset_run_items_rmt",
   Spans = "spans",
-  // One scalar row per trace (root span), dual-written next to Spans.
-  // Serves the flat trace-list fast path (see migration 0039).
+  // One scalar row per trace (the root span's scalar fields), loaded by the
+  // same OTel-lane job that loads Spans — from the transform's scalar records,
+  // not a separate dual-write path. Serves the flat trace-list fast path
+  // (see migration 0039).
   TracesScalar = "traces_scalar",
 }
 

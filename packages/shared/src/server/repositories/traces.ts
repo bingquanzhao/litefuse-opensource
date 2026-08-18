@@ -87,7 +87,7 @@ const traceRootIoQuery = (projectId: string) => `
 /**
  * Batch variant: full input/output for a SET of scalar rows, merged in TS.
  * The root span's start_time is byte-identical to the scalar row's (both
- * dual-written from the same root record), so the scalar rows' own timestamps
+ * written from the same root record by the lane transform), so the scalar rows' own timestamps
  * bound the partition range exactly. DUPLICATE model: ORDER BY created_at DESC
  * + first-wins keeps the newest copy of a re-delivered root.
  */
@@ -142,7 +142,7 @@ const attachRootIO = async (params: {
 /**
  * byId FALLBACK: the trace read flat off its root span row in spans —
  * used when the traces_scalar row is missing (scalar stream load lagging the
- * spans one, or data predating the dual-write). Mutable flags
+ * spans one, or data predating traces_scalar). Mutable flags
  * (bookmarked/public/tags) read here are the ingestion-time snapshot.
  */
 const buildRootSpanTraceQuery = (params: {
@@ -563,7 +563,7 @@ export const getTraceCountsByProjectInCreationInterval = async ({
   end: Date;
   projectIds: string[];
 }) => {
-  // traces_scalar: one row per trace, created_at dual-written since migration
+  // traces_scalar: one row per trace, created_at populated since migration
   // 0039's trim/audit columns (pre-existing rows need the documented backfill,
   // which carries created_at from spans).
   // Cross-project query: PostgreSQL-authoritative routing groups legacy and
@@ -655,7 +655,7 @@ export const getTraceById = async ({
   excludeInputOutput?: boolean;
 }) => {
   // Scalar-first fast path for EVERY verbosity: all trace scalars live on
-  // traces_scalar (one row per trace, dual-written at ingestion — migration
+  // traces_scalar (one row per trace, written by the OTel-lane job — migration
   // 0039), which is also the authoritative store for the mutable flags
   // (bookmarked/public/tags — spans is DUPLICATE-model, no UPDATEs).
   // (project_id, id) is the unique-key prefix and id the distribution column,
@@ -664,7 +664,7 @@ export const getTraceById = async ({
   // Variants — via a point read of the root span row, day-pruned by the
   // scalar row's own start_time. Falls back to the spans aggregate
   // below when the scalar row is missing (a trace still in flight — OTel
-  // exports the root span last — or data predating the dual-write).
+  // exports the root span last — or data predating traces_scalar).
   const scalarRows = await queryDoris<TraceRecordReadType>({
     query: `
       SELECT ${TRACES_SCALAR_SELECT}
@@ -733,7 +733,7 @@ export const getTraceById = async ({
   }
 
   // Fallback: the scalar row is missing (scalar stream load lagging the
-  // spans one, or data predating the dual-write) — read the trace flat
+  // spans one, or data predating traces_scalar) — read the trace flat
   // off its root span row in spans instead.
   // Hintless callers (comments validation, peeks opened from a bare URL, ...)
   // used to fire ONE unbounded query — a scan across every partition of the
@@ -1099,7 +1099,7 @@ export const deleteTraces = async (projectId: string, traceIds: string[]) => {
       projectId,
     },
   });
-  // Mirror into traces_scalar (one row per trace, dual-written at ingestion —
+  // Mirror into traces_scalar (one row per trace, written by the OTel-lane job —
   // migration 0039) so deleted traces don't linger in the flat list fast path.
   await commandDoris({
     query: `

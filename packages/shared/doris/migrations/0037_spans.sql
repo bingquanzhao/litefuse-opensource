@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS __TABLE__ (
     INDEX idx_environment (`environment`) USING INVERTED COMMENT 'inverted index for environment',
     INDEX idx_prompt_name (`prompt_name`) USING INVERTED COMMENT 'inverted index for prompt_name',
     INDEX idx_provided_model_name (`provided_model_name`) USING INVERTED COMMENT 'inverted index for provided_model_name',
-    INDEX idx_source (`source`) USING INVERTED COMMENT 'inverted index for source (otel/ingestion-api-dual-write)',
+    INDEX idx_source (`source`) USING INVERTED COMMENT 'inverted index for source (otel/api)',
     INDEX idx_name (`name`) USING INVERTED COMMENT 'inverted index for name (trace/observation name search)',
     INDEX idx_trace_name (`trace_name`) USING INVERTED COMMENT 'inverted index for trace_name (trace name search)',
     INDEX idx_input (`input`) USING INVERTED PROPERTIES("parser" = "unicode", "support_phrase" = "false") COMMENT 'full-text index for input content search',

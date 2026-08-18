@@ -601,7 +601,7 @@ export class IngestionService {
       target: "spans",
     });
 
-    // Dual-write the root span's scalar fields as the trace's one row in
+    // Also write the root span's scalar fields as the trace's one row in
     // traces_scalar (flat trace-list fast path, migration 0039). Every merged
     // re-write of the root row lands here too, so MoW keeps the scalar row
     // current.
