@@ -217,7 +217,7 @@ describe("/api/public/otel/v1/traces API Endpoint", () => {
     expect(response.status).toBe(200);
   });
 
-  // Skipping for now, as this requires direct writes into the events table without dual write.
+  // Skipping for now, as this requires direct writes into the spans table, bypassing the OTel-lane load.
   it.skip("should correctly convert string usage_details to numbers and compute total", async () => {
     // This test verifies that usage_details values sent as strings are correctly
     // converted to numbers, and the total is computed via numeric addition (not

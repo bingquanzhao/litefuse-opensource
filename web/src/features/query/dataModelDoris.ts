@@ -3,7 +3,7 @@ import { tableFor } from "@langfuse/shared/src/server";
 
 // Hybrid model over the spans deployment (migrations 0037/0039/0040):
 // - tracesViewDoris reads traces_scalar (one row per trace — the root span's
-//   scalar fields, dual-written at ingestion) for its base and scalar
+//   scalar fields, written by the OTel-lane job) for its base and scalar
 //   dimensions, and joins a trace_metrics_agg rewrite-shaped aggregate over
 //   spans for per-trace metrics.
 // - observationsViewDoris stays on spans (every row is an OTel span;

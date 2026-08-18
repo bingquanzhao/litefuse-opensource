@@ -396,7 +396,7 @@ const getSessionsTableGeneric = async <T>(props: FetchSessionsTableProps) => {
     `
         WITH filtered_traces AS (
           -- One row per trace from the scalar split target (migration 0039 — the root
-          -- span's scalars, dual-written at ingestion) instead of an
+          -- span's scalars, written by the OTel-lane job) instead of an
           -- is_root = 1 event-table scan.
           -- Sessionless traces are excluded HERE, matching upstream (CH
           -- session_id is Nullable and the query keeps IS NOT NULL rows).

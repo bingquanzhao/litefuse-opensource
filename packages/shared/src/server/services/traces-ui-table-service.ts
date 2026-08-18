@@ -398,7 +398,7 @@ const mvHavingColumnTokens = new Set(
 
 // --- traces_scalar flat fast path (rows / count) ---------------------------
 // traces_scalar (migration 0039) holds ONE row per trace — the root span's
-// scalar fields, dual-written at ingestion. Every column the list returns is in
+// scalar fields, written by the OTel-lane job. Every column the list returns is in
 // it, so when all filters are scalar-routable the rows/count queries run as a
 // FLAT single-table scan: no GROUP BY, no aggregate rollup, and inverted indexes
 // on user_id/session_id/name/tags/environment serve the filters directly. Metric
@@ -1302,7 +1302,7 @@ async function getTracesTableGeneric(props: FetchTracesTableProps) {
   }
 
   // Flat traces_scalar path first (rows/count/identifiers): the list's columns
-  // are all root-pick scalars dual-written one-row-per-trace, so scalar-routable
+  // are all root-pick scalars written one-row-per-trace by the lane, so scalar-routable
   // filters skip aggregation entirely. Metric-filtered lists take the agg⋈scalar
   // path above; metrics queries use the agg-metrics path (all-span aggregates).
   const scalarEligible =
