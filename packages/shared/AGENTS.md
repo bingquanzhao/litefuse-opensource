@@ -89,6 +89,6 @@ consumers are registered by `worker/src/app.ts`.
   reads/writes are per-project split tables: use `tableFor` for a single
   project and `executeDorisProjectFanout` for project sets. Cross-project
   statistics must receive an explicit `projectIds` list.
-- `events_full` contains both trace roots and observation spans; there is no
+- `spans` contains both trace roots and observation spans; there is no
   physical `observations` table. A trace telemetry delete removes its
-  `events_full` rows once and mirrors the delete to `traces_scalar`.
+  `spans` rows once and mirrors the delete to `traces_scalar`.

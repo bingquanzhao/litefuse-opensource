@@ -77,7 +77,7 @@ export async function getBillingUnitCountsByProjectAndDay(params: {
       traces: string;
       observations: string;
     }>({
-      logicalTable: "events_full",
+      logicalTable: "spans",
       projectIds: params.projectIds,
       queryTarget: (target) =>
         queryDoris({

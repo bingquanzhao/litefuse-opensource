@@ -77,7 +77,7 @@ const main = async () => {
         distinct_spans: string;
         duplicate_rows: string;
       }>({
-        logicalTable: "events_full",
+        logicalTable: "spans",
         projectIds,
         queryTarget: (target) =>
           queryDoris({

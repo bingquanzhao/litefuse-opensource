@@ -33,7 +33,7 @@ export const generateObservationsForPublicApi = async (props: QueryType) => {
   // scope). The fork uses EXISTS instead of LEFT JOIN to dodge a Doris
   // Nereids optimizer crash on LEFT JOIN + map expressions; re-applying
   // them in the outer WHERE would reference an undefined `t` alias.
-  // events_full root-span rows (is_root = 1) stand in for legacy
+  // spans root-span rows (is_root = 1) stand in for legacy
   // traces table.
   const traceFilters = chFilter.filter((f) => f.table === "traces");
   const observationFilters = chFilter.filter((f) => f.table !== "traces");
@@ -71,9 +71,9 @@ export const generateObservationsForPublicApi = async (props: QueryType) => {
       o.prompt_name,
       o.prompt_version,
       o.created_at
-    FROM ${tableFor(props.projectId, "events_full")} o
+    FROM ${tableFor(props.projectId, "spans")} o
     WHERE o.project_id = {projectId: String}
-      ${appliedTraceFilter ? `AND EXISTS (SELECT 1 FROM ${tableFor(props.projectId, "events_full")} t WHERE o.trace_id = t.trace_id AND t.project_id = o.project_id AND t.is_root = 1 AND ${appliedTraceFilter.query})` : ""}
+      ${appliedTraceFilter ? `AND EXISTS (SELECT 1 FROM ${tableFor(props.projectId, "spans")} t WHERE o.trace_id = t.trace_id AND t.project_id = o.project_id AND t.is_root = 1 AND ${appliedTraceFilter.query})` : ""}
       ${appliedObservationFilter.query ? `AND ${appliedObservationFilter.query}` : ""}
     ORDER BY o.start_time DESC
     ${props.limit !== undefined && props.page !== undefined ? `LIMIT {limit: Int32} OFFSET {offset: Int32}` : ""}
@@ -133,9 +133,9 @@ export const getObservationsCountForPublicApi = async (props: QueryType) => {
 
   const query = `
     SELECT count(*) as count
-    FROM ${tableFor(props.projectId, "events_full")} o
+    FROM ${tableFor(props.projectId, "spans")} o
     WHERE o.project_id = {projectId: String}
-    ${appliedTraceFilter ? `AND EXISTS (SELECT 1 FROM ${tableFor(props.projectId, "events_full")} t WHERE o.trace_id = t.trace_id AND t.project_id = o.project_id AND t.is_root = 1 AND ${appliedTraceFilter.query})` : ""}
+    ${appliedTraceFilter ? `AND EXISTS (SELECT 1 FROM ${tableFor(props.projectId, "spans")} t WHERE o.trace_id = t.trace_id AND t.project_id = o.project_id AND t.is_root = 1 AND ${appliedTraceFilter.query})` : ""}
     ${appliedObservationFilter.query ? `AND ${appliedObservationFilter.query}` : ""}
   `;
 
@@ -189,6 +189,6 @@ const generateFilter = (query: QueryType) => {
   // template hardcodes `WHERE o.project_id = {projectId: String}`. Pushing
   // one without `tablePrefix` would render as bare `project_id = '...'`
   // which Doris rejects with "project_id is ambiguous" the moment we JOIN
-  // events_full as `t` (e.g. when userId filter is set).
+  // spans as `t` (e.g. when userId filter is set).
   return chFilter.filter((f) => f.table !== "scores");
 };

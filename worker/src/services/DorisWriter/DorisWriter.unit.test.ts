@@ -973,8 +973,8 @@ describe("DorisWriter", () => {
     expect(released).toBe(true);
   });
 
-  it("pickReadyTable round-robins so no table (e.g. events_full) is starved", () => {
-    // Seed two tables (Traces = first in enum, EventsFull = last) each with a
+  it("pickReadyTable round-robins so no table (e.g. spans) is starved", () => {
+    // Seed two tables (Traces = first in enum, Spans = last) each with a
     // stale (ready) row, bypassing addToQueue so nothing drains.
     const seed = (t: TableName) =>
       (writer as any).queue[t].push({
@@ -982,7 +982,7 @@ describe("DorisWriter", () => {
         buf: Buffer.from("{}\n"),
       });
     seed(TableName.Traces);
-    seed(TableName.EventsFull);
+    seed(TableName.Spans);
 
     const pick = () => (writer as any).pickReadyTable(Date.now());
     const first = pick();
@@ -991,7 +991,7 @@ describe("DorisWriter", () => {
     // Fixed-order scan would return Traces twice; round-robin returns both.
     expect(first).not.toBe(second);
     expect(new Set([first, second])).toEqual(
-      new Set([TableName.Traces, TableName.EventsFull]),
+      new Set([TableName.Traces, TableName.Spans]),
     );
   });
 

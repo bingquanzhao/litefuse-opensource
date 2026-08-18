@@ -1,5 +1,5 @@
 -- Per-project Doris table-split control table (docs/project-per-table-*.md).
--- One row per project routed to its own events_full_<pid> / traces_scalar_<pid>
+-- One row per project routed to its own spans_<pid> / traces_scalar_<pid>
 -- / trace_metrics_agg_<pid> tables. Table split is universal (every project is
 -- designated at creation); isSplitProject consults a cached snapshot of this
 -- table and routes a project to its own tables once provisioned (split=true).

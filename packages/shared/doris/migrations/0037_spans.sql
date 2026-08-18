@@ -1,10 +1,10 @@
--- SPLIT TEMPLATE — events_full_<pid> (per-project). NOT a migration: this file
+-- SPLIT TEMPLATE — spans_<pid> (per-project). NOT a migration: this file
 -- is never applied by scripts/up.sh (it lives outside doris/migrations and has
 -- no .up.sql suffix). It is read by buildSplitTableStatements, which substitutes
 -- __TABLE__ and appends the dynamic_partition tail (buildDynamicPartitionTail).
 --
 -- Column body is IDENTICAL to the canonical shared table
--- (doris/migrations/0037_create_events_full.up.sql) — a unit test
+-- (doris/migrations/0037_create_spans.up.sql) — a unit test
 -- (splitTableTemplates.drift) asserts the two files declare the same columns and
 -- indexes, so they can never silently diverge. The ONLY differences are:
 --   * table name is a __TABLE__ placeholder;

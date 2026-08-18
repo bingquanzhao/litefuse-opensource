@@ -379,7 +379,7 @@ describe("OtelGrouper lane domain (real Redis, Stage 1.4)", () => {
       // MV readiness stubbed (no Doris) — fully ready.
       getLaneReadiness: async () => ({
         ready: true,
-        eventsFullExists: true,
+        spansExists: true,
         tracesScalarExists: true,
         mvStatus: "finished" as const,
       }),

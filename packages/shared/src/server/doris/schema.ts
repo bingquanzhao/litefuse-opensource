@@ -3,9 +3,9 @@ export const DorisTableNames = {
   observations: "observations",
   scores: "scores",
   dataset_run_items_rmt: "dataset_run_items_rmt",
-  events_full: "events_full",
+  spans: "spans",
   // Root-span scalar mirror + its sync MV (fork additions; both split
-  // per-project alongside events_full — see tableRouting).
+  // per-project alongside spans — see tableRouting).
   traces_scalar: "traces_scalar",
   trace_metrics_agg: "trace_metrics_agg",
 

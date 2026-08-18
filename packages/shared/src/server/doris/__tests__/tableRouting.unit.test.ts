@@ -29,7 +29,7 @@ describe("tableRouting", () => {
   describe("project NOT live in the split cache (pre-provision / old project)", () => {
     it("isSplitProject is still cache-backed, but tableFor returns split tables", () => {
       expect(isSplitProject(PID)).toBe(false);
-      expect(tableFor(PID, "events_full")).toBe(`events_full_${PID}`);
+      expect(tableFor(PID, "spans")).toBe(`spans_${PID}`);
       expect(tableFor(PID, "traces_scalar")).toBe(`traces_scalar_${PID}`);
     });
 
@@ -52,7 +52,7 @@ describe("tableRouting", () => {
     });
 
     it("tableFor suffixes splittable tables with the projectId", () => {
-      expect(tableFor(PID, "events_full")).toBe(`events_full_${PID}`);
+      expect(tableFor(PID, "spans")).toBe(`spans_${PID}`);
       expect(tableFor(PID, "traces_scalar")).toBe(`traces_scalar_${PID}`);
     });
 
@@ -67,13 +67,13 @@ describe("tableRouting", () => {
     it("a different project still routes to its own split tables", () => {
       splitCacheMock.members = new Set(["other-project"]);
       expect(isSplitProject(PID)).toBe(false);
-      expect(tableFor(PID, "events_full")).toBe(`events_full_${PID}`);
+      expect(tableFor(PID, "spans")).toBe(`spans_${PID}`);
     });
   });
 
   describe("toLogicalTable (reverse of tableFor)", () => {
     it("strips the projectId suffix from split physical names", () => {
-      expect(toLogicalTable(`events_full_${PID}`)).toBe("events_full");
+      expect(toLogicalTable(`spans_${PID}`)).toBe("spans");
       expect(toLogicalTable(`traces_scalar_${PID}`)).toBe("traces_scalar");
       expect(toLogicalTable(`trace_metrics_agg_${PID}`)).toBe(
         "trace_metrics_agg",
@@ -81,16 +81,16 @@ describe("tableRouting", () => {
     });
 
     it("returns shared/unknown names unchanged (identity)", () => {
-      expect(toLogicalTable("events_full")).toBe("events_full");
+      expect(toLogicalTable("spans")).toBe("spans");
       expect(toLogicalTable("traces_scalar")).toBe("traces_scalar");
       expect(toLogicalTable("scores")).toBe("scores");
       expect(toLogicalTable("trace_metrics_agg")).toBe("trace_metrics_agg");
     });
 
     it("round-trips tableFor regardless of cache state", () => {
-      expect(toLogicalTable(tableFor(PID, "events_full"))).toBe("events_full");
+      expect(toLogicalTable(tableFor(PID, "spans"))).toBe("spans");
       splitCacheMock.members = new Set([PID]);
-      expect(toLogicalTable(tableFor(PID, "events_full"))).toBe("events_full");
+      expect(toLogicalTable(tableFor(PID, "spans"))).toBe("spans");
       expect(toLogicalTable(tableFor(PID, "traces_scalar"))).toBe(
         "traces_scalar",
       );

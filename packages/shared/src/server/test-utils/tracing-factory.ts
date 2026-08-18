@@ -194,7 +194,7 @@ export const createEvent = (
   const now = Date.now() * 1000; // Convert to micro
 
   // Extract the metadata override before spreading so undefined can't clobber
-  // the default (tests pass a plain object; events_full.metadata is a VARIANT).
+  // the default (tests pass a plain object; spans.metadata is a VARIANT).
   const { metadata: metadataOverride, ...eventOverrides } = event;
 
   const defaultMetadata: Record<string, unknown> = {

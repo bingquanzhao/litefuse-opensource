@@ -145,7 +145,7 @@ export default withMiddlewares({
         res.status(400);
         return {
           error:
-            "Master events_full ingestion requires Python SDK >= 4.0.0 or JS SDK >= 5.0.0. " +
+            "Master spans ingestion requires Python SDK >= 4.0.0 or JS SDK >= 5.0.0. " +
             "Please upgrade your client.",
           sdkName,
           sdkVersion,

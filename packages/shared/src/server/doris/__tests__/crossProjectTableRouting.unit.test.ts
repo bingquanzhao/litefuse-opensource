@@ -26,25 +26,25 @@ describe("cross-project Doris table routing", () => {
 
     await expect(
       resolveDorisProjectTableTargets({
-        logicalTable: "events_full",
+        logicalTable: "spans",
         projectIds: ["legacy1", "live1", "pending1", "live1"],
       }),
     ).resolves.toEqual([
       {
-        logicalTable: "events_full",
-        physicalTable: "events_full_legacy1",
+        logicalTable: "spans",
+        physicalTable: "spans_legacy1",
         projectIds: ["legacy1"],
         split: true,
       },
       {
-        logicalTable: "events_full",
-        physicalTable: "events_full_live1",
+        logicalTable: "spans",
+        physicalTable: "spans_live1",
         projectIds: ["live1"],
         split: true,
       },
       {
-        logicalTable: "events_full",
-        physicalTable: "events_full_pending1",
+        logicalTable: "spans",
+        physicalTable: "spans_pending1",
         projectIds: ["pending1"],
         split: true,
       },
@@ -69,23 +69,23 @@ describe("cross-project Doris table routing", () => {
 
     await expect(
       executeDorisProjectFanout({
-        logicalTable: "events_full",
+        logicalTable: "spans",
         projectIds: ["legacy1", "live1"],
         queryTarget,
         concurrency: 1,
       }),
-    ).resolves.toEqual(["events_full_legacy1", "events_full_live1"]);
+    ).resolves.toEqual(["spans_legacy1", "spans_live1"]);
     expect(queryTarget).toHaveBeenCalledTimes(2);
   });
 
   it("returns an empty result for missing split-table read targets", async () => {
     const queryTarget = vi.fn(async () => {
-      throw new Error("Table [events_full_legacy1] does not exist");
+      throw new Error("Table [spans_legacy1] does not exist");
     });
 
     await expect(
       executeDorisProjectFanout({
-        logicalTable: "events_full",
+        logicalTable: "spans",
         projectIds: ["legacy1"],
         queryTarget,
       }),
@@ -98,7 +98,7 @@ describe("cross-project Doris table routing", () => {
     let maxActive = 0;
 
     await executeDorisProjectFanout({
-      logicalTable: "events_full",
+      logicalTable: "spans",
       projectIds: ["one", "two", "three", "four"],
       concurrency: 2,
       queryTarget: async () => {
@@ -118,7 +118,7 @@ describe("cross-project Doris table routing", () => {
 
     await expect(
       resolveDorisProjectTableTargets({
-        logicalTable: "events_full",
+        logicalTable: "spans",
         projectIds: ["bad-id"],
       }),
     ).rejects.toThrow("Invalid Doris split-table project id");

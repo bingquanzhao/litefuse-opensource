@@ -52,11 +52,11 @@ export const generateDailyMetrics = async (props: QueryType) => {
     (timeFilter && filter.length() > 1) || (!timeFilter && filter.length() > 0);
 
   // Observation-side per-date per-model metrics. The per-model breakdown is
-  // observation-grained, so the base scan stays on events_full; only the
+  // observation-grained, so the base scan stays on spans; only the
   // trace side of the join moves to traces_scalar (one row per trace, the
   // root span's scalars — migration 0039), which is what the t-prefixed
   // trace filters (user_id/name/tags/environment/start_time) reference.
-  // traces_scalar's `name` IS the trace name (events_full root rows carry it
+  // traces_scalar's `name` IS the trace name (spans root rows carry it
   // in trace_name), and it stores NULL where root rows store ''.
   const obsQuery = `
     SELECT
@@ -68,7 +68,7 @@ export const generateDailyMetrics = async (props: QueryType) => {
       COALESCE(sum(o.output_tokens_calculated), 0) AS outputUsage,
       COALESCE(sum(o.total_tokens_calculated), 0) AS totalUsage,
       COALESCE(sum(coalesce(o.total_cost, 0)), 0) AS totalCost
-    FROM ${tableFor(props.projectId, "events_full")} o
+    FROM ${tableFor(props.projectId, "spans")} o
     ${hasNonTimestampsFilter ? `LEFT JOIN ${tableFor(props.projectId, "traces_scalar")} t ON o.trace_id = t.id AND o.project_id = t.project_id` : ""}
     WHERE o.project_id = {projectId: String}
     ${hasNonTimestampsFilter ? `AND ${appliedFilter.query}` : ""}
@@ -78,7 +78,7 @@ export const generateDailyMetrics = async (props: QueryType) => {
 
   // Trace-side per-date counts: trace-grained, so read traces_scalar directly
   // (DATE(start_time), also the partition source) instead of an is_root = 1
-  // events_full scan.
+  // spans scan.
   const traceQuery = `
     SELECT
       DATE(t.start_time) AS date,
@@ -204,7 +204,7 @@ export const getDailyMetricsCount = async (props: QueryType) => {
 
   // Trace-grained day count — served by traces_scalar (one row per trace,
   // DATE(start_time) is the partition source) instead of an is_root = 1
-  // events_full scan. All filterParams columns are trace scalars.
+  // spans scan. All filterParams columns are trace scalars.
   const query = `
     SELECT count(distinct DATE(t.start_time)) as count
     FROM ${tableFor(props.projectId, "traces_scalar")} t

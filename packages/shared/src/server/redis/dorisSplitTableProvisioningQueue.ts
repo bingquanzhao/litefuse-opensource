@@ -9,7 +9,7 @@ import { logger } from "../logger";
 
 /**
  * Per-project Doris split-table provisioning queue (Stage 1.2b). One job per
- * project creates its events_full_<pid> / traces_scalar_<pid> tables + MV
+ * project creates its spans_<pid> / traces_scalar_<pid> tables + MV
  * (idempotent). jobId = projectId gives per-project SERIALISATION + de-dup:
  * BullMQ will not run two jobs with the same id concurrently, and a duplicate
  * enqueue while one is waiting/active is dropped. Removed on completion, so a

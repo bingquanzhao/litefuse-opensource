@@ -1478,7 +1478,7 @@ export class QueryBuilder {
 
   /**
    * Rewrite `metadata['key']` subscripts (and experiment_metadata /
-   * experiment_item_metadata) for the VARIANT metadata columns of events_full
+   * experiment_item_metadata) for the VARIANT metadata columns of spans
    * and traces_scalar. A dotted key a.b.c is expanded to the nested Variant
    * path field['a']['b']['c'] — Doris stores dotted keys as nested paths, so
    * this preserves the old flattened-key filter semantics. Bare references get
@@ -1657,8 +1657,8 @@ export class QueryBuilder {
       } else if (filter.column === view.timeDimension) {
         select = view.timeDimension;
         // queryPrefix must be the SQL alias (e.g. "traces"), not the
-        // physical table name (e.g. "events_full"). Otherwise the WHERE
-        // emits "events_full.start_time" which fails when baseCte aliases
+        // physical table name (e.g. "spans"). Otherwise the WHERE
+        // emits "spans.start_time" which fails when baseCte aliases
         // the table to a different name.
         queryPrefix = this.tableAlias(view);
         type = "datetime";
@@ -1987,7 +1987,7 @@ export class QueryBuilder {
     }
 
     // Append raw SQL filter if provided.
-    // The events_full schema stores metadata as parallel arrays, not a Map.
+    // The spans schema stores metadata as parallel arrays, not a Map.
     // Rewrite metadata['key'] style access (familiar from langfuse v3 CH)
     // to Doris's element_at(values, array_position(names, key)) idiom so
     // user-written widget SQL keeps working without per-key Doris knowledge.
@@ -1996,7 +1996,7 @@ export class QueryBuilder {
     if (query.rawSqlFilter && query.rawSqlFilter.trim().length > 0) {
       const trimmed = query.rawSqlFilter.trim();
       const alias = this.tableAlias(view);
-      // events_full and traces_scalar both store metadata as a VARIANT now —
+      // spans and traces_scalar both store metadata as a VARIANT now —
       // same nested-path rewrite for either base table.
       const rewritten = this.rewriteMetadataVariantAccess(trimmed, alias);
       fromClause += ` AND (${rewritten})`;

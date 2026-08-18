@@ -3,7 +3,7 @@ import pLimit from "p-limit";
 
 import {
   dorisClient,
-  eventsFullLabelForGroup,
+  spansLabelForGroup,
   labelForGroupTable,
   formatRecordForDoris,
   getS3EventStorageClient,
@@ -31,9 +31,9 @@ import { toTraceScalarRecord } from "../services/IngestionService";
 
 /**
  * Self-contained otel group job (exactly-once design §3.3): one job = one
- * group = one events_full stream load batch = one deterministic label.
+ * group = one spans stream load batch = one deterministic label.
  *
- *   download N files → deterministic transform → stream load events_full
+ *   download N files → deterministic transform → stream load spans
  *   (label) → stream load traces_scalar (MoW, gated) → fileKey ledger → ack
  *
  * No shared DorisWriter buffer, no refcount handle, no writer-internal
@@ -127,7 +127,7 @@ const LOAD_OPTS = { format: "json" as const, timeout: 600 };
 
 type GroupJobSample = {
   ts: number;
-  /** events_full load time, semaphore wait excluded. */
+  /** spans load time, semaphore wait excluded. */
   eventsLoadMs: number;
   eventsMB: number;
   e2eLagMs: number;
@@ -283,8 +283,8 @@ export const processOtelGroupJob = async (
   const targetProjectId = entries[0]?.projectId;
   const split = Boolean(targetProjectId);
   const eventsTable = targetProjectId
-    ? tableFor(targetProjectId, "events_full")
-    : "events_full";
+    ? tableFor(targetProjectId, "spans")
+    : "spans";
   const scalarTable = targetProjectId
     ? tableFor(targetProjectId, "traces_scalar")
     : "traces_scalar";
@@ -396,8 +396,8 @@ export const processOtelGroupJob = async (
     return;
   }
 
-  // ③ events_full: the ONE deterministic-label load of this group.
-  const label = eventsFullLabelForGroup(groupId);
+  // ③ spans: the ONE deterministic-label load of this group.
+  const label = spansLabelForGroup(groupId);
   let eventsBody = eventRowCount > 0 ? ndjsonBody(eventRows) : null;
   eventRows = null; // Buffers built — the formatted objects are dead weight
   const hadEventsBody = eventsBody !== null;
@@ -437,8 +437,8 @@ export const processOtelGroupJob = async (
 
   // ④ traces_scalar (MoW, no label). Delete-protection gate — DUAL condition
   // (design §3.3-3 / review B1): skip ONLY when the label deduped AND the
-  // ledger already exists. events_full commits are VISIBLE immediately, so a
-  // C6 replay (events_full committed, scalar never written, crash) ALSO sees
+  // ledger already exists. spans commits are VISIBLE immediately, so a
+  // C6 replay (spans committed, scalar never written, crash) ALSO sees
   // dedupedByLabel=true — the ledger (written after BOTH loads) is the only
   // signal separating it from a fully-completed run's late replay (which
   // must skip, or a user-deleted trace's scalar row would resurrect).
@@ -473,7 +473,7 @@ export const processOtelGroupJob = async (
       // only when traces_scalar_<pid> is lost AFTER go-live (ops DROP, rebuild
       // window, replica loss) — the flip gate keeps split=true from ever being
       // set with a base table missing, so this is never a provisioning race.
-      // events_full is ALREADY committed here, so on reprovision+retry the
+      // spans is ALREADY committed here, so on reprovision+retry the
       // replay label-dedups events and the scalar gate (ledger still absent)
       // re-attempts THIS load once the table is back. A tombstoned project →
       // dead-letter + ledger (events already in; the deletion flow drops the
@@ -568,7 +568,7 @@ export const processOtelGroupJob = async (
   const attemptPart =
     ctx?.attempt && ctx.attempt > 1 ? ` attempt=${ctx.attempt}` : "";
   logger.info(
-    `[OtelGroupJob] group=${groupId.slice(0, 12)} files=${entries.length}${deadFiles > 0 ? ` dead_files=${deadFiles}` : ""}${attemptPart} | transform=${transformMs}ms(dl:Σ${downloadMsTotal} xform:Σ${transformCpuMsTotal}) | events_full: ${eventsPart} | scalar: ${scalarPart} | ledger=${ledgerMs}ms | total=${totalMs}ms e2e_lag=${((Date.now() - oldestTs) / 1000).toFixed(1)}s`,
+    `[OtelGroupJob] group=${groupId.slice(0, 12)} files=${entries.length}${deadFiles > 0 ? ` dead_files=${deadFiles}` : ""}${attemptPart} | transform=${transformMs}ms(dl:Σ${downloadMsTotal} xform:Σ${transformCpuMsTotal}) | spans: ${eventsPart} | scalar: ${scalarPart} | ledger=${ledgerMs}ms | total=${totalMs}ms e2e_lag=${((Date.now() - oldestTs) / 1000).toFixed(1)}s`,
   );
 
   // Feed the trailing-window aggregates behind [OtelGroupJob.health]. Skip

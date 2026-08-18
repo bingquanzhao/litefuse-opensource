@@ -39,7 +39,7 @@ export const dorisSearchCondition = (
   // ID search: column prefixes depend on the query context
   if (!searchType || searchType.includes("id")) {
     if (context?.type === "observations") {
-      // observations context: in events_full the observation identifier column
+      // observations context: in spans the observation identifier column
       // is span_id (there is no `id` column).
       conditions.push(
         context.hasTracesJoin
@@ -47,7 +47,7 @@ export const dorisSearchCondition = (
           : `o.span_id LIKE {searchQuery: String} OR o.name LIKE {searchQuery: String}`,
       );
     } else {
-      // traces context (default): events_full uses trace_id as the trace
+      // traces context (default): spans uses trace_id as the trace
       // identifier, and the trace name lives in trace_name (not the root span name).
       conditions.push(
         `t.trace_id LIKE {searchQuery: String} OR t.user_id LIKE {searchQuery: String} OR t.trace_name LIKE {searchQuery: String}`,

@@ -40,7 +40,7 @@ litefuse/
   consumers and metering processors live in `worker/src/features/billing/` and
   `worker/src/queues/cloudBillingQueues.ts`.
 - Doris telemetry routing is all-split: business reads and writes use
-  `events_full_<projectId>` / `traces_scalar_<projectId>` for every project.
+  `spans_<projectId>` / `traces_scalar_<projectId>` for every project.
   Single-project SQL must use `tableFor`; cross-project SQL must use the
   project fan-out executor. Web and worker boot are gated on the first split
   snapshot for provisioning/readiness state, not shared fallback.

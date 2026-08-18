@@ -1098,13 +1098,13 @@ const DATE_FIELD_MAPPINGS: Record<
   traces: { sourceField: "timestamp", dateField: "timestamp_date" },
   scores: { sourceField: "timestamp", dateField: "timestamp_date" },
   observations: { sourceField: "start_time", dateField: "start_time_date" },
-  // events_full partitions directly on start_time (date_trunc auto partition,
+  // spans partitions directly on start_time (date_trunc auto partition,
   // migration 0037) — there is no start_time_date column to derive.
-  events_full: null,
+  spans: null,
   // traces_scalar also partitions directly on start_time (migration 0039) — no
   // start_time_date mirror column to derive.
   traces_scalar: null,
-  // trace_metrics_agg is a sync MV on events_full (migration 0040) — never
+  // trace_metrics_agg is a sync MV on spans (migration 0040) — never
   // stream-loaded directly, so no mapping entry.
 };
 
@@ -1219,7 +1219,7 @@ const normalizeMetadataForDoris = (
       continue;
     }
 
-    // Non-string values (nested objects/arrays/numbers — the VARIANT/events_full
+    // Non-string values (nested objects/arrays/numbers — the VARIANT/spans
     // & traces_scalar case) are already native JSON; pass them through untouched.
     if (typeof value !== "string") {
       result[key] = value;
@@ -1270,13 +1270,13 @@ export const formatRecordForDoris = <T extends Record<string, any>>(
   }
 
   // Step 2: Generate date fields based on table type. A listed table with a
-  // null mapping (events_full) needs no derived date field; only UNKNOWN
+  // null mapping (spans) needs no derived date field; only UNKNOWN
   // tables fall to the dual-column fallback.
   //
   // DATE_FIELD_MAPPINGS is keyed on LOGICAL table names. Under table split the
-  // writer targets physical names (events_full_<pid>), which are absent from
+  // writer targets physical names (spans_<pid>), which are absent from
   // the map and would fall to the dual-column fallback — injecting stray
-  // timestamp_date/start_time_date columns that events_full has no slot for
+  // timestamp_date/start_time_date columns that spans has no slot for
   // (dirty write). toLogicalTable reverses the projectId suffix first; it is
   // identity for the shared logical names, so mode=none is unaffected.
   const logicalTable = tableName ? toLogicalTable(tableName) : undefined;

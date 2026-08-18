@@ -908,10 +908,10 @@ export async function getScoresUiTable<
 
 // traces_scalar (one row per trace — migration 0039) as the trace-decoration
 // JOIN target for the score queries below, replacing the `is_root = 1`
-// events_full scans. Exposed under events_full-compatible column names
+// spans scans. Exposed under spans-compatible column names
 // (id → trace_id) so join keys and the shared filter mappings (t.user_id,
 // t.name, t.tags, …) apply unchanged. traces_scalar stores NULL where
-// events_full root rows stored '' (name/user_id/session_id/release/version) —
+// spans root rows stored '' (name/user_id/session_id/release/version) —
 // COALESCE back to '' so both projections and filters keep the previous
 // semantics. metadata is a native Map here (no metadata_names/values arrays).
 // Doris prunes unreferenced derived-table columns, so unused fields are free.
@@ -1444,7 +1444,7 @@ export const getAggregatedScoresForPrompts = async (
         s.data_type,
         s.comment,
         CASE WHEN s.metadata IS NOT NULL AND map_size(s.metadata) > 0 THEN 1 ELSE 0 END AS has_metadata
-      FROM scores s LEFT JOIN ${tableFor(projectId, "events_full")} o
+      FROM scores s LEFT JOIN ${tableFor(projectId, "spans")} o
         ON o.trace_id = s.trace_id
         AND o.project_id = s.project_id
         ${fetchScoreRelation === "observation" ? "AND o.span_id = s.observation_id" : ""}

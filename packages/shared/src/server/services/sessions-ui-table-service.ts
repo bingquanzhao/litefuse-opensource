@@ -449,7 +449,7 @@ const getSessionsTableGeneric = async <T>(props: FetchSessionsTableProps) => {
                   SUM(input_cost_calculated) as sum_input_cost,
                   SUM(output_cost_calculated) as sum_output_cost,
                   SUM(total_cost) as sum_total_cost
-            FROM ${tableFor(projectId, "events_full")}
+            FROM ${tableFor(projectId, "spans")}
             WHERE project_id = {projectId: String}
             ${traceTimestampFilter ? `AND date_trunc(start_time, 'day') >= date_trunc(DATE_SUB({observationsStartTime: DateTime}, INTERVAL 2 DAY), 'day')` : ""}
             GROUP BY project_id, trace_id

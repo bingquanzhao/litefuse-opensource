@@ -33,8 +33,8 @@ export default async function handler(
       if (failIfNoRecentEvents) {
         // Liveness of the ingestion pipeline, read from the PG completion
         // ledger (otel_file_ledger) — NOT a cross-project Doris scan. Under
-        // table split a project's data lives in its own events_full_<pid>, so a
-        // scan of the shared events_full would false-negative once active
+        // table split a project's data lives in its own spans_<pid>, so a
+        // scan of the shared spans would false-negative once active
         // projects are split. The ledger records every completed group across
         // ALL projects with created_at, so "most recent row within 3 minutes"
         // is a cross-project-safe liveness signal that touches no Doris table.

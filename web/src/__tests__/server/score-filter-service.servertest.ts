@@ -9,7 +9,7 @@ import { type FilterState } from "@langfuse/shared";
 
 // applyScoreFilters pre-resolves score filters (which live in the `scores` table)
 // into a trace_id IN filter so the trace-list query stays on the traces_mv fast
-// path instead of JOINing scores. These tests seed events_full + scores directly
+// path instead of JOINing scores. These tests seed spans + scores directly
 // into Doris (the fork has no CK-style createTracesCh helper) and assert the
 // resolver returns the right trace_ids and that end-to-end getTracesTable then
 // returns only the matching traces.
@@ -21,7 +21,7 @@ describe("applyScoreFilters (score filter -> trace_id resolution)", () => {
   // Seed a root span (is_root=1) so the trace shows up in getTracesTable.
   const seedTrace = async (projectId: string, traceId: string) => {
     await commandDoris({
-      query: `INSERT INTO events_full
+      query: `INSERT INTO spans
         (project_id, trace_id, start_time_date, span_id, parent_span_id, is_root,
          start_time, end_time, name, environment, event_ts, is_deleted)
         VALUES

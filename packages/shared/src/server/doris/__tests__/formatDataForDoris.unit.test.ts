@@ -183,14 +183,14 @@ describe("formatDataForDoris", () => {
   });
 
   // Under table split the writer targets physical names
-  // (events_full_<pid>). DATE_FIELD_MAPPINGS is keyed on logical names, so the
+  // (spans_<pid>). DATE_FIELD_MAPPINGS is keyed on logical names, so the
   // physical name must be reversed with toLogicalTable BEFORE the lookup — else
-  // events_full_<pid> falls to the dual-column fallback and injects stray
-  // timestamp_date/start_time_date columns that events_full has no slot for.
+  // spans_<pid> falls to the dual-column fallback and injects stray
+  // timestamp_date/start_time_date columns that spans has no slot for.
   describe("date field generation for split physical table names", () => {
     const PID = "cmqiwxsca0006pj070fdkn0vd";
 
-    it("events_full_<pid> injects NO date columns (logical events_full → null mapping)", () => {
+    it("spans_<pid> injects NO date columns (logical spans → null mapping)", () => {
       const result = formatDataForDoris(
         [
           {
@@ -198,7 +198,7 @@ describe("formatDataForDoris", () => {
             start_time: "2024-06-16T12:00:00.000Z",
           },
         ],
-        `events_full_${PID}`,
+        `spans_${PID}`,
       );
       // The dirty-column hazard: neither derived date column may appear.
       expect((result[0] as any).timestamp_date).toBeUndefined();
@@ -215,7 +215,7 @@ describe("formatDataForDoris", () => {
         ],
         `traces_scalar_${PID}`,
       );
-      // Neither derived date column may appear (mirrors events_full).
+      // Neither derived date column may appear (mirrors spans).
       expect((result[0] as any).start_time_date).toBeUndefined();
       expect((result[0] as any).timestamp_date).toBeUndefined();
     });
@@ -228,7 +228,7 @@ describe("formatDataForDoris", () => {
             start_time: "2024-06-16T12:00:00.000Z",
           },
         ],
-        "events_full",
+        "spans",
       );
       expect((result[0] as any).timestamp_date).toBeUndefined();
       expect((result[0] as any).start_time_date).toBeUndefined();

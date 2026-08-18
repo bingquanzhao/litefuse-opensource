@@ -133,7 +133,7 @@ export const getBlobStorageByProjectIdAndTraceIds = (
           span_id as entity_id,
           project_id as project_id,
           'observation' as entity_type
-        from ${tableFor(projectId, "events_full")}
+        from ${tableFor(projectId, "spans")}
         where project_id = {projectId: String}
           and trace_id in ({traceIds: Array(String)})
       ), filtered_scores as (

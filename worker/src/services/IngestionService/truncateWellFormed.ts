@@ -8,7 +8,7 @@
  * (JSON.stringify happily emits it), but it is NOT valid Unicode — Doris's
  * simdjson rejects the whole row with STRING_ERROR, which under infinite
  * retry wedges the batch forever. This bit for real: a flag emoji split at
- * exactly char 200 of output_trim poisoned an events_full batch.
+ * exactly char 200 of output_trim poisoned an spans batch.
  *
  * toWellFormed() (Node ≥20) replaces every lone surrogate with U+FFFD — the
  * cut pair AND any lone surrogate the upstream already sent inside the kept

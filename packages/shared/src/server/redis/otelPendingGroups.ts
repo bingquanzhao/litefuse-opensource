@@ -92,8 +92,8 @@ export const computeGroupId = (fileKeys: string[]): string =>
 /**
  * Deterministic stream-load label for a group's load into `table`.
  *
- * BOTH Doris loads of a group job (events_full / traces_scalar) use
- * deterministic labels — not only events_full. (The completion ledger moved
+ * BOTH Doris loads of a group job (spans / traces_scalar) use
+ * deterministic labels — not only spans. (The completion ledger moved
  * to PG otel_file_ledger and needs no label at all.)
  * The FE label registry is a CAPACITY-bounded shared resource
  * (label_num_threshold, default 2000): random per-attempt labels made every
@@ -107,12 +107,12 @@ export const computeGroupId = (fileKeys: string[]): string =>
 export const labelForGroupTable = (groupId: string, table: string): string =>
   `lf2_${sha1Hex(`${groupId}_${table}`)}`;
 
-/** Deterministic stream-load label for a group's events_full batch. */
-export const eventsFullLabelForGroup = (groupId: string): string =>
-  labelForGroupTable(groupId, "events_full");
+/** Deterministic stream-load label for a group's spans batch. */
+export const spansLabelForGroup = (groupId: string): string =>
+  labelForGroupTable(groupId, "spans");
 
 /** Labels a single group burns in the FE registry over its lifetime — one per
- * Doris load (events_full + traces_scalar), deterministic so retries reuse them. */
+ * Doris load (spans + traces_scalar), deterministic so retries reuse them. */
 export const LABELS_PER_GROUP = 2;
 
 /**

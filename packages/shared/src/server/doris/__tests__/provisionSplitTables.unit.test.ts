@@ -43,7 +43,7 @@ describe("getSplitMvStatus", () => {
       ["CANCELLED", "cancelled"],
     ] as const) {
       queryMock.mockResolvedValueOnce([{ RollupIndexName: mv, State: state }]);
-      expect(await getSplitMvStatus(`events_full_${PID}`, mv)).toBe(expected);
+      expect(await getSplitMvStatus(`spans_${PID}`, mv)).toBe(expected);
     }
   });
 
@@ -53,16 +53,16 @@ describe("getSplitMvStatus", () => {
     queryMock
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([
-        { IndexName: `events_full_${PID}` },
+        { IndexName: `spans_${PID}` },
         { IndexName: mv },
       ]);
-    expect(await getSplitMvStatus(`events_full_${PID}`, mv)).toBe("finished");
+    expect(await getSplitMvStatus(`spans_${PID}`, mv)).toBe("finished");
 
     // no alter row, DESC lacks the index → absent
     queryMock
       .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([{ IndexName: `events_full_${PID}` }]);
-    expect(await getSplitMvStatus(`events_full_${PID}`, mv)).toBe("absent");
+      .mockResolvedValueOnce([{ IndexName: `spans_${PID}` }]);
+    expect(await getSplitMvStatus(`spans_${PID}`, mv)).toBe("absent");
   });
 });
 
@@ -75,7 +75,7 @@ describe("provisionSplitTablesForProject (idempotent MV)", () => {
     });
     const issued = commandMock.mock.calls.map((c) => c[0].query);
     expect(issued[0]).toContain(
-      `CREATE TABLE IF NOT EXISTS \`events_full_${PID}\``,
+      `CREATE TABLE IF NOT EXISTS \`spans_${PID}\``,
     );
     expect(issued[0]).toContain('"storage_page_size" = "131072"');
     expect(issued[1]).toContain(
@@ -83,7 +83,7 @@ describe("provisionSplitTablesForProject (idempotent MV)", () => {
     );
     // TTL reconcile: ALTER both base tables to the current retention (Option A —
     // so a Project.retentionDays change takes effect on existing tables).
-    expect(issued[2]).toContain(`ALTER TABLE \`events_full_${PID}\``);
+    expect(issued[2]).toContain(`ALTER TABLE \`spans_${PID}\``);
     expect(issued[3]).toContain(`ALTER TABLE \`traces_scalar_${PID}\``);
     expect(issued[4]).toContain(
       `CREATE MATERIALIZED VIEW trace_metrics_agg_${PID}`,
@@ -133,7 +133,7 @@ describe("getSplitTablesReadiness", () => {
     const r = await getSplitTablesReadiness(PID);
     expect(r).toEqual({
       ready: true,
-      eventsFullExists: true,
+      spansExists: true,
       tracesScalarExists: true,
       mvStatus: "finished",
     });

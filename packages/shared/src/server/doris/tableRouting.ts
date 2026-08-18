@@ -32,7 +32,7 @@ export const isSplitProject = (projectId: string): boolean =>
  * Shared logical names are not a business read/write fallback anymore.
  */
 const SPLITTABLE_TABLES: ReadonlySet<string> = new Set<DorisTableName>([
-  "events_full",
+  "spans",
   "traces_scalar",
 ]);
 
@@ -53,7 +53,7 @@ export const assertValidDorisProjectId = (projectId: string): void => {
 
 export const splitTableNameForProject = (
   projectId: string,
-  logical: "events_full" | "traces_scalar",
+  logical: "spans" | "traces_scalar",
 ): string => {
   assertValidDorisProjectId(projectId);
   return `${logical}_${projectId}`;
@@ -66,7 +66,7 @@ export const tableFor = (
   if (!SPLITTABLE_TABLES.has(logical)) return logical;
   return splitTableNameForProject(
     projectId,
-    logical as "events_full" | "traces_scalar",
+    logical as "spans" | "traces_scalar",
   );
 };
 
@@ -81,7 +81,7 @@ export const metricsAggTableFor = (projectId: string): string => {
 
 /**
  * Reverse of tableFor / metricsAggTableFor: map a PHYSICAL table name back to
- * its logical name. `events_full_<pid>` → `events_full`; an unknown name is
+ * its logical name. `spans_<pid>` → `spans`; an unknown name is
  * returned unchanged. Use this before any lookup keyed on the logical table
  * (metadata-format branch, DATE_FIELD_MAPPINGS, etc.) so split targets resolve
  * through the canonical logical table metadata.
@@ -90,7 +90,7 @@ export const metricsAggTableFor = (projectId: string): string => {
  * match is unambiguous.
  */
 const SPLITTABLE_LOGICALS = [
-  "events_full",
+  "spans",
   "traces_scalar",
   "trace_metrics_agg",
 ] as const;

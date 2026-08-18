@@ -541,7 +541,7 @@ export const traceRouter = createTRPCRouter({
           trace = traceById;
           traceById.bookmarked = input.bookmarked;
           const promises: Promise<void>[] = [];
-          // Master events_full migration: traces table is dead-write under
+          // Master spans migration: traces table is dead-write under
           // OTel-only ingestion. Keep this for code-retention (harmless
           // no-op against the empty table); traces_scalar below is the
           // authoritative write — that's what the UI reads back.
@@ -553,11 +553,11 @@ export const traceRouter = createTRPCRouter({
             }),
           );
 
-          // events_full is a DUPLICATE-model table (migration 0037): UPDATE
-          // is unsupported, so the events_full root row is NOT rewritten.
+          // spans is a DUPLICATE-model table (migration 0037): UPDATE
+          // is unsupported, so the spans root row is NOT rewritten.
           // traces_scalar (UNIQUE/MoW) is the authoritative store for
           // trace-level mutable flags; full-verbosity byId reads that still
-          // pick bookmarked from events_full will surface the stale value.
+          // pick bookmarked from spans will surface the stale value.
           // traces_scalar serves the trace LIST (and compact byId); without
           // this mirror the toggled bookmark reverts on the next list load.
           promises.push(
@@ -620,8 +620,8 @@ export const traceRouter = createTRPCRouter({
         }
         traceById.public = input.public;
         const promises: Promise<void>[] = [];
-        // Master events_full migration: keep the legacy traces write for
-        // code-retention (no-op against the now-empty table); events_full
+        // Master spans migration: keep the legacy traces write for
+        // code-retention (no-op against the now-empty table); spans
         // is the authoritative write that the UI reads back.
         promises.push(
           partialUpdateDoris({
@@ -630,7 +630,7 @@ export const traceRouter = createTRPCRouter({
             set: { public: input.public },
           }),
         );
-        // events_full is DUPLICATE-model (migration 0037): UPDATE is
+        // spans is DUPLICATE-model (migration 0037): UPDATE is
         // unsupported, so the per-span public flag is NOT rewritten there.
         // traces_scalar mirror — the list/compact-byId read target.
         promises.push(
@@ -686,17 +686,17 @@ export const traceRouter = createTRPCRouter({
           });
         }
         traceById.tags = input.tags;
-        // Master events_full migration: legacy traces write kept for
-        // code-retention (no-op); events_full update is the one the UI
+        // Master spans migration: legacy traces write kept for
+        // code-retention (no-op); spans update is the one the UI
         // reads back. Tags live on the trace root span (parent_span_id
-        // = '') in events_full.
+        // = '') in spans.
         await Promise.all([
           partialUpdateDoris({
             table: "traces",
             where: { project_id: input.projectId, id: input.traceId },
             set: { tags: input.tags },
           }),
-          // events_full is DUPLICATE-model (migration 0037): UPDATE is
+          // spans is DUPLICATE-model (migration 0037): UPDATE is
           // unsupported, so the root-span tags are NOT rewritten there.
           // traces_scalar mirror — the list/compact-byId read target (tags
           // filters run on its inverted index).

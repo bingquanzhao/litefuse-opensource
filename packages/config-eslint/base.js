@@ -16,14 +16,14 @@ import "eslint-plugin-only-warn";
 //
 // The clause must sit at the START of a line (optionally behind a JOIN-type
 // keyword) — this is how every real multi-line SQL clause here is written, and
-// it excludes design-comment prose like `-- read from events_full` where the
+// it excludes design-comment prose like `-- read from spans` where the
 // keyword falls mid-sentence (or behind a `--`). Case-insensitive (some queries
-// lower-case their SQL). `\b` after the name means physical `events_full_<pid>`
+// lower-case their SQL). `\b` after the name means physical `spans_<pid>`
 // names never match.
 const TABLE_CLAUSE_RE =
-  "(?:\\n|^)\\s*(?!--)[^\\n]*?\\b(?:(?:LEFT|RIGHT|INNER|OUTER|CROSS|FULL)\\s+)*(?:FROM|JOIN|DELETE\\s+FROM|UPDATE|INSERT\\s+INTO)\\s+(?:events_full|traces_scalar|observations)\\b";
+  "(?:\\n|^)\\s*(?!--)[^\\n]*?\\b(?:(?:LEFT|RIGHT|INNER|OUTER|CROSS|FULL)\\s+)*(?:FROM|JOIN|DELETE\\s+FROM|UPDATE|INSERT\\s+INTO)\\s+(?:spans|traces_scalar|observations)\\b";
 const TABLE_ROUTING_MESSAGE =
-  "Bare events_full/traces_scalar/observations in SQL is not split-safe. Use tableFor for one project or the authoritative cross-project target executor.";
+  "Bare spans/traces_scalar/observations in SQL is not split-safe. Use tableFor for one project or the authoritative cross-project target executor.";
 const tableRoutingSelectors = [
   {
     selector: `TemplateElement[value.raw=/${TABLE_CLAUSE_RE}/i]`,

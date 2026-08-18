@@ -24,9 +24,9 @@ export const isScoreFilterColumn = (column: string): boolean =>
  * Pre-resolve score filters into a trace_id list so the trace-list query never
  * has to JOIN the scores table (which would pull it off the traces_mv fast path).
  *
- * Scores live in their own table (not events_full), so they are a separate axis:
+ * Scores live in their own table (not spans), so they are a separate axis:
  * we run the score predicate against `scores`, collect the matching trace_ids,
- * and replace the score filters with a `trace_id IN (...)` filter. The events_full
+ * and replace the score filters with a `trace_id IN (...)` filter. The spans
  * query then stays MV-eligible. Mirrors applyCommentFilters.
  *
  * The resolver reuses the SAME scores_avg aggregation and the SAME predicate

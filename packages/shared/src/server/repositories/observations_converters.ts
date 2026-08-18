@@ -193,7 +193,7 @@ export function convertObservationPartial(
     }),
     ...(record.created_at !== undefined && {
       createdAt: parseTimestamp(record.created_at),
-      // events_full carries a single created_at audit column (created_at ==
+      // spans carries a single created_at audit column (created_at ==
       // updated_at == event_ts at write, migration 0037); updatedAt derives from
       // it rather than a dropped updated_at column.
       updatedAt: parseTimestamp(record.created_at),

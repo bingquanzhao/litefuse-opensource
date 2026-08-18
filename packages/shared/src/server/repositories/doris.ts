@@ -11,7 +11,7 @@ import { convertDateToAnalyticsDateTime } from "./analyticsDateTime";
 import { tableFor } from "../doris/tableRouting";
 
 const SPLIT_TABLE_READ_RE =
-  /\b(?:FROM|JOIN)\s+`?(?:events_full|traces_scalar|trace_metrics_agg)_[A-Za-z0-9_]+`?/i;
+  /\b(?:FROM|JOIN)\s+`?(?:spans|traces_scalar|trace_metrics_agg)_[A-Za-z0-9_]+`?/i;
 
 const isMissingSplitTableRead = (query: string, error: unknown): boolean => {
   if (!/^\s*SELECT\b/i.test(query) || !SPLIT_TABLE_READ_RE.test(query)) {
@@ -89,12 +89,12 @@ export async function upsertDoris<T extends Record<string, unknown>>(opts: {
  * single-row mutations like bookmark, publish, and tag updates.
  */
 export async function partialUpdateDoris(opts: {
-  // events_full added for the master events_full migration; traces_scalar for
+  // spans added for the master spans migration; traces_scalar for
   // the trace-list mirror (bookmark/public/tags toggles must reach the list's
   // read target). Legacy table names retained per code-retention principle
   // (their write paths are unreachable under the OTel-only contract but the
   // type stays valid).
-  table: "traces" | "observations" | "scores" | "events_full" | "traces_scalar";
+  table: "traces" | "observations" | "scores" | "spans" | "traces_scalar";
   where: Record<string, unknown>;
   set: Record<string, unknown>;
 }): Promise<void> {
@@ -122,7 +122,7 @@ export async function partialUpdateDoris(opts: {
 
   // traces_scalar (UNIQUE+MoW) is the authoritative store for the mutable flags
   // (bookmark/public/tags) and keeps a real "last modified": every partial
-  // UPDATE bumps updated_at to now. events_full is append-only DUPLICATE (no
+  // UPDATE bumps updated_at to now. spans is append-only DUPLICATE (no
   // updated_at column, UPDATE unsupported) and the legacy tables are dead-write,
   // so this only applies to traces_scalar.
   if (opts.table === "traces_scalar" && !("updated_at" in opts.set)) {
@@ -138,7 +138,7 @@ export async function partialUpdateDoris(opts: {
 
   // Route to the project's physical split table. The UPDATE carries project_id
   // in its WHERE (every caller — bookmark/public/tags toggle), so tableFor can
-  // target traces_scalar_<pid>/events_full_<pid>. Non-splittable tables remain
+  // target traces_scalar_<pid>/spans_<pid>. Non-splittable tables remain
   // identity, and a missing project_id falls back to the logical name unchanged.
   const projectId = opts.where.project_id;
   const physicalTable =

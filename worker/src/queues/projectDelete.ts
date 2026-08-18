@@ -52,7 +52,7 @@ export const projectDeleteProcessor: Processor = async (
   );
 
   // Doris per-project split teardown, FIRST. Every project owns
-  // events_full_<pid> / traces_scalar_<pid> (+ trace_metrics_agg_<pid> MV)
+  // spans_<pid> / traces_scalar_<pid> (+ trace_metrics_agg_<pid> MV)
   // tables, so project deletion DROPs them wholesale. scores/media/S3/
   // dataset-run-items remain shared resources and are cleaned as before.
   // Delete project data from ClickHouse first

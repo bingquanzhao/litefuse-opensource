@@ -2,7 +2,7 @@ import { logger } from "../logger";
 import { recordHistogram, recordIncrement } from "../instrumentation";
 import { splitTableNameForProject } from "./tableRouting";
 
-export type CrossProjectDorisLogicalTable = "events_full" | "traces_scalar";
+export type CrossProjectDorisLogicalTable = "spans" | "traces_scalar";
 
 export type DorisProjectTableTarget = {
   logicalTable: CrossProjectDorisLogicalTable;

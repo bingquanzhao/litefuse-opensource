@@ -16,7 +16,7 @@ describe("Doris emoji / 4-byte UTF-8 round-trip", () => {
     const traceId = v4();
 
     await commandDoris({
-      query: `INSERT INTO events_full
+      query: `INSERT INTO spans
         (project_id, trace_id, start_time_date, span_id, parent_span_id, is_root,
          start_time, name, environment, event_ts, is_deleted, input)
         VALUES
@@ -27,7 +27,7 @@ describe("Doris emoji / 4-byte UTF-8 round-trip", () => {
 
     const rows = await queryDoris<{ io: string; nm: string }>({
       query: `SELECT CAST(input AS STRING) AS io, name AS nm
-              FROM events_full
+              FROM spans
               WHERE project_id = {projectId: String} AND trace_id = {traceId: String}`,
       params: { projectId, traceId },
     });

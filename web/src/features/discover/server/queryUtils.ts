@@ -4,15 +4,15 @@ import { env } from "@langfuse/shared/src/env";
  * Per-project telemetry tables are `<logical>_<projectId>`. A user of one
  * project must never touch another project's split table via Discover — that is
  * a full cross-project data leak. The shared telemetry table names
- * (events_full / traces_scalar / trace_metrics_agg, no suffix) are not business
+ * (spans / traces_scalar / trace_metrics_agg, no suffix) are not business
  * read targets in the all-split model, so they are hidden/rejected as well.
  */
 const SPLIT_TABLE_RE =
-  /\b(?:events_full|traces_scalar|trace_metrics_agg)_([A-Za-z0-9]+)\b/g;
+  /\b(?:spans|traces_scalar|trace_metrics_agg)_([A-Za-z0-9]+)\b/g;
 const SHARED_TELEMETRY_TABLE_RE =
-  /\b(?:events_full|traces_scalar|trace_metrics_agg)\b/g;
+  /\b(?:spans|traces_scalar|trace_metrics_agg)\b/g;
 const SHARED_TELEMETRY_TABLES = new Set([
-  "events_full",
+  "spans",
   "traces_scalar",
   "trace_metrics_agg",
 ]);
@@ -23,7 +23,7 @@ export function isForeignSplitTable(
   projectId: string,
 ): boolean {
   const m =
-    /^(?:events_full|traces_scalar|trace_metrics_agg)_([A-Za-z0-9]+)$/.exec(
+    /^(?:spans|traces_scalar|trace_metrics_agg)_([A-Za-z0-9]+)$/.exec(
       tableName,
     );
   return m !== null && m[1] !== projectId;
@@ -91,7 +91,7 @@ export function isLangfuseDatabase(database: string | undefined): boolean {
  * require per-project data isolation in the Discover feature.
  */
 const LITEFUSE_TABLES_WITH_PROJECT_ID = new Set([
-  "events_full",
+  "spans",
   "scores",
   "event_log",
   "project_environments",

@@ -47,7 +47,7 @@ export const getSessionTracesFromEvents = async (props: {
   sessionId: string;
 }) => {
   // Reads traces_scalar (one row per trace — migration 0039, idx_session_id)
-  // instead of an is_root = 1 events_full scan. Deletion is physical on
+  // instead of an is_root = 1 spans scan. Deletion is physical on
   // traces_scalar (deleteTraces removes the row), so the old is_deleted = 0
   // predicate has no counterpart here. `name` is the explicit trace name
   // (scalar name ← trace_name), matching what the migrated traces list shows.
@@ -210,8 +210,8 @@ const getSessionsTableFromEventsGeneric = async <T>(
     : null;
 
   // One row per trace from traces_scalar (migration 0039) under the
-  // events_full-compatible column names the session filter/orderBy mappings
-  // reference — instead of an is_root = 1 events_full scan. Sessionless
+  // spans-compatible column names the session filter/orderBy mappings
+  // reference — instead of an is_root = 1 spans scan. Sessionless
   // traces are excluded (traces_scalar stores NULL for unset, '' guarded
   // defensively), matching upstream's IS NOT NULL on a Nullable column;
   // without the exclusion they all collapse into a single '' group whose
