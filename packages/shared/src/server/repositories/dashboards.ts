@@ -13,10 +13,10 @@ import { tableFor } from "../doris/tableRouting";
 export type DateTrunc = "month" | "week" | "day" | "hour" | "minute";
 
 // traces_scalar (one row per trace — migration 0039) as the trace-filter JOIN
-// target, replacing the `is_root = 1` events_full scans. Exposed under
-// events_full-compatible column names (id → trace_id) so join keys and the
+// target, replacing the `is_root = 1` spans scans. Exposed under
+// spans-compatible column names (id → trace_id) so join keys and the
 // dashboard filter mappings (t.user_id, t.name, t.tags, t.`timestamp`, …)
-// apply unchanged. traces_scalar stores NULL where events_full root rows
+// apply unchanged. traces_scalar stores NULL where spans root rows
 // stored '' — COALESCE back to '' preserves the previous filter semantics.
 // Doris prunes unreferenced derived-table columns, so unused fields are free.
 const tracesScalarJoinTarget = (projectId: string) => `(
@@ -172,7 +172,7 @@ export const getObservationCostByTypeByTime = async (
               ${selectTimeseriesColumnDoris(bucketSizeInSeconds, "o.start_time", "start_time")},
               keys_exploded.cost_key as cost_key, 
               SUM(values_exploded.cost_value) AS cost_sum
-          FROM ${tableFor(projectId, "events_full")} o
+          FROM ${tableFor(projectId, "spans")} o
           LATERAL VIEW posexplode(map_keys(cost_details)) keys_exploded AS key_pos, cost_key
           LATERAL VIEW posexplode(map_values(cost_details)) values_exploded AS value_pos, cost_value
           ${tracesFilter ? `LEFT JOIN ${tracesScalarJoinTarget(projectId)} t ON o.trace_id = t.trace_id AND o.project_id = t.project_id` : ""}
@@ -303,7 +303,7 @@ export const getObservationUsageByTypeByTime = async (
               ${selectTimeseriesColumnDoris(bucketSizeInSeconds, "o.start_time", "start_time")},
               keys_exploded.usage_key as usage_key, 
               SUM(values_exploded.usage_value) AS usage_sum
-          FROM ${tableFor(projectId, "events_full")} o
+          FROM ${tableFor(projectId, "spans")} o
           LATERAL VIEW posexplode(map_keys(usage_details)) keys_exploded AS key_pos, usage_key
           LATERAL VIEW posexplode(map_values(usage_details)) values_exploded AS value_pos, usage_value
           ${tracesFilter ? `LEFT JOIN ${tracesScalarJoinTarget(projectId)} t ON o.trace_id = t.trace_id AND o.project_id = t.project_id` : ""}

@@ -1,20 +1,20 @@
-// Master events_full migration: this handler is FUNCTIONAL.
+// Master spans migration: this handler is FUNCTIONAL.
 //
-// Backfills experiment_* fields onto events_full rows when a user creates
+// Backfills experiment_* fields onto spans rows when a user creates
 // a dataset run in the UI relating to existing traces — langfuse-main
-// pattern, ported to Doris + events_full.
+// pattern, ported to Doris + spans.
 //
 // Trigger: eventPropagationProcessor runs runExperimentBackfill on a
 // 5-minute cron behind a Redis lock. The procedure picks up
 // dataset_run_items rows created since the last cursor, routes each candidate
-// project's events_full read, enriches the spans, then stream-loads each
+// project's spans read, enriches the spans, then stream-loads each
 // project target with a deterministic content label.
 //
 // SQL sources (post-OTel-only migration):
 //   * getDatasetRunItemsSinceLastRun: dataset_run_items_rmt candidates, then a
 //     routed application-side anti-join against experiment-tagged spans.
-//   * getRelevantTraces: events_full root spans (is_root = 1).
-//   * getRelevantObservations: events_full non-root spans
+//   * getRelevantTraces: spans root spans (is_root = 1).
+//   * getRelevantObservations: spans non-root spans
 //     (is_root = 0).
 //
 // Path-1 ingestion-time inline (SDK `experiment.run()`) is still
@@ -202,7 +202,7 @@ export async function getDatasetRunItemsSinceLastRun(
     project_id: string;
     trace_id: string;
   }>({
-    logicalTable: "events_full",
+    logicalTable: "spans",
     projectIds,
     queryTarget: (target) =>
       queryDoris({
@@ -251,7 +251,7 @@ export async function getRelevantObservations(
     return [];
   }
 
-  // events_full layout: each observation span is a row with parent_span_id
+  // spans layout: each observation span is a row with parent_span_id
   // != '' (root spans are the trace itself, handled by getRelevantTraces).
   // metadata is read via to_json(metadata) (raw MAP text does not escape inner quotes); we
   // parse it in TS after the read and synthesize the Map shape that
@@ -319,7 +319,7 @@ export async function getRelevantObservations(
     metadata: unknown;
   };
   const rows = await executeDorisProjectFanout<RawObsRow>({
-    logicalTable: "events_full",
+    logicalTable: "spans",
     projectIds,
     queryTarget: (target) =>
       queryDoris({
@@ -357,10 +357,10 @@ export async function getRelevantTraces(
     return [];
   }
 
-  // Trace identity comes from events_full's OTel root span
+  // Trace identity comes from spans's OTel root span
   // (is_root = 1). Latest created_at wins within the project / trace
   // pair, mirroring buildTraceAggregationQuery's "trace_root" CTE choice.
-  // events_full carries trace-level fields denormalised on the root span,
+  // spans carries trace-level fields denormalised on the root span,
   // so we don't need a separate CTE for them — read them straight off o.
   const query = `
     SELECT * FROM (
@@ -422,7 +422,7 @@ export async function getRelevantTraces(
     metadata: unknown;
   };
   const rows = await executeDorisProjectFanout<RawTraceRow>({
-    logicalTable: "events_full",
+    logicalTable: "spans",
     projectIds,
     queryTarget: (target) =>
       queryDoris({
@@ -702,7 +702,7 @@ export async function writeEnrichedSpans(spans: EnrichedSpan[]): Promise<void> {
   const client = dorisClient();
   for (const [projectId, eventRecords] of recordsByProject) {
     const eventTargets = await executeDorisProjectFanout({
-      logicalTable: "events_full",
+      logicalTable: "spans",
       projectIds: [projectId],
       queryTarget: async (target) => [target.physicalTable],
     });
@@ -728,7 +728,7 @@ export async function writeEnrichedSpans(spans: EnrichedSpan[]): Promise<void> {
     await client.streamLoad(
       eventsTable,
       eventRecords.map((record) => formatRecordForDoris(record, eventsTable)),
-      { label: labelForGroupTable(labelSeed, "events_full") },
+      { label: labelForGroupTable(labelSeed, "spans") },
     );
     const scalarRecords = eventRecords
       .map(toTraceScalarRecord)
@@ -979,7 +979,7 @@ async function processExperimentBackfill(
 
     // Build a map of trace_id -> {userId, sessionId} for efficient lookup
     const tracePropertiesMap = new Map<string, TraceProperties>();
-    // OTel-only events_full: the trace's "root span" is the actual OTel root
+    // OTel-only spans: the trace's "root span" is the actual OTel root
     // span (is_root = 1), not a synthetic `t-<trace_id>` row. Build
     // a trace_id -> rootSpanId lookup so DRIs that point at the trace (no
     // observation_id) can find the real root span by its actual span_id.

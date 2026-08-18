@@ -1671,7 +1671,7 @@ describe("Clickhouse Events Repository Test", () => {
           expect(eventTrace).toBeDefined();
           expect(eventTrace?.bookmarked).toBe(bookmarkedExp);
 
-          // Verify events_full
+          // Verify spans
           const eventTraceFull = await getTraceByIdFromEventsTable({
             projectId,
             traceId: traceId,
@@ -1761,7 +1761,7 @@ describe("Clickhouse Events Repository Test", () => {
           expect(eventTrace).toBeDefined();
           expect(eventTrace?.public).toBe(publicExp);
 
-          // Verify events_full
+          // Verify spans
           const eventTraceFull = await getTraceByIdFromEventsTable({
             projectId,
             traceId: traceId,

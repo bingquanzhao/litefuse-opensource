@@ -514,7 +514,7 @@ export const sessionRouter = createTRPCRouter({
         {
           uiTableName: "Created At",
           uiTableId: "createdAt",
-          // events_full migration: column lives on events_full as start_time,
+          // spans migration: column lives on spans as start_time,
           // not the legacy traces.timestamp; tableName retained as "traces"
           // so the existing filter machinery still triggers the trace JOIN
           // hook in places that need it (see mapObservationsTable comments).

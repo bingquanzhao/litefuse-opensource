@@ -212,7 +212,7 @@ export const getObservationStream = async (props: {
               PARTITION BY trace_id, project_id
               ORDER BY created_at DESC
             ) AS rn
-          FROM ${tableFor(projectId, "events_full")}
+          FROM ${tableFor(projectId, "spans")}
           WHERE project_id = {projectId: String}
             AND is_root = 1
         ) ranked
@@ -253,7 +253,7 @@ export const getObservationStream = async (props: {
         t.user_id AS userId,
         s.scores_avg AS scores_avg,
         s.score_categories AS score_categories
-      FROM ${tableFor(projectId, "events_full")} o
+      FROM ${tableFor(projectId, "spans")} o
         LEFT JOIN trace_root t
           ON t.trace_id = o.trace_id AND t.project_id = o.project_id
         LEFT JOIN scores_agg s

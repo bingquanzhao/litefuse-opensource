@@ -242,7 +242,7 @@ export const tracesTableUiColumnDefinitionsForDoris: UiColumnMappings = [
   },
   {
     // The Doris OTel-only model stores every OTel span as one
-    // `events_full` row; the per-row `name` column is the *span*'s
+    // `spans` row; the per-row `name` column is the *span*'s
     // own name (e.g. the generation name), while `trace_name` is the
     // trace-level name denormalised onto every row by
     // createEventRecord. Filtering by what the UI calls "Name" / "Trace

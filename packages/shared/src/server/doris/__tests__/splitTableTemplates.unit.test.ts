@@ -70,28 +70,28 @@ describe("buildAlterTtlStatement (set/change TTL later)", () => {
   it("sets dynamic_partition.start to the new retention", () => {
     expect(
       buildAlterTtlStatement({
-        physicalTable: "events_full_pid",
+        physicalTable: "spans_pid",
         retentionDays: 14,
       }),
     ).toBe(
-      'ALTER TABLE `events_full_pid` SET ("dynamic_partition.start" = "-14")',
+      'ALTER TABLE `spans_pid` SET ("dynamic_partition.start" = "-14")',
     );
   });
 
   it("moves the drop threshold on a plan upgrade (AUTO PARTITION back-fills)", () => {
     expect(
       buildAlterTtlStatement({
-        physicalTable: "events_full_pid",
+        physicalTable: "spans_pid",
         retentionDays: 1095,
       }),
     ).toBe(
-      'ALTER TABLE `events_full_pid` SET ("dynamic_partition.start" = "-1095")',
+      'ALTER TABLE `spans_pid` SET ("dynamic_partition.start" = "-1095")',
     );
   });
 
   it("null retention removes TTL (back to no-drop threshold)", () => {
     const sql = buildAlterTtlStatement({
-      physicalTable: "events_full_pid",
+      physicalTable: "spans_pid",
       retentionDays: null,
     });
     expect(sql).toContain(
@@ -103,17 +103,17 @@ describe("buildAlterTtlStatement (set/change TTL later)", () => {
 describe("buildSplitTableFromTemplate", () => {
   it("substitutes __TABLE__ with the physical name and appends the tail", () => {
     const ddl = buildSplitTableFromTemplate({
-      templateSql: readSplitTemplate("events_full"),
-      sharedTable: "events_full",
-      physicalTable: "events_full_cmqpid",
+      templateSql: readSplitTemplate("spans"),
+      sharedTable: "spans",
+      physicalTable: "spans_cmqpid",
       tail: {
-        ...SPLIT_BASE_TABLE_SHAPES.events_full,
+        ...SPLIT_BASE_TABLE_SHAPES.spans,
         retentionDays: 14,
         replication: 1,
       },
     });
     // placeholder replaced everywhere; renamed with IF NOT EXISTS
-    expect(ddl).toMatch(/^CREATE TABLE IF NOT EXISTS `events_full_cmqpid`/);
+    expect(ddl).toMatch(/^CREATE TABLE IF NOT EXISTS `spans_cmqpid`/);
     expect(ddl).not.toContain("__TABLE__");
     // split KEY drops project_id (constant within a split table)
     expect(ddl).toContain("DUPLICATE KEY(`trace_id`, `start_time`, `span_id`)");
@@ -129,11 +129,11 @@ describe("buildSplitTableFromTemplate", () => {
   it("throws if the template has no __TABLE__ placeholder", () => {
     expect(() =>
       buildSplitTableFromTemplate({
-        templateSql: "CREATE TABLE `events_full` (`x` int) ENGINE=OLAP",
-        sharedTable: "events_full",
-        physicalTable: "events_full_x",
+        templateSql: "CREATE TABLE `spans` (`x` int) ENGINE=OLAP",
+        sharedTable: "spans",
+        physicalTable: "spans_x",
         tail: {
-          ...SPLIT_BASE_TABLE_SHAPES.events_full,
+          ...SPLIT_BASE_TABLE_SHAPES.spans,
           retentionDays: 1,
           replication: 1,
         },
@@ -146,27 +146,27 @@ describe("buildSplitTableStatements (reads OUR split templates)", () => {
   const PID = "cmqiwxsca0006pj070fdkn0vd";
 
   it("produces the 3 per-project statements with dynamic_partition + MV", () => {
-    const { eventsFull, tracesScalar, mv } = buildSplitTableStatements({
+    const { spans, tracesScalar, mv } = buildSplitTableStatements({
       projectId: PID,
       retentionDays: 30,
       replication: 1,
       storagePageSize: 262_144,
     });
-    expect(eventsFull).toMatch(
-      new RegExp("^CREATE TABLE IF NOT EXISTS `events_full_" + PID + "`"),
+    expect(spans).toMatch(
+      new RegExp("^CREATE TABLE IF NOT EXISTS `spans_" + PID + "`"),
     );
-    expect(eventsFull).toContain('"dynamic_partition.start" = "-30"');
-    expect(eventsFull).toContain(
+    expect(spans).toContain('"dynamic_partition.start" = "-30"');
+    expect(spans).toContain(
       "AUTO PARTITION BY RANGE (date_trunc(`start_time`, 'day')) ()",
     );
     // split key shape + full column schema flowed through (not a truncated stub)
-    expect(eventsFull).toContain("DUPLICATE KEY(`trace_id`, `start_time`, `span_id`)");
-    expect(eventsFull).toContain("`experiment_id`");
-    expect(eventsFull).toContain('"storage_page_size" = "262144"');
+    expect(spans).toContain("DUPLICATE KEY(`trace_id`, `start_time`, `span_id`)");
+    expect(spans).toContain("`experiment_id`");
+    expect(spans).toContain('"storage_page_size" = "262144"');
     // removed columns must NOT be present
-    expect(eventsFull).not.toContain("`is_deleted`");
-    expect(eventsFull).not.toContain("`event_ts`");
-    expect(eventsFull).not.toContain("`updated_at`");
+    expect(spans).not.toContain("`is_deleted`");
+    expect(spans).not.toContain("`event_ts`");
+    expect(spans).not.toContain("`updated_at`");
 
     expect(tracesScalar).toMatch(
       new RegExp("^CREATE TABLE IF NOT EXISTS `traces_scalar_" + PID + "`"),
@@ -181,7 +181,7 @@ describe("buildSplitTableStatements (reads OUR split templates)", () => {
     // traces_scalar is MoW-mutated (bookmark/public/tags) → keeps real updated_at
     expect(tracesScalar).toContain("`updated_at`");
 
-    expect(mv).toContain(`FROM events_full_${PID}`);
+    expect(mv).toContain(`FROM spans_${PID}`);
     expect(mv).toContain("MAX(created_at) AS tm_max_created_at");
     expect(mv).not.toContain("event_ts");
   });
@@ -191,13 +191,13 @@ describe("buildSplitTableStatements (reads OUR split templates)", () => {
 // If a later migration ALTERs these tables, the single CREATE file would no
 // longer be the whole schema and the split tables would silently miss columns.
 describe("split-table schema drift guard", () => {
-  it("no migration ALTERs events_full/traces_scalar after CREATE", () => {
+  it("no migration ALTERs spans/traces_scalar after CREATE", () => {
     const dir = resolveMigrationsDir();
     const offenders: string[] = [];
     for (const f of readdirSync(dir)) {
       if (!f.endsWith(".up.sql")) continue;
       if (
-        f.includes("create_events_full") ||
+        f.includes("create_spans") ||
         f.includes("create_traces_scalar")
       )
         continue;
@@ -207,7 +207,7 @@ describe("split-table schema drift guard", () => {
         .split("\n")
         .filter((l) => !l.trimStart().startsWith("--"))
         .join("\n");
-      if (/ALTER\s+TABLE\s+`?(events_full|traces_scalar)`?\b/i.test(code)) {
+      if (/ALTER\s+TABLE\s+`?(spans|traces_scalar)`?\b/i.test(code)) {
         offenders.push(f);
       }
     }
@@ -219,10 +219,10 @@ describe("buildTraceMetricsAggMV", () => {
   it("names the MV and points FROM at the per-project base table", () => {
     const mv = buildTraceMetricsAggMV({
       mvName: "trace_metrics_agg_cmqpid",
-      baseTable: "events_full_cmqpid",
+      baseTable: "spans_cmqpid",
     });
     expect(mv).toMatch(/^CREATE MATERIALIZED VIEW trace_metrics_agg_cmqpid AS/);
-    expect(mv).toContain("FROM events_full_cmqpid");
+    expect(mv).toContain("FROM spans_cmqpid");
     // aggregate shape (must match migration 0040 / dataModelDoris)
     expect(mv).toContain(
       "SUM(CASE WHEN is_root = 0       THEN 1 ELSE 0 END) AS tm_observation_count",

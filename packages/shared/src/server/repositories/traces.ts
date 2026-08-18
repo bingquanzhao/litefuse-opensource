@@ -32,12 +32,12 @@ import { convertDorisToDomain } from "./traces_converters";
 
 /**
  * Trace reads, post async-MV era. The traces_mv-shaped any_value aggregation
- * over events_full is GONE — every trace read is a flat-row lookup:
+ * over spans is GONE — every trace read is a flat-row lookup:
  *   - Scalars: traces_scalar (one row per trace, migration 0039), also the
  *     AUTHORITATIVE store for the mutable flags (bookmarked/public/tags —
- *     events_full is DUPLICATE-model, no UPDATEs).
+ *     spans is DUPLICATE-model, no UPDATEs).
  *   - Full input/output (the only trace fields NOT on traces_scalar): a flat
- *     read of the trace's root span row in events_full (is_root = 1).
+ *     read of the trace's root span row in spans (is_root = 1).
  * Consequence: a trace is only readable once its ROOT span arrived (OTel
  * exports the root last, so an in-flight trace has no scalar row and no root
  * row). Such traces are absent from decoration/byId until the root lands.
@@ -68,14 +68,14 @@ const TRACES_SCALAR_SELECT = `
 
 /**
  * Full input/output for ONE trace: point read of the root span row.
- * ORDER BY created_at DESC — events_full is DUPLICATE-model, a re-delivered
+ * ORDER BY created_at DESC — spans is DUPLICATE-model, a re-delivered
  * root span lands as a second row; pick the newest copy deterministically.
  */
 const traceRootIoQuery = (projectId: string) => `
     SELECT
       CAST(input AS STRING) AS input,
       CAST(output AS STRING) AS output
-    FROM ${tableFor(projectId, "events_full")}
+    FROM ${tableFor(projectId, "spans")}
     WHERE project_id = {projectId: String}
     AND trace_id = {traceId: String}
     AND is_root = 1
@@ -109,7 +109,7 @@ const attachRootIO = async (params: {
         trace_id AS id,
         CAST(input AS STRING) AS input,
         CAST(output AS STRING) AS output
-      FROM ${tableFor(projectId, "events_full")}
+      FROM ${tableFor(projectId, "spans")}
       WHERE project_id = {projectId: String}
       AND trace_id IN ({ioTraceIds: Array(String)})
       AND is_root = 1
@@ -140,9 +140,9 @@ const attachRootIO = async (params: {
 };
 
 /**
- * byId FALLBACK: the trace read flat off its root span row in events_full —
+ * byId FALLBACK: the trace read flat off its root span row in spans —
  * used when the traces_scalar row is missing (scalar stream load lagging the
- * events_full one, or data predating the dual-write). Mutable flags
+ * spans one, or data predating the dual-write). Mutable flags
  * (bookmarked/public/tags) read here are the ingestion-time snapshot.
  */
 const buildRootSpanTraceQuery = (params: {
@@ -176,7 +176,7 @@ const buildRootSpanTraceQuery = (params: {
       input_trim,
       output_trim,${fullIO}
       metadata
-    FROM ${tableFor(projectId, "events_full")}
+    FROM ${tableFor(projectId, "spans")}
     WHERE ${whereSql}
     AND is_root = 1
     ORDER BY created_at DESC
@@ -269,7 +269,7 @@ export const checkTraceExistsAndGetTimestamp = async ({
             COUNT(CASE WHEN level = 'DEBUG' THEN 1 END) as debug_count,
             trace_id,
             project_id
-        FROM ${tableFor(projectId, "events_full")} o
+        FROM ${tableFor(projectId, "spans")} o
         WHERE o.project_id = '${projectId}'
         ${timeStampFilter ? `AND o.start_time >= '${toDorisDateTime(timestamp, -172800)}'` : ""}
         AND o.start_time >= '${toDorisDateTime(timestamp, -172800)}'
@@ -278,7 +278,7 @@ export const checkTraceExistsAndGetTimestamp = async ({
     SELECT
       t.trace_id as id,
       t.project_id as project_id
-    FROM ${tableFor(projectId, "events_full")} t
+    FROM ${tableFor(projectId, "spans")} t
     ${observationFilterRes ? `INNER JOIN observations_agg o ON t.trace_id = o.trace_id AND t.project_id = o.project_id` : ""}
     WHERE ${tracesFilterRes.query}
     AND t.project_id = '${projectId}'
@@ -389,7 +389,7 @@ export const getTraceUsageBreakdown = async ({
       SELECT
         to_json(usage_details) AS usage_details,
         to_json(cost_details) AS cost_details
-      FROM ${tableFor(projectId, "events_full")}
+      FROM ${tableFor(projectId, "spans")}
       WHERE project_id = {projectId: String}
       AND trace_id = {traceId: String}
       AND is_root = 0
@@ -505,11 +505,11 @@ export const getTracesBySessionId = async (
 };
 
 // traces_scalar (one row per trace — migration 0039) exposed under
-// events_full-compatible column names, so the shared filter mappings
+// spans-compatible column names, so the shared filter mappings
 // (t.start_time, t.trace_name, ...) and dorisSearchCondition (t.trace_id,
 // t.user_id, t.trace_name) apply to it unchanged. Lets the filter-option and
 // trace-counting reads below run on a table ~2 orders of magnitude smaller
-// than events_full (one row per trace vs one per span) instead of full-project
+// than spans (one row per trace vs one per span) instead of full-project
 // is_root = 1 scans across every partition.
 const tracesScalarAsT = (projectId: string) => `(
       SELECT
@@ -565,7 +565,7 @@ export const getTraceCountsByProjectInCreationInterval = async ({
 }) => {
   // traces_scalar: one row per trace, created_at dual-written since migration
   // 0039's trim/audit columns (pre-existing rows need the documented backfill,
-  // which carries created_at from events_full).
+  // which carries created_at from spans).
   // Cross-project query: PostgreSQL-authoritative routing groups legacy and
   // pending projects on shared while querying each LIVE physical table.
   const rows = await executeDorisProjectFanout<{
@@ -601,7 +601,7 @@ export const getTraceCountsByProjectInCreationInterval = async ({
 
 // Billing free-tier usage (billingUsageService): total trace units a set of
 // projects produced since a cutoff. traces_scalar is one row per trace (MoW,
-// deduped), so this is a plain row count. Observations COUNT(*) events_full
+// deduped), so this is a plain row count. Observations COUNT(*) spans
 // separately (billing model counts the synthetic root as an observation too).
 // Cross-project routing is authoritative and bounded by the shared executor.
 export const getTraceCountOfProjectsSinceCreationDate = async ({
@@ -657,12 +657,12 @@ export const getTraceById = async ({
   // Scalar-first fast path for EVERY verbosity: all trace scalars live on
   // traces_scalar (one row per trace, dual-written at ingestion — migration
   // 0039), which is also the authoritative store for the mutable flags
-  // (bookmarked/public/tags — events_full is DUPLICATE-model, no UPDATEs).
+  // (bookmarked/public/tags — spans is DUPLICATE-model, no UPDATEs).
   // (project_id, id) is the unique-key prefix and id the distribution column,
   // so this is a single-tablet point lookup. Verbosity full/truncated then
   // fetches the only fields NOT on traces_scalar — the full input/output
   // Variants — via a point read of the root span row, day-pruned by the
-  // scalar row's own start_time. Falls back to the events_full aggregate
+  // scalar row's own start_time. Falls back to the spans aggregate
   // below when the scalar row is missing (a trace still in flight — OTel
   // exports the root span last — or data predating the dual-write).
   const scalarRows = await queryDoris<TraceRecordReadType>({
@@ -733,8 +733,8 @@ export const getTraceById = async ({
   }
 
   // Fallback: the scalar row is missing (scalar stream load lagging the
-  // events_full one, or data predating the dual-write) — read the trace flat
-  // off its root span row in events_full instead.
+  // spans one, or data predating the dual-write) — read the trace flat
+  // off its root span row in spans instead.
   // Hintless callers (comments validation, peeks opened from a bare URL, ...)
   // used to fire ONE unbounded query — a scan across every partition of the
   // trace's inverted-index entries. Instead, probe the last 7 days first
@@ -806,7 +806,7 @@ export const getTraceById = async ({
       "langfuse.query_by_id_age",
       new Date().getTime() - trace.timestamp.getTime(),
       {
-        table: "events_full",
+        table: "spans",
       },
     );
   });
@@ -829,7 +829,7 @@ export const getTracesGroupedByName = async (
 
   // traces_scalar.name is the explicit trace_name — the same value the list's
   // Name column shows and its filters filter on, so the dropdown options now
-  // match the list exactly (the old events_full root-span `name` could differ).
+  // match the list exactly (the old spans root-span `name` could differ).
   const query = `
       select
         name as name,
@@ -1031,7 +1031,7 @@ export const getTracesIdentifierForSession = async (
   sessionId: string,
 ) => {
   // Trace scalars only → traces_scalar (one row per trace, idx_session_id —
-  // migration 0039). COALESCE keeps the previous events_full ''-for-unset
+  // migration 0039). COALESCE keeps the previous spans ''-for-unset
   // convention (traces_scalar stores NULL there); name here is the explicit
   // trace name, matching the migrated traces list.
   const query = `
@@ -1082,7 +1082,7 @@ export const getTracesIdentifierForSession = async (
 
 export const deleteTraces = async (projectId: string, traceIds: string[]) => {
   const query = `
-    DELETE FROM ${tableFor(projectId, "events_full")}
+    DELETE FROM ${tableFor(projectId, "spans")}
     WHERE project_id = {projectId: String}
     AND trace_id IN ({traceIds: Array(String)});
   `;
@@ -1118,8 +1118,8 @@ export const deleteTraces = async (projectId: string, traceIds: string[]) => {
       projectId,
     },
   });
-  // trace_metrics_agg is a sync MV on events_full (migration 0040): the
-  // events_full DELETE above maintains it — no mirror statement needed.
+  // trace_metrics_agg is a sync MV on spans (migration 0040): the
+  // spans DELETE above maintains it — no mirror statement needed.
 };
 
 export const hasAnyTraceOlderThan = async (
@@ -1168,7 +1168,7 @@ export const deleteTracesOlderThanDays = async (
   // deleteObservationsOlderThanDays applies, so retention semantics stay
   // aligned across the two.
   const query = `
-    DELETE FROM ${tableFor(projectId, "events_full")}
+    DELETE FROM ${tableFor(projectId, "spans")}
     WHERE project_id = {projectId: String}
     AND start_time < {cutoffDate: DateTime};
   `;
@@ -1203,8 +1203,8 @@ export const deleteTracesOlderThanDays = async (
       projectId,
     },
   });
-  // trace_metrics_agg is a sync MV on events_full (migration 0040): the
-  // events_full DELETE above maintains it — no mirror statement needed.
+  // trace_metrics_agg is a sync MV on spans (migration 0040): the
+  // spans DELETE above maintains it — no mirror statement needed.
   return true;
 };
 
@@ -1212,10 +1212,10 @@ export const deleteTracesByProjectId = async (
   projectId: string,
 ): Promise<boolean> => {
   // Intentionally unconditional: project-level telemetry deletion must remove
-  // events_full rows even if traces_scalar is already empty or partially
+  // spans rows even if traces_scalar is already empty or partially
   // written.
   const query = `
-    DELETE FROM ${tableFor(projectId, "events_full")}
+    DELETE FROM ${tableFor(projectId, "spans")}
     WHERE project_id = {projectId: String};
   `;
   await commandDoris({
@@ -1246,8 +1246,8 @@ export const deleteTracesByProjectId = async (
       projectId,
     },
   });
-  // trace_metrics_agg is a sync MV on events_full (migration 0040): the
-  // events_full DELETE above maintains it — no mirror statement needed.
+  // trace_metrics_agg is a sync MV on spans (migration 0040): the
+  // spans DELETE above maintains it — no mirror statement needed.
   return true;
 };
 
@@ -1278,13 +1278,13 @@ export const hasAnyUser = async (projectId: string) => {
   return rows.length > 0;
 };
 
-// traces_scalar exposed under events_full-compatible column names for the
+// traces_scalar exposed under spans-compatible column names for the
 // Users-page queries below — the same pattern as TRACES_SCALAR_AS_T above,
 // extended with the remaining trace-scalar filter columns the traces UI
 // mapping can reference (version/release/metadata/bookmarked/public). One row
-// per trace, so the former `is_root = 1` events_full scans become flat reads
+// per trace, so the former `is_root = 1` spans scans become flat reads
 // of a table that also carries idx_user_id. NULL semantics: traces_scalar
-// stores NULL where events_full root rows store '' (user_id/session_id/
+// stores NULL where spans root rows store '' (user_id/session_id/
 // release/version), so "trace has a user" is `user_id IS NOT NULL` here (no
 // `!= ''` needed).
 const tracesScalarAsTForUsers = (projectId: string) => `(
@@ -1385,7 +1385,7 @@ export const getUserMetrics = async (
   ) as DorisDateTimeFilter | undefined;
 
   // Per-trace metrics come from the trace_metrics_agg rewrite shape (sync MV,
-  // migration 0040): the CTE below aggregates events_full with EXACTLY the
+  // migration 0040): the CTE below aggregates spans with EXACTLY the
   // MV's expression shapes (SUM over the precomputed *_calculated columns /
   // total_cost, SUM(CASE WHEN is_root = 0 …), grouped by project_id,
   // trace_id) so Doris transparently rewrites the scan onto the rollup. The
@@ -1413,7 +1413,7 @@ export const getUserMetrics = async (
             SUM(output_tokens_calculated) as output_usage,
             SUM(total_tokens_calculated) as total_usage,
             SUM(CASE WHEN is_root = 0 THEN 1 ELSE 0 END) as observation_count
-        FROM ${tableFor(projectId, "events_full")}
+        FROM ${tableFor(projectId, "spans")}
         WHERE project_id = {projectId: String}
         ${timestampFilter ? `AND date_trunc(start_time, 'day') >= date_trunc(DATE_SUB({traceTimestamp: DateTime}, ${OBSERVATIONS_TO_TRACE_INTERVAL}), 'day')` : ""}
         GROUP BY project_id, trace_id
@@ -1507,7 +1507,7 @@ export const getTracesForBlobStorageExport = function (
       tags,
       input,
       output
-    FROM ${tableFor(projectId, "events_full")}
+    FROM ${tableFor(projectId, "spans")}
     WHERE is_root = 1
     AND project_id = {projectId: String}
     AND start_time >= {minTimestamp: DateTime}
@@ -1548,7 +1548,7 @@ export const getTracesForAnalyticsIntegrations = async function* (
                CASE WHEN max(start_time) > max(end_time) THEN max(start_time) ELSE max(end_time) END,
                CASE WHEN min(start_time) < min(end_time) THEN min(start_time) ELSE min(end_time) END
              ) as latency_milliseconds
-      FROM ${tableFor(projectId, "events_full")} o
+      FROM ${tableFor(projectId, "spans")} o
       WHERE o.project_id = {projectId: String}
       AND o.start_time >= DATE_SUB({minTimestamp: DateTime}, ${TRACE_TO_OBSERVATIONS_INTERVAL})
       GROUP BY o.project_id, o.trace_id
@@ -1567,7 +1567,7 @@ export const getTracesForAnalyticsIntegrations = async function* (
       o.total_cost as total_cost,
       o.latency_milliseconds / 1000 as latency,
       o.observation_count as observation_count
-    FROM ${tableFor(projectId, "events_full")} t
+    FROM ${tableFor(projectId, "spans")} t
     LEFT JOIN observations_agg o ON t.trace_id = o.trace_id AND t.project_id = o.project_id
     WHERE t.project_id = {projectId: String}
     AND t.is_root = 1
@@ -1624,7 +1624,7 @@ export const getTracesForAnalyticsIntegrations = async function* (
  */
 export const getTracesByIdsForAnyProject = async (traceIds: string[]) => {
   // id/project only → traces_scalar; id is its distribution column, so the
-  // old unindexed cross-project events_full scan becomes a targeted read.
+  // old unindexed cross-project spans scan becomes a targeted read.
   //
   // Resolve active projects from PG, then stop assigning new bounded fan-out
   // targets once a matching trace is found.
@@ -1707,7 +1707,7 @@ export async function getAgentGraphData(params: {
             metadata['langgraph_node'] AS node,
             metadata['langgraph_step'] AS step
           FROM
-            ${tableFor(projectId, "events_full")}
+            ${tableFor(projectId, "spans")}
           WHERE
             project_id = {projectId: String}
             AND trace_id = {traceId: String}

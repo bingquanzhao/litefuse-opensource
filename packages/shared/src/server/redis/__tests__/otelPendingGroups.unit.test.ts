@@ -33,7 +33,7 @@ import {
   otelGrouperLockKey,
   otelRegisteredKey,
   computeGroupId,
-  eventsFullLabelForGroup,
+  spansLabelForGroup,
   sha1Hex,
 } from "../otelPendingGroups";
 import type { OtelPendingEntryType } from "../../queues";
@@ -175,8 +175,8 @@ describe("otelPendingGroups (real Redis Lua)", () => {
       expect(cut!.groupId).toBe(
         computeGroupId(entries.map((e) => e.fileKey)),
       );
-      expect(eventsFullLabelForGroup(cut!.groupId)).toBe(
-        `lf2_${sha1Hex(`${cut!.groupId}_events_full`)}`,
+      expect(spansLabelForGroup(cut!.groupId)).toBe(
+        `lf2_${sha1Hex(`${cut!.groupId}_spans`)}`,
       );
       // Manifest persisted, members trimmed off the pending list.
       expect(await scanStagedOtelGroups({ redis, groupingKey })).toEqual([

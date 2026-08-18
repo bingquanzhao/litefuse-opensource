@@ -208,7 +208,7 @@ export const modelRouter = createTRPCRouter({
         SELECT
           model_id as modelId,
           MAX(start_time) as lastUsed
-        FROM ${tableFor(projectId, "events_full")}
+        FROM ${tableFor(projectId, "spans")}
         WHERE project_id = {projectId: String}
           AND type = 'GENERATION'
           AND model_id IN ({modelIds: Array(String)})

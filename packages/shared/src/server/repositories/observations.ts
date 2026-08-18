@@ -63,7 +63,7 @@ export const checkObservationExists = async (
 ): Promise<boolean> => {
   const query = `
     SELECT span_id AS id, project_id
-    FROM ${tableFor(projectId, "events_full")} o
+    FROM ${tableFor(projectId, "spans")} o
     WHERE project_id = {projectId: String}
     AND span_id = {id: String}
     ${startTime ? `AND start_time >= DATE_SUB({startTime: DateTime}, INTERVAL 2 DAY)` : ""}
@@ -179,7 +179,7 @@ export const getObservationsForTrace = async <IncludeIO extends boolean>(
       tool_calls,
       tool_call_names,
       created_at
-    FROM ${tableFor(projectId, "events_full")}
+    FROM ${tableFor(projectId, "spans")}
     WHERE trace_id = {traceId: String}
     AND project_id = {projectId: String}
     ${timestamp ? `AND start_time >= DATE_SUB({traceTimestamp: DateTime}, ${TRACE_TO_OBSERVATIONS_INTERVAL})` : ""}
@@ -307,7 +307,7 @@ export const getObservationForTraceIdByName = async ({
       tool_calls,
       tool_call_names,
       created_at
-    FROM ${tableFor(projectId, "events_full")}
+    FROM ${tableFor(projectId, "spans")}
     WHERE trace_id = {traceId: String}
     AND project_id = {projectId: String}
     AND name = {name: String}
@@ -438,7 +438,7 @@ export const getObservationsById = async (
       prompt_name,
       prompt_version,
       created_at
-    FROM ${tableFor(projectId, "events_full")}
+    FROM ${tableFor(projectId, "spans")}
     WHERE span_id IN ({ids: Array(String)})
     AND project_id = {projectId: String}
     ORDER BY created_at DESC
@@ -513,7 +513,7 @@ const getObservationByIdInternal = async ({
       created_at,
       input_trim,
       output_trim
-    FROM ${tableFor(projectId, "events_full")}
+    FROM ${tableFor(projectId, "spans")}
     WHERE span_id = {id: String}
     AND project_id = {projectId: String}
     ${startTime ? `AND DATE(start_time) = DATE({startTime: DateTime})` : ""}
@@ -693,7 +693,7 @@ export const getObservationsTableWithModelData = async (
 
 // The list's Start Time lower bound (UI sends uiTableId "startTime"; some
 // callers use the display name "Start Time"). Used only to bound the scores
-// CTE — events_full itself needs no mirror predicate anymore: it partitions
+// CTE — spans itself needs no mirror predicate anymore: it partitions
 // directly on start_time (migration 0037), so any start_time predicate the
 // filter mapping emits prunes partitions natively.
 const findStartTimeLowerBound = (filter: FilterState) =>
@@ -875,9 +875,9 @@ const getObservationsTableInternal = async <T>(
   // 0039) serves the trace-column filter mappings only — the projection is
   // o.-only (upstream-aligned), so the join is skipped entirely unless a
   // filter or ORDER BY references t.*. MoW unique key means no
-  // duplicate-root fan-out (unlike an events_full is_root = 1 self-join on
+  // duplicate-root fan-out (unlike an spans is_root = 1 self-join on
   // the DUPLICATE-model base), and trace_id is its distribution column.
-  // traces_scalar stores NULL where events_full stored '' — COALESCE back so
+  // traces_scalar stores NULL where spans stored '' — COALESCE back so
   // the filter mappings' ''-convention keeps matching.
   const needsRootJoin =
     observationsFilter.some((f) => f.table === "traces") ||
@@ -885,7 +885,7 @@ const getObservationsTableInternal = async <T>(
   const query = `
       ${scoresCte}
       SELECT ${dorisSelectString}
-      FROM ${tableFor(projectId, "events_full")} o
+      FROM ${tableFor(projectId, "spans")} o
                ${
                  needsRootJoin
                    ? `LEFT JOIN (
@@ -935,7 +935,7 @@ const getObservationsTableInternal = async <T>(
   // Doris MySQL protocol returns MAP columns as strings.
   // Parse them into objects so downstream converters work correctly.
   // For selectIOAndMetadata=true rows, zip the parallel metadata arrays
-  // (events_full storage layout) back into the Record<string, string>
+  // (spans storage layout) back into the Record<string, string>
   // shape that convertObservation expects.
   return res.map((r) => {
     const preprocessed = preprocessDorisUsageCostDetails(r) as Record<
@@ -971,7 +971,7 @@ export const getObservationsGroupedByModel = async (
 
   const query = `
     SELECT o.provided_model_name as name
-    FROM ${tableFor(projectId, "events_full")} o
+    FROM ${tableFor(projectId, "spans")} o
     WHERE ${appliedObservationsFilter.query}
     AND o.type = 'GENERATION'
     GROUP BY o.provided_model_name
@@ -1013,7 +1013,7 @@ export const getObservationsGroupedByModelId = async (
 
   const query = `
       SELECT o.model_id as modelId
-      FROM ${tableFor(projectId, "events_full")} o
+      FROM ${tableFor(projectId, "spans")} o
       WHERE ${appliedObservationsFilter.query}
       AND o.type = 'GENERATION'
       GROUP BY o.model_id
@@ -1056,7 +1056,7 @@ export const getObservationsGroupedByName = async (
 
   const query = `
       SELECT o.name as name
-      FROM ${tableFor(projectId, "events_full")} o
+      FROM ${tableFor(projectId, "spans")} o
       WHERE ${appliedObservationsFilter.query}
       AND o.type = 'GENERATION'
       GROUP BY o.name
@@ -1114,7 +1114,7 @@ export const getObservationsGroupedByPromptName = async (
 
   const query = `
       SELECT o.prompt_id as id
-      FROM ${tableFor(projectId, "events_full")} o
+      FROM ${tableFor(projectId, "spans")} o
       WHERE ${appliedObservationsFilter.query}
       AND o.type = 'GENERATION'
       AND o.prompt_id IS NOT NULL
@@ -1174,7 +1174,7 @@ export const getCostForTraces = async (
         SELECT sum(total_cost) as total_cost
         FROM (
           SELECT trace_id, SUM(total_cost) AS total_cost
-          FROM ${tableFor(projectId, "events_full")}
+          FROM ${tableFor(projectId, "spans")}
           WHERE project_id = {projectId: String}
           AND trace_id IN ({traceIds: Array(String)})
           AND date_trunc(start_time, 'day') >= date_trunc(DATE_SUB({timestamp: DateTime}, ${OBSERVATIONS_TO_TRACE_INTERVAL}), 'day')
@@ -1205,7 +1205,7 @@ export const deleteObservationsByTraceIds = async (
   traceIds: string[],
 ) => {
   const query = `
-      DELETE FROM ${tableFor(projectId, "events_full")}
+      DELETE FROM ${tableFor(projectId, "spans")}
       WHERE project_id = {projectId: String}
       AND trace_id IN ({traceIds: Array(String)})
     `;
@@ -1228,7 +1228,7 @@ export const deleteObservationsByTraceIds = async (
 export const hasAnyObservation = async (projectId: string) => {
   const query = `
       SELECT 1
-      FROM ${tableFor(projectId, "events_full")}
+      FROM ${tableFor(projectId, "spans")}
       WHERE project_id = {projectId: String}
       LIMIT 1
     `;
@@ -1251,7 +1251,7 @@ export const deleteObservationsByProjectId = async (
   projectId: string,
 ): Promise<boolean> => {
   const query = `
-      DELETE FROM ${tableFor(projectId, "events_full")}
+      DELETE FROM ${tableFor(projectId, "spans")}
       WHERE project_id = {projectId: String}
     `;
   await commandDoris({
@@ -1275,7 +1275,7 @@ export const hasAnyObservationOlderThan = async (
 ) => {
   const query = `
       SELECT 1
-      FROM ${tableFor(projectId, "events_full")}
+      FROM ${tableFor(projectId, "spans")}
       WHERE project_id = {projectId: String}
       AND start_time < {cutoffDate: DateTime}
       LIMIT 1
@@ -1303,7 +1303,7 @@ export const deleteObservationsOlderThanDays = async (
   beforeDate: Date,
 ): Promise<boolean> => {
   const query = `
-      DELETE FROM ${tableFor(projectId, "events_full")}
+      DELETE FROM ${tableFor(projectId, "spans")}
       WHERE project_id = {projectId: String}
       AND start_time < {cutoffDate: DateTime};
     `;
@@ -1329,7 +1329,7 @@ export const getObservationsWithPromptName = async (
 ) => {
   const query = `
       SELECT count(*) as count, prompt_name
-      FROM ${tableFor(projectId, "events_full")}
+      FROM ${tableFor(projectId, "spans")}
       WHERE project_id = {projectId: String}
       AND prompt_name IN ({promptNames: Array(String)})
       AND prompt_name IS NOT NULL
@@ -1371,7 +1371,7 @@ export const getObservationMetricsForPrompts = async (
                     output_tokens_calculated,
                     total_cost,
                     milliseconds_diff(end_time, start_time) AS latency_ms
-                FROM ${tableFor(projectId, "events_full")}
+                FROM ${tableFor(projectId, "spans")}
                 WHERE (type = 'GENERATION')
                 AND (prompt_name IS NOT NULL)
                 AND project_id={projectId: String}
@@ -1440,7 +1440,7 @@ export const getLatencyAndTotalCostForObservations = async (
           span_id AS id,
           COALESCE(total_cost, 0) AS total_cost,
           milliseconds_diff(end_time, start_time) AS latency_ms
-      FROM ${tableFor(projectId, "events_full")}
+      FROM ${tableFor(projectId, "spans")}
       WHERE project_id = {projectId: String}
       AND span_id IN ({observationIds: Array(String)})
       ${timestamp ? `AND start_time >= {timestamp: DateTime}` : ""}
@@ -1491,7 +1491,7 @@ export const getLatencyAndTotalCostForObservationsByTraces = async (
           trace_id,
           SUM(total_cost) AS total_cost,
           milliseconds_diff(MAX(end_time), MIN(start_time)) AS latency_ms
-      FROM ${tableFor(projectId, "events_full")}
+      FROM ${tableFor(projectId, "spans")}
       WHERE project_id = {projectId: String}
       AND trace_id IN ({traceIds: Array(String)})
       ${timestamp ? `AND date_trunc(start_time, 'day') >= date_trunc({timestamp: DateTime}, 'day')` : ""}
@@ -1560,7 +1560,7 @@ export const getObservationsGroupedByTraceId = async (
           CASE WHEN MAP_CONTAINS_KEY(cost_details,'input') THEN cost_details['input'] ELSE 0 END AS input_cost,
           CASE WHEN MAP_CONTAINS_KEY(cost_details,'output') THEN cost_details['output'] ELSE 0 END AS output_cost,
           milliseconds_diff(end_time, start_time) AS latency_ms
-      FROM ${tableFor(projectId, "events_full")}
+      FROM ${tableFor(projectId, "spans")}
       WHERE project_id = {projectId: String}
       AND trace_id IN ({traceIds: Array(String)})
       ${timestamp ? `AND start_time >= {timestamp: DateTime}` : ""}
@@ -1624,7 +1624,7 @@ export const getObservationCountsByProjectInCreationInterval = async ({
     project_id: string;
     count: string;
   }>({
-    logicalTable: "events_full",
+    logicalTable: "spans",
     projectIds,
     queryTarget: (target) =>
       queryDoris({
@@ -1664,7 +1664,7 @@ export const getObservationCountOfProjectsSinceCreationDate = async ({
   start: Date;
 }) => {
   const rows = await executeDorisProjectFanout<{ count: string }>({
-    logicalTable: "events_full",
+    logicalTable: "spans",
     projectIds,
     queryTarget: (target) =>
       queryDoris({
@@ -1693,7 +1693,7 @@ export const getTraceIdsForObservations = async (
       SELECT
         trace_id,
         span_id AS id
-      FROM ${tableFor(projectId, "events_full")}
+      FROM ${tableFor(projectId, "spans")}
       WHERE project_id = {projectId: String}
       AND span_id IN ({observationIds: Array(String)})
     `;
@@ -1747,7 +1747,7 @@ export const getObservationsForBlobStorageExport = function (
         completion_start_time,
         prompt_name,
         prompt_version
-      FROM ${tableFor(projectId, "events_full")}
+      FROM ${tableFor(projectId, "spans")}
       WHERE project_id = {projectId: String}
       AND start_time >= {minTimestamp: DateTime}
       AND start_time <= {maxTimestamp: DateTime}
@@ -1806,8 +1806,8 @@ export const getGenerationsForAnalyticsIntegrations = async function* (
           o.metadata['$posthog_session_id'],
           t.metadata['$posthog_session_id']
         ) as posthog_session_id
-      FROM ${tableFor(projectId, "events_full")} o
-      LEFT JOIN ${tableFor(projectId, "events_full")} t
+      FROM ${tableFor(projectId, "spans")} o
+      LEFT JOIN ${tableFor(projectId, "spans")} t
         ON t.project_id = o.project_id
        AND t.trace_id = o.trace_id
        AND t.is_root = 1
@@ -1889,7 +1889,7 @@ export const getCostByEvaluatorIds = async (
       SELECT
         CAST(metadata['job_configuration_id'] AS STRING) as evaluator_id,
         sum(COALESCE(total_cost, 0)) as total_cost
-      FROM ${tableFor(projectId, "events_full")}
+      FROM ${tableFor(projectId, "spans")}
       WHERE project_id = {projectId: String}
         AND CAST(metadata['job_configuration_id'] AS STRING) IN ({evaluatorIds: Array(String)})
         AND type = 'GENERATION'

@@ -96,7 +96,7 @@ export class DorisWriter {
   // label registry (client treats "Label Already Exists"+FINISHED as success).
   // Opt-in ONLY for tables where duplicate application corrupts data
   // (AGGREGATE-KEY SUM columns). Currently empty: trace_metrics_agg — the
-  // only prior member — is now a synchronous MV on events_full (migration
+  // only prior member — is now a synchronous MV on spans (migration
   // 0040), maintained by the base-table load transaction itself. Instance
   // field (not module const) so tests can override. (Field initializers run
   // at construction, so the enum below is initialized by then.)
@@ -171,7 +171,7 @@ export class DorisWriter {
       [TableName.Observations]: [],
       [TableName.BlobStorageFileLog]: [],
       [TableName.DatasetRunItems]: [],
-      [TableName.EventsFull]: [],
+      [TableName.Spans]: [],
       [TableName.TracesScalar]: [],
     };
 
@@ -183,7 +183,7 @@ export class DorisWriter {
       [TableName.Observations]: [],
       [TableName.BlobStorageFileLog]: [],
       [TableName.DatasetRunItems]: [],
-      [TableName.EventsFull]: [],
+      [TableName.Spans]: [],
       [TableName.TracesScalar]: [],
     };
 
@@ -444,7 +444,7 @@ export class DorisWriter {
    * The readiest table to write, or null. A table is ready when it has a due
    * retry entry, holds a full fresh batch, or its oldest fresh row is older than
    * writeInterval (staleness). Scans round-robin from a rotating cursor so no
-   * table can be starved by an earlier-in-enum-order table (events_full is last,
+   * table can be starved by an earlier-in-enum-order table (spans is last,
    * so a fixed-order scan could starve it while e.g. scores keep flowing).
    */
   private pickReadyTable(now: number): TableName | null {
@@ -831,8 +831,8 @@ export enum TableName {
   Observations = "observation_source",
   BlobStorageFileLog = "blob_storage_file_log",
   DatasetRunItems = "dataset_run_items_rmt",
-  EventsFull = "events_full",
-  // One scalar row per trace (root span), dual-written next to EventsFull.
+  Spans = "spans",
+  // One scalar row per trace (root span), dual-written next to Spans.
   // Serves the flat trace-list fast path (see migration 0039).
   TracesScalar = "traces_scalar",
 }
@@ -847,7 +847,7 @@ type RecordInsertType<T extends TableName> = T extends TableName.Scores
         ? BlobStorageFileLogInsertType
         : T extends TableName.DatasetRunItems
           ? DatasetRunItemRecordInsertType
-          : T extends TableName.EventsFull
+          : T extends TableName.Spans
             ? EventRecordInsertType
             : T extends TableName.TracesScalar
               ? TraceScalarRecordInsertType

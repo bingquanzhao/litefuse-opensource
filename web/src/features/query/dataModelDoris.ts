@@ -1,19 +1,19 @@
 import { type ViewDeclarationType } from "./types";
 import { tableFor } from "@langfuse/shared/src/server";
 
-// Hybrid model over the events_full deployment (migrations 0037/0039/0040):
+// Hybrid model over the spans deployment (migrations 0037/0039/0040):
 // - tracesViewDoris reads traces_scalar (one row per trace — the root span's
 //   scalar fields, dual-written at ingestion) for its base and scalar
 //   dimensions, and joins a trace_metrics_agg rewrite-shaped aggregate over
-//   events_full for per-trace metrics.
-// - observationsViewDoris stays on events_full (every row is an OTel span;
+//   spans for per-trace metrics.
+// - observationsViewDoris stays on spans (every row is an OTel span;
 //   one OTel span = one row).
 // - scores views join traces_scalar for trace-level dimensions.
 //
 // traces_scalar stores user_id/session_id/release/version/name as NULL where
-// the events_full root row holds '' (NULLIF at write). Dimensions COALESCE
+// the spans root row holds '' (NULLIF at write). Dimensions COALESCE
 // back to '' so grouped outputs and filters keep the upstream non-nullable
-// String convention ('' = unset) that the previous events_full-based queries
+// String convention ('' = unset) that the previous spans-based queries
 // exposed. COALESCE'd dimension SQL embeds its own table alias — the query
 // builder must not prefix expression selects.
 
@@ -47,7 +47,7 @@ const traceMetricsAggRelationSql = (projectId: string) => `(
     SUM(total_tokens_calculated) AS total_tokens,
     SUM(total_cost) AS total_cost,
     SUM(CASE WHEN is_root = 0 THEN 1 ELSE 0 END) AS observation_count
-  FROM ${tableFor(projectId, "events_full")}
+  FROM ${tableFor(projectId, "spans")}
   WHERE project_id = '${RELATION_SQL_PROJECT_ID}'
     AND date_trunc(start_time, 'day') >= date_trunc('${RELATION_SQL_FROM_TIMESTAMP}', 'day')
     AND date_trunc(start_time, 'day') <= date_trunc('${RELATION_SQL_TO_TIMESTAMP}', 'day')
@@ -138,7 +138,7 @@ export const tracesViewDoris = (projectId: string): ViewDeclarationType => ({
     observationsCount: {
       // observation_count in the MV shape counts non-root spans; + 1 restores
       // the root span so the value matches the previous count over all
-      // events_full rows of the trace (every traces_scalar row was written
+      // spans rows of the trace (every traces_scalar row was written
       // from exactly one root span).
       sql: "max(observations_agg.observation_count) + 1",
       alias: "observationsCount",
@@ -202,7 +202,7 @@ export const tracesViewDoris = (projectId: string): ViewDeclarationType => ({
     // Raw span rows — only for observation-level dimensions (observationName).
     // Per-trace metrics use observations_agg below, not this relation.
     observations: {
-      name: tableFor(projectId, "events_full"),
+      name: tableFor(projectId, "spans"),
       joinConditionSql:
         "ON traces.id = observations.trace_id AND traces.project_id = observations.project_id",
       timeDimension: "start_time",
@@ -543,14 +543,14 @@ export const observationsViewDoris = (projectId: string): ViewDeclarationType =>
       timeDimension: "timestamp",
     },
   },
-  // Phase B alignment with upstream: every events_full row is an
+  // Phase B alignment with upstream: every spans row is an
   // observation now (no more synthetic `t-<trace_id>` rows). The previous
   // segment `is_root = 0` filtered those out; with the synth
   // rows gone it would instead exclude root observations, which is
   // wrong. No segment is needed.
   segments: [],
   timeDimension: "start_time",
-  baseCte: `${tableFor(projectId, "events_full")} observations`,
+  baseCte: `${tableFor(projectId, "spans")} observations`,
 });
 
 // Base dimensions for score views (shared between numeric and categorical)
@@ -701,7 +701,7 @@ export const scoresNumericViewDoris = (projectId: string): ViewDeclarationType =
       timeDimension: "start_time",
     },
     observations: {
-      name: tableFor(projectId, "events_full"),
+      name: tableFor(projectId, "spans"),
       joinConditionSql:
         "ON scores_numeric.observation_id = observations.span_id AND scores_numeric.project_id = observations.project_id",
       timeDimension: "start_time",
@@ -750,7 +750,7 @@ export const scoresCategoricalViewDoris = (projectId: string): ViewDeclarationTy
       timeDimension: "start_time",
     },
     observations: {
-      name: tableFor(projectId, "events_full"),
+      name: tableFor(projectId, "spans"),
       joinConditionSql:
         "ON scores_categorical.observation_id = observations.span_id AND scores_categorical.project_id = observations.project_id",
       timeDimension: "start_time",

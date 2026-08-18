@@ -165,7 +165,7 @@ export class OtelGrouper {
     );
     return getSplitTablesReadiness(projectId).catch(() => ({
       ready: false,
-      eventsFullExists: false,
+      spansExists: false,
       tracesScalarExists: false,
       mvStatus: "absent" as const,
     }));
@@ -395,7 +395,7 @@ export class OtelGrouper {
           continue;
         }
         this.laneReadinessNextCheck.set(lane, now + LANE_READINESS_BACKOFF_MS);
-        if (!readiness.eventsFullExists || !readiness.tracesScalarExists) {
+        if (!readiness.spansExists || !readiness.tracesScalarExists) {
           // INCONSISTENT: a candidate lane is split=true, so the flip-gate
           // invariant (split=true ⇒ base tables exist) says its tables should be
           // present — but they are not (dropped, or a control row flipped
@@ -406,7 +406,7 @@ export class OtelGrouper {
             shard: lane,
           });
           logger.warn(
-            `[OtelGrouper] lane ${lane} is split but base tables are missing (events=${readiness.eventsFullExists} scalar=${readiness.tracesScalarExists}) — re-enqueuing provisioning`,
+            `[OtelGrouper] lane ${lane} is split but base tables are missing (events=${readiness.spansExists} scalar=${readiness.tracesScalarExists}) — re-enqueuing provisioning`,
           );
           await enqueueDorisSplitTableProvisioning(laneToProjectId(lane));
         }
@@ -725,7 +725,7 @@ export class OtelGrouper {
         },
       },
       // jobId = groupId: BullMQ dedups replays of the same decided group; the
-      // events_full load label derives from the same identity.
+      // spans load label derives from the same identity.
       { jobId: cut.groupId },
     );
   }

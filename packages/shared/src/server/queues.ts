@@ -72,7 +72,7 @@ export type OtelPendingEntryType = z.infer<typeof OtelPendingEntry>;
 
 /**
  * Group-shaped otel ingestion job (exactly-once pipeline): one job = one
- * group = one events_full stream load batch = one deterministic label.
+ * group = one spans stream load batch = one deterministic label.
  * `shape` is the version gate — workers route on it and old workers fail
  * loudly instead of misreading the payload. jobId MUST equal groupId
  * (= sha1 of the sorted member fileKeys) so replays dedup in BullMQ and the

@@ -6,7 +6,7 @@ describe("truncateWellFormed", () => {
   it("repairs a surrogate pair split exactly at the limit (the poison-batch case)", () => {
     // "🇪🇸" = two regional indicators = 4 UTF-16 code units. Cutting at an odd
     // offset inside splits a pair — a bare slice leaves a lone high surrogate
-    // (exactly what wedged the events_full batch: "...| 待定 | 🇪\ud83c").
+    // (exactly what wedged the spans batch: "...| 待定 | 🇪\ud83c").
     const s = "| 待定 | 🇪🇸 西班牙";
     // Units: 0-6 ASCII/CJK, 7-8 = 🇪 (one pair), 9-10 = 🇸. Cutting at 10
     // keeps 🇸's high surrogate without its low half.

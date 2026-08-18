@@ -88,7 +88,7 @@ export const convertDorisToDomain = (
     metadata: parseMetadataCHRecordToDomain(record.metadata),
     createdAt: parseTimestamp(record.created_at),
     // traces_scalar (UNIQUE+MoW) carries a real updated_at bumped by
-    // bookmark/public/tags UPDATEs. The events_full root-span fallback read
+    // bookmark/public/tags UPDATEs. The spans root-span fallback read
     // (append-only, no updated_at column) leaves it undefined → use created_at.
     updatedAt: parseTimestamp(record.updated_at ?? record.created_at),
   };

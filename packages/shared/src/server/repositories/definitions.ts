@@ -684,7 +684,7 @@ export const eventRecordBaseSchema = z.object({
   // Prompt
   prompt_id: z.string().nullish(),
   prompt_name: z.string().nullish(),
-  // events_full.prompt_version is `int` — align the schema with the actual
+  // spans.prompt_version is `int` — align the schema with the actual
   // column type to avoid a string ↔ int mismatch at insert time.
   prompt_version: z.number().int().nullish(),
 
@@ -710,12 +710,12 @@ export const eventRecordBaseSchema = z.object({
   // I/O
   input: z.string().nullish(),
   output: z.string().nullish(),
-  // Precomputed compact preview (see events_full migration 0037): parseIO(.., "compact")
+  // Precomputed compact preview (see spans migration 0037): parseIO(.., "compact")
   // truncated to 200 chars, for list tables. Full I/O stays in input/output.
   input_trim: z.string().nullish(),
   output_trim: z.string().nullish(),
 
-  // Metadata as the raw (possibly nested) object, stored in the events_full
+  // Metadata as the raw (possibly nested) object, stored in the spans
   // `metadata` VARIANT column. Read the whole map via
   // json_object_flatten(metadata) (dot-path keys); filter per key via
   // metadata['key'] (a dotted key a.b.c is adapted to the nested path
@@ -755,7 +755,7 @@ export type EventRecordBaseType = z.infer<typeof eventRecordBaseSchema>;
 
 export const eventRecordReadSchema = eventRecordBaseSchema.extend({
   total_cost: z.number().nullish(),
-  // Precomputed UI metrics (see events_full migration 0037). Derived at ingestion
+  // Precomputed UI metrics (see spans migration 0037). Derived at ingestion
   // from usage_details/cost_details so reads avoid explode_map/array_filter.
   input_tokens_calculated: z.number().nullish(),
   output_tokens_calculated: z.number().nullish(),
@@ -766,7 +766,7 @@ export const eventRecordReadSchema = eventRecordBaseSchema.extend({
   start_time: dorisStringDateSchema,
   end_time: dorisStringDateSchema.nullish(),
   completion_start_time: dorisStringDateSchema.nullish(),
-  // Single audit timestamp (events_full migration 0037): created_at ==
+  // Single audit timestamp (spans migration 0037): created_at ==
   // updated_at == event_ts at write, so one column serves all; domain updatedAt
   // maps from created_at.
   created_at: dorisStringDateSchema,
@@ -788,11 +788,11 @@ export const eventRecordInsertSchema = eventRecordBaseSchema.extend({
 export type EventRecordInsertType = z.infer<typeof eventRecordInsertSchema>;
 
 // traces_scalar: one row per trace — the root span's scalar fields, dual-written
-// at ingestion next to events_full (see migration 0039). Timestamps are epoch-ms
+// at ingestion next to spans (see migration 0039). Timestamps are epoch-ms
 // numbers like the other *InsertType shapes. Empty-string user_id/session_id/
 // release/version are normalized to null at the dual-write site so filters match
 // the MV's NULLIF(x, '') semantics. Partition prunes natively from start_time (no
-// start_time_date mirror). Unlike events_full (append-only), this UNIQUE+MoW
+// start_time_date mirror). Unlike spans (append-only), this UNIQUE+MoW
 // table is mutated post-ingestion (bookmark/public/tags UPDATEs), so it keeps a
 // real updated_at ("last modified") distinct from created_at.
 export const traceScalarRecordInsertSchema = z.object({
@@ -810,7 +810,7 @@ export const traceScalarRecordInsertSchema = z.object({
   public: z.boolean().nullish(),
   tags: z.array(z.string()).nullish(),
   // Raw (possibly nested) object → traces_scalar `metadata` VARIANT (mirrors
-  // events_full; read via json_object_flatten, filter via nested path).
+  // spans; read via json_object_flatten, filter via nested path).
   metadata: z.record(z.string(), z.unknown()).nullish(),
   // 200-char ingestion-precomputed previews — serve traces.byId
   // verbosity="compact" (the trace-list cell preview) as a flat point read.
@@ -823,5 +823,5 @@ export type TraceScalarRecordInsertType = z.infer<
   typeof traceScalarRecordInsertSchema
 >;
 
-// trace_metrics_agg is now a synchronous materialized view on events_full
+// trace_metrics_agg is now a synchronous materialized view on spans
 // (migration 0040) — no insert shape needed; the base-table load maintains it.

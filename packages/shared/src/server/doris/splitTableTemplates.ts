@@ -4,17 +4,17 @@ import { join } from "path";
 /**
  * Per-project Doris table DDL generation (docs/project-per-table-*.md, Stage 1.2).
  *
- * A split project gets its own `events_full_<pid>` / `traces_scalar_<pid>` base
+ * A split project gets its own `spans_<pid>` / `traces_scalar_<pid>` base
  * tables + a `trace_metrics_agg_<pid>` sync MV. There is no shared telemetry
  * table (all-split model): a split table holds ONE project, so project_id is
- * constant and dropped from the KEY (events_full KEY = (trace_id, span_id);
+ * constant and dropped from the KEY (spans KEY = (trace_id, span_id);
  * traces_scalar KEY = (id, start_time)). They use dynamic_partition instead of
  * AUTO PARTITION so old day-partitions are auto-dropped at the project's
  * retention (the whole point of the split).
  *
  * SOURCE OF TRUTH = the template files under `doris/migrations` WITHOUT a
  * .up.sql suffix (scripts/up.sh globs *.up.sql, so it never applies them):
- *   - `0037_events_full.sql` / `0039_traces_scalar.sql` — column+index+KEY body
+ *   - `0037_spans.sql` / `0039_traces_scalar.sql` — column+index+KEY body
  *     with a __TABLE__ placeholder; the partition/dist/PROPERTIES tail is
  *     appended at build time (buildDynamicPartitionTail).
  *   - `0040_trace_metrics_agg.sql` — the sync MV, __TABLE__ (name) + __BASE_TABLE__
@@ -43,7 +43,7 @@ export const NO_TTL_START_DAYS = 3650;
  * is built from. Lives in doris/migrations WITHOUT a .up.sql suffix, so
  * scripts/up.sh never applies it (it globs *.up.sql): there is no shared table. */
 const SPLIT_TEMPLATE_FILE: Record<string, string> = {
-  events_full: "0037_events_full.sql",
+  spans: "0037_spans.sql",
   traces_scalar: "0039_traces_scalar.sql",
 };
 
@@ -53,19 +53,19 @@ const MV_TEMPLATE_FILE = "0040_trace_metrics_agg.sql";
 /** Placeholder in the templates, replaced with the per-project table name. */
 const SPLIT_TABLE_PLACEHOLDER = "__TABLE__";
 
-/** MV-only placeholder for the aggregated base table (events_full_<pid>). */
+/** MV-only placeholder for the aggregated base table (spans_<pid>). */
 const MV_BASE_TABLE_PLACEHOLDER = "__BASE_TABLE__";
 
 /** Distribution column + storage model per shared logical table (stable). */
 export const SPLIT_BASE_TABLE_SHAPES = {
-  events_full: { distributionColumn: "trace_id", mergeOnWrite: false },
+  spans: { distributionColumn: "trace_id", mergeOnWrite: false },
   traces_scalar: { distributionColumn: "id", mergeOnWrite: true },
 } as const;
 
 export type SplitTailOpts = {
-  /** Distribution (bucket) column — trace_id for events_full, id for traces_scalar. */
+  /** Distribution (bucket) column — trace_id for spans, id for traces_scalar. */
   distributionColumn: string;
-  /** UNIQUE KEY + Merge-on-Write table (traces_scalar) vs DUPLICATE (events_full). */
+  /** UNIQUE KEY + Merge-on-Write table (traces_scalar) vs DUPLICATE (spans). */
   mergeOnWrite: boolean;
   /** Days of data to keep (dynamic_partition.start = -retentionDays); null/undefined
    * = no TTL (a 10-year threshold ≈ never drops). Set/changed later via
@@ -73,7 +73,7 @@ export type SplitTailOpts = {
   retentionDays?: number | null;
   /** Replication factor (tag.location.default). */
   replication: number;
-  /** Optional storage page size, in bytes. Only events_full supplies this. */
+  /** Optional storage page size, in bytes. Only spans supplies this. */
   storagePageSize?: number;
 };
 
@@ -158,8 +158,8 @@ export const buildAlterTtlStatement = (params: {
  * the physical table name, and append buildDynamicPartitionTail(opts).
  *
  * @param templateSql   the split template `CREATE TABLE IF NOT EXISTS __TABLE__ (...) ... KEY(...)`
- * @param sharedTable   the shared logical table name it describes (e.g. events_full)
- * @param physicalTable the target per-project name (e.g. events_full_<pid>)
+ * @param sharedTable   the shared logical table name it describes (e.g. spans)
+ * @param physicalTable the target per-project name (e.g. spans_<pid>)
  */
 export const buildSplitTableFromTemplate = (params: {
   templateSql: string;
@@ -230,7 +230,7 @@ export const resolveMigrationsDir = (): string => {
     join(__dirname, "../../../doris/migrations"), // src/server/doris → shared/doris
   ];
   for (const dir of candidates) {
-    if (existsSync(join(dir, "0037_events_full.sql"))) return dir;
+    if (existsSync(join(dir, "0037_spans.sql"))) return dir;
   }
   throw new Error(
     `resolveMigrationsDir: doris/migrations not found near ${__dirname} (candidates: ${candidates.join(", ")})`,
@@ -250,7 +250,7 @@ export const readSplitTemplate = (sharedTable: string): string => {
 
 /**
  * All DDL statements to provision a split project, in apply order:
- * events_full_<pid>, traces_scalar_<pid>, then the MV on events_full_<pid>.
+ * spans_<pid>, traces_scalar_<pid>, then the MV on spans_<pid>.
  * Base-table DDL is our split template (split key/order) with a
  * dynamic_partition tail.
  */
@@ -259,17 +259,17 @@ export const buildSplitTableStatements = (params: {
   /** null/undefined = provision with no TTL; set later via buildAlterTtlStatement. */
   retentionDays?: number | null;
   replication: number;
-  /** events_full storage page size, in bytes. */
+  /** spans storage page size, in bytes. */
   storagePageSize: number;
-}): { eventsFull: string; tracesScalar: string; mv: string } => {
+}): { spans: string; tracesScalar: string; mv: string } => {
   const { projectId, retentionDays, replication, storagePageSize } = params;
   const tailBase = { retentionDays, replication };
-  const eventsFull = buildSplitTableFromTemplate({
-    templateSql: readSplitTemplate("events_full"),
-    sharedTable: "events_full",
-    physicalTable: `events_full_${projectId}`,
+  const spans = buildSplitTableFromTemplate({
+    templateSql: readSplitTemplate("spans"),
+    sharedTable: "spans",
+    physicalTable: `spans_${projectId}`,
     tail: {
-      ...SPLIT_BASE_TABLE_SHAPES.events_full,
+      ...SPLIT_BASE_TABLE_SHAPES.spans,
       ...tailBase,
       storagePageSize,
     },
@@ -282,7 +282,7 @@ export const buildSplitTableStatements = (params: {
   });
   const mv = buildTraceMetricsAggMV({
     mvName: `trace_metrics_agg_${projectId}`,
-    baseTable: `events_full_${projectId}`,
+    baseTable: `spans_${projectId}`,
   });
-  return { eventsFull, tracesScalar, mv };
+  return { spans, tracesScalar, mv };
 };

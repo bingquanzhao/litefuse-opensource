@@ -134,7 +134,7 @@ const isOrgPaid = (cloudConfig: unknown): boolean => {
 
 /**
  * Designate a newly-created project for table split and kick provisioning.
- * Table split is UNIVERSAL — every project gets its own events_full_<pid> /
+ * Table split is UNIVERSAL — every project gets its own spans_<pid> /
  * traces_scalar_<pid> tables, independent of billing (retention TTL stays
  * paid-differentiated, derived at provisioning by getSplitRetentionDays).
  * Idempotent (upsert omits `split`, CREATE IF NOT EXISTS, per-project queue
@@ -197,7 +197,7 @@ export const ensureProjectSplitDesignated = async (
 
 /**
  * Write-path "table doesn't exist" three-way decision (Stage 1.2d). When a load
- * targets a split project's events_full_<pid> / traces_scalar_<pid> that is
+ * targets a split project's spans_<pid> / traces_scalar_<pid> that is
  * absent, the caller (the group-job load path, Stage 1.6) must NOT guess:
  *   - reprovision   : the project still exists → re-enqueue provisioning and
  *                     RETRY the job (tables will exist on the retry);

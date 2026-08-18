@@ -103,7 +103,7 @@ export const getTraceStream = async (props: {
     hasTracesJoin: false,
   });
 
-  // Aggregate trace fields from events_full using the two-CTE pattern that
+  // Aggregate trace fields from spans using the two-CTE pattern that
   // mirrors langfuse-main's eventsTracesAggregation:
   //   * trace_scalars: scalar trace-level fields via MAX_BY(IF(cond, val, NULL), created_at)
   //     equivalent to upstream's argMaxIf.
@@ -112,11 +112,11 @@ export const getTraceStream = async (props: {
   // tracesTableUiColumnDefinitions / tracesFilter target column names
   // (timestamp, release, ...) compatible with the legacy traces table —
   // they apply at the trace_scalars level before the LEFT JOIN. Filter
-  // params resolve in the events_full WHERE because we don't alias the
+  // params resolve in the spans WHERE because we don't alias the
   // trace_scalars CTE inputs.
   //
   // metadata is read via to_json(metadata) — raw MAP text does not escape inner quotes
-  // parallel arrays (events_full layout) into a Doris MAP that downstream
+  // parallel arrays (spans layout) into a Doris MAP that downstream
   // export consumers can serialize.
   const query = `
     WITH scores_agg AS (
@@ -160,7 +160,7 @@ export const getTraceStream = async (props: {
         MAX_BY(IF(environment <> '', environment, NULL), created_at) AS environment,
         MAX_BY(IF(is_root = 1, bookmarked, NULL), created_at) AS bookmarked,
         MAX(\`public\`) AS \`public\`
-      FROM ${tableFor(projectId, "events_full")}
+      FROM ${tableFor(projectId, "spans")}
       WHERE project_id = {projectId: String}
         ${appliedTracesFilter.query ? `AND ${appliedTracesFilter.query}` : ""}
         ${search.query}
@@ -186,7 +186,7 @@ export const getTraceStream = async (props: {
             PARTITION BY trace_id, project_id
             ORDER BY created_at DESC
           ) AS rn
-        FROM ${tableFor(projectId, "events_full")}
+        FROM ${tableFor(projectId, "spans")}
         WHERE project_id = {projectId: String}
           AND is_root = 1
       ) ranked
@@ -234,7 +234,7 @@ export const getTraceStream = async (props: {
     public: boolean;
     input: unknown;
     output: unknown;
-    // events_full layout: metadata is split across two parallel arrays;
+    // spans layout: metadata is split across two parallel arrays;
     // we zip them in the processor below for export.
     metadata: unknown;
     scores_avg: string | undefined;

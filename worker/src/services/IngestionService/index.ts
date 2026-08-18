@@ -395,11 +395,11 @@ export class IngestionService {
 
     // Doris DateTime(3) is millisecond-precision; the upstream langfuse-main
     // uses microseconds for ClickHouse DateTime64(6). Use ms here so the
-    // column values match events_full's DateTime(3) shape (otherwise dates
-    // land in year 58000+). events_full partitions directly on start_time.
+    // column values match spans's DateTime(3) shape (otherwise dates
+    // land in year 58000+). spans partitions directly on start_time.
     const now = this.getMillisecondTimestamp();
 
-    // Metadata → events_full `metadata` VARIANT: store the raw (possibly nested)
+    // Metadata → spans `metadata` VARIANT: store the raw (possibly nested)
     // object as-is. Doris Variant normalizes dotted keys into nested paths on
     // ingest; the flattening that used to happen here now happens at read via
     // json_object_flatten(metadata). No parallel arrays / Map mirror any more.
@@ -444,7 +444,7 @@ export class IngestionService {
 
       // Optional identifiers
       // OTel root spans arrive with parentSpanId=null/undefined.
-      // events_full read queries (buildTraceAggregationQuery,
+      // spans read queries (buildTraceAggregationQuery,
       // getObservationsForTrace, batch streams, etc.) identify the root
       // span via `parent_span_id = ''`. Coerce NULL -> '' here so the
       // wire-level invariant holds — same shape upstream langfuse-main
@@ -486,7 +486,7 @@ export class IngestionService {
       // Prompt
       prompt_id: prompt?.id || "",
       prompt_name: eventData.promptName,
-      // events_full.prompt_version is `int`; coerce SDK-supplied string form.
+      // spans.prompt_version is `int`; coerce SDK-supplied string form.
       prompt_version:
         typeof eventData.promptVersion === "string"
           ? parseInt(eventData.promptVersion, 10)
@@ -507,7 +507,7 @@ export class IngestionService {
       provided_cost_details: eventData.providedCostDetails ?? {},
       cost_details: costDetailsForRow,
       // total_cost (denormalised from cost_details) is what dashboards
-      // sum() in Doris — without this, events_full.total_cost stays 0
+      // sum() in Doris — without this, spans.total_cost stays 0
       // even though cost_details has the per-key breakdown, and the
       // Home/Model-Usage cost widgets show $0.
       total_cost: generationUsage?.total_cost ?? null,
@@ -532,7 +532,7 @@ export class IngestionService {
       input_trim,
       output_trim,
 
-      // Metadata VARIANT — the raw object (see events_full migration 0037).
+      // Metadata VARIANT — the raw object (see spans migration 0037).
       metadata: metadataObject,
 
       // Source/instrumentation metadata
@@ -561,7 +561,7 @@ export class IngestionService {
       experiment_item_expected_output: eventData.experimentItemExpectedOutput,
       experiment_item_metadata: eventData.experimentItemMetadata ?? {},
 
-      // Single audit timestamp (events_full migration 0037): created_at serves
+      // Single audit timestamp (spans migration 0037): created_at serves
       // as created/updated/event_ts (all identical at write).
       created_at: now,
     };
@@ -570,12 +570,12 @@ export class IngestionService {
   }
 
   /**
-   * Writes an event record directly to the events_full table.
+   * Writes an event record directly to the spans table.
    * Use createEventRecord() first to get the record, then call this to write.
    *
-   * Master fork is OTel-only for trace/observation ingestion: events_full
+   * Master fork is OTel-only for trace/observation ingestion: spans
    * is the single denormalized analytic store. Each call enqueues exactly
-   * one row into DorisWriter's events_full queue; the writer batches and
+   * one row into DorisWriter's spans queue; the writer batches and
    * flushes via Stream Load.
    *
    * @param eventRecord - The event record to write
@@ -591,14 +591,14 @@ export class IngestionService {
     }
     // await so DorisWriter backpressure (buffer-full) propagates up to the
     // ingestion job and throttles intake instead of growing worker memory.
-    await this.dorisWriter.addToQueue(TableName.EventsFull, eventRecord);
+    await this.dorisWriter.addToQueue(TableName.Spans, eventRecord);
     logger.debug(
-      `[writeEventRecord] queued events_full row for span ${eventRecord.span_id} (trace ${eventRecord.trace_id})`,
+      `[writeEventRecord] queued spans row for span ${eventRecord.span_id} (trace ${eventRecord.trace_id})`,
     );
     recordIncrement("langfuse.ingestion.write", 1, {
       object: "event",
       backend: "doris",
-      target: "events_full",
+      target: "spans",
     });
 
     // Dual-write the root span's scalar fields as the trace's one row in
@@ -615,8 +615,8 @@ export class IngestionService {
       });
     }
 
-    // trace_metrics_agg is a synchronous materialized view on events_full
-    // (migration 0040): every events_full load maintains it atomically, so
+    // trace_metrics_agg is a synchronous materialized view on spans
+    // (migration 0040): every spans load maintains it atomically, so
     // there is no metric dual-write anymore.
   }
 

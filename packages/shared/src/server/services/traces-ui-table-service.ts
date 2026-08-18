@@ -234,7 +234,7 @@ const OUTER_LEVEL =
 
 // UI column → aggregate-expression template for the metric / observation
 // columns. The agg⋈scalar path derives tracesMetricAggHavingColumns from this
-// (swapping in AGG_ROLLUP_* for the metric selects, targeting base events_full
+// (swapping in AGG_ROLLUP_* for the metric selects, targeting base spans
 // columns in the sync-MV shape); mvHavingColumnTokens derives the routable
 // column-token set from the identities here.
 const tracesTableMvHavingColumns: UiColumnMappings = [
@@ -673,7 +673,7 @@ const runScalarRowsFastPath = async (params: {
 // Identifiers fast path: id/projectId/timestamp are all on traces_scalar, so
 // scalar-routable filters serve select:"identifiers" as the same flat scan as
 // the rows path with a three-column projection — previously identifiers ALWAYS
-// fell through to the base events_full builder (no fast path handled it).
+// fell through to the base spans builder (no fast path handled it).
 const runScalarIdentifiersFastPath = async (params: {
   projectId: string;
   filter: FilterState;
@@ -762,10 +762,10 @@ const runScalarCountFastPath = async (params: {
 
 // --- metric-filtered / metric-sorted list fast path (agg ⋈ scalar) ---------
 // Lists that filter or sort by observation-level metrics (latency, cost,
-// tokens, level counts) would otherwise fall to the base builder (events_full
+// tokens, level counts) would otherwise fall to the base builder (spans
 // self-aggregate + JOINs) — exactly the billions-of-spans scans this table set
 // exists to avoid. This path answers them from the rollup only:
-//   inner  m: events_full GROUP BY trace_id with aggregate expressions that
+//   inner  m: spans GROUP BY trace_id with aggregate expressions that
 //             structurally match the trace_metrics_agg SYNC MV (migration
 //             0040) — Doris transparently rewrites the scan onto the rollup
 //             (a handful of per-day rows per trace), with the metric filters
@@ -795,9 +795,9 @@ const AGG_ROLLUP_LEVEL_COUNTS: Record<string, string> = {
 };
 const AGG_ROLLUP_LEVEL = `CASE WHEN ${AGG_ROLLUP_LEVEL_COUNTS.errorCount} > 0 THEN 'ERROR' WHEN ${AGG_ROLLUP_LEVEL_COUNTS.warningCount} > 0 THEN 'WARNING' WHEN ${AGG_ROLLUP_LEVEL_COUNTS.defaultCount} > 0 THEN 'DEFAULT' ELSE 'DEBUG' END`;
 
-// Metric filter → HAVING expression over the single-level events_full
+// Metric filter → HAVING expression over the single-level spans
 // aggregate. The MV having map's selects reference per-day CTE aliases
-// (input_tokens, error_count, …); over events_full they must target the base
+// (input_tokens, error_count, …); over spans they must target the base
 // columns / level CASEs in the sync-MV shape instead.
 const AGG_ROLLUP_METRIC_EXPRS: Record<string, string> = {
   totalCost: "SUM(total_cost)",
@@ -844,7 +844,7 @@ const METRIC_ORDER_EXPRS: Record<string, string> = {
 
 // Eligible when a metric is actually involved (filter or ORDER BY — otherwise
 // the flat scalar path owns the query) and every other filter is one the
-// scalar side can serve. Content search needs events_full's FTS index → out.
+// scalar side can serve. Content search needs spans's FTS index → out.
 const canUseMetricListFastPath = (params: {
   filter: FilterState;
   orderBy?: OrderByState;
@@ -948,7 +948,7 @@ const buildMetricListQuery = (params: {
         ${AGG_ROLLUP_LEVEL_COUNTS.warningCount} AS warning_count,
         ${AGG_ROLLUP_LEVEL_COUNTS.defaultCount} AS default_count,
         ${AGG_ROLLUP_LEVEL_COUNTS.debugCount} AS debug_count
-      FROM ${tableFor(projectId, "events_full")}
+      FROM ${tableFor(projectId, "spans")}
       WHERE ${innerWhere.join(" AND ")}
       GROUP BY trace_id
       ${havingRes?.query ? `HAVING ${havingRes.query}` : ""}`;
@@ -1080,9 +1080,9 @@ const runMetricListCountFastPath = async (params: {
 // back to the base builder.
 // --- trace_metrics_agg metrics fast path -----------------------------------
 // trace_metrics_agg (migration 0040) is a SYNCHRONOUS materialized view on
-// events_full: one rollup row per (project, trace, day), maintained
+// spans: one rollup row per (project, trace, day), maintained
 // atomically by every load transaction — CURRENT for the live partition, no
-// staleness compensation. The query below aggregates events_full in the sync
+// staleness compensation. The query below aggregates spans in the sync
 // MV's exact expression shape so Doris transparently rewrites it onto the
 // rollup (then only rolls the per-day rows up to one row per trace —
 // SUM-of-SUM / MIN-of-MIN / MAX-of-MAX, a handful of rows per trace).
@@ -1198,7 +1198,7 @@ const runAggMetricsFastPath = async (params: {
       ${AGG_ROLLUP_LEVEL_COUNTS.defaultCount} AS default_count,
       ${AGG_ROLLUP_LEVEL_COUNTS.debugCount} AS debug_count,
       SUM(CASE WHEN is_root = 0       THEN 1 ELSE 0 END) AS observation_count
-    FROM ${tableFor(projectId, "events_full")}
+    FROM ${tableFor(projectId, "spans")}
     WHERE ${whereParts.join(" AND ")}
     GROUP BY project_id, trace_id
     ${havingParts.length > 0 ? `HAVING ${havingParts.join(" AND ")}` : ""}
@@ -1274,7 +1274,7 @@ async function getTracesTableGeneric(props: FetchTracesTableProps) {
 
   // Metric-filtered / metric-sorted lists (rows/count): agg ⋈ scalar join —
   // the realtime rollup answers the metric side, traces_scalar the display
-  // side. Without this these queries fall to the base builder (events_full
+  // side. Without this these queries fall to the base builder (spans
   // self-aggregate + JOINs).
   const metricListEligible =
     (select === "rows" || select === "count") &&
@@ -1393,7 +1393,7 @@ async function getTracesTableGeneric(props: FetchTracesTableProps) {
         t.${dq("public")} as ${dq("public")}`;
       break;
     case "rows":
-      // `t` is `events_full` filtered to the root span (parent_span_id =
+      // `t` is `spans` filtered to the root span (parent_span_id =
       // ''). `t.name` is the *root span's own* name, e.g.
       // "advanced-generation-…"; `t.trace_name` is the trace-level name
       // denormalised onto every row by createEventRecord. The trace
@@ -1543,7 +1543,7 @@ async function getTracesTableGeneric(props: FetchTracesTableProps) {
       ? `
       observations_stats AS (
         -- Trace-level rollup of its observations: a single-table aggregate over
-        -- events_full (no parent_span_id predicate, level via SUM(CASE) counts,
+        -- spans (no parent_span_id predicate, level via SUM(CASE) counts,
         -- latency from raw min/max components, partition prune on start_time).
         -- Aggregates are all-spans:
         -- the synthetic root span carries no cost/tokens, so those totals are
@@ -1580,7 +1580,7 @@ async function getTracesTableGeneric(props: FetchTracesTableProps) {
             WHEN sum(CASE WHEN level = 'DEFAULT' THEN 1 ELSE 0 END) > 0 THEN 'DEFAULT'
             ELSE 'DEBUG'
           END AS aggregated_level
-        FROM ${tableFor(projectId, "events_full")} o
+        FROM ${tableFor(projectId, "spans")} o
         WHERE project_id = {projectId: String}
         ${timeStampFilter ? `AND start_time >= DATE(DATE_SUB({traceTimestamp: DateTime}, INTERVAL 2 DAY))` : ""}
         ${observationFilterRes ? `AND ${observationFilterRes.query}` : ""}
@@ -1656,7 +1656,7 @@ async function getTracesTableGeneric(props: FetchTracesTableProps) {
   const query = `
       ${withClause ? `WITH ${withClause}` : ""}
       SELECT ${dorisHint} ${sqlSelect}
-      FROM ${tableFor(projectId, "events_full")} t
+      FROM ${tableFor(projectId, "spans")} t
       ${select === "metrics" || requiresObservationsJoin ? `LEFT JOIN observations_stats os on os.project_id = t.project_id and os.trace_id = t.trace_id` : ""}
       ${requiresScoresJoin ? `LEFT JOIN scores_avg s on s.project_id = t.project_id and s.trace_id = t.trace_id` : ""}
       WHERE t.project_id = {projectId: String}

@@ -91,7 +91,7 @@ function buildRetentionConditions(
  * BatchDataRetentionCleaner handles bulk deletion of Doris data based on
  * project retention settings.
  *
- * Each instance processes one table (traces, observations, scores, events_full, events_core).
+ * Each instance processes one table (traces, observations, scores, spans, events_core).
  * Multiple workers coordinate via Redis distributed locking to ensure only one
  * worker deletes from a given table at a time.
  *

@@ -4,7 +4,7 @@
 -- never applies it (it globs *.up.sql). splitTableTemplates.buildTraceMetricsAggMV
 -- reads this file and substitutes:
 --   __TABLE__       → trace_metrics_agg_<projectId>   (the MV name)
---   __BASE_TABLE__  → events_full_<projectId>          (the base it aggregates)
+--   __BASE_TABLE__  → spans_<projectId>          (the base it aggregates)
 -- Keep this in sync with dataModelDoris.traceMetricsAggRelationSql (the read-side
 -- transparent-rewrite shape) — the aggregate columns must match for the rewrite
 -- to fire.

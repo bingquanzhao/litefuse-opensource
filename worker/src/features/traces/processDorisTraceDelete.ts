@@ -135,7 +135,7 @@ export const processDorisTraceDelete = async (
             traceIds,
           })
         : Promise.resolve(),
-      // Traces and observations share events_full; deleting by trace_id removes
+      // Traces and observations share spans; deleting by trace_id removes
       // both kinds of spans, so no separate observations-table delete is needed.
       deleteTraces(projectId, traceIds),
       deleteScoresByTraceIds(projectId, traceIds),

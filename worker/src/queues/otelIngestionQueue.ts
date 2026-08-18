@@ -92,7 +92,7 @@ export function checkHeaderBasedDirectWrite(params: {
 }
 
 /**
- * Master events_full migration: the legacy dual-write path (mergeAndWrite
+ * Master spans migration: the legacy dual-write path (mergeAndWrite
  * to traces / observation_source) is gated off by this sentinel. Defined
  * as a function call so TypeScript does not constant-fold the value and
  * mark the legacy branch as unreachable — keeping the preserved-for-
@@ -214,7 +214,7 @@ const isGroupPayload = (
  * deps (S3, Doris client with the load semaphore, PG sessions, eval
  * scheduling, SDK direct-write gating) and runs the core processor. Any
  * failure fails the WHOLE job — BullMQ replay is the only retry layer; the
- * events_full label and the traces_scalar MoW keys make every replay
+ * spans label and the traces_scalar MoW keys make every replay
  * idempotent.
  */
 const processGroupShapedJob = async (
@@ -466,10 +466,10 @@ export const otelIngestionQueueProcessor: Processor = async (
       !useDirectEventWrite &&
       env.LITEFUSE_EXPERIMENT_INSERT_INTO_EVENTS_TABLE === "true";
 
-    // OTel-only contract (master events_full migration): events_full is the
+    // OTel-only contract (master spans migration): spans is the
     // single write target. The legacy mergeAndWrite-to-traces /
     // processEventBatch-to-traces dual write block below is preserved as
-    // reference but never executes. The events_full row is written further
+    // reference but never executes. The spans row is written further
     // down via createEventRecord + writeEventRecord (unconditionally — the
     // shouldWriteToEventsTable gate below is also kept for reference but
     // forced true).
@@ -521,7 +521,7 @@ export const otelIngestionQueueProcessor: Processor = async (
     }
 
     // Determine what processing is needed.
-    // Master events_full migration: events_full IS the production write
+    // Master spans migration: spans IS the production write
     // target for trace/observation, so we no longer gate writes on the
     // legacy LITEFUSE_EXPERIMENT_INSERT_INTO_EVENTS_TABLE flag. The
     // useDirectEventWrite check stays as a safety net — the OTel route

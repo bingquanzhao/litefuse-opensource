@@ -14,7 +14,7 @@ import {
 /**
  * Provisioning + readiness for a split project's Doris objects (Stage 1.2b/1.2c).
  *
- * events_full_<pid> / traces_scalar_<pid> are `CREATE TABLE IF NOT EXISTS`
+ * spans_<pid> / traces_scalar_<pid> are `CREATE TABLE IF NOT EXISTS`
  * (idempotent). The trace_metrics_agg_<pid> sync MV is NOT `IF NOT EXISTS` and
  * its build is ASYNC — re-issuing CREATE while it builds errors with
  * "state(ROLLUP) is not NORMAL", so we check MV status first and only CREATE
@@ -25,7 +25,7 @@ import {
 const physical = (projectId: string) => {
   assertValidDorisProjectId(projectId);
   return {
-    eventsFull: splitTableNameForProject(projectId, "events_full"),
+    spans: splitTableNameForProject(projectId, "spans"),
     tracesScalar: splitTableNameForProject(projectId, "traces_scalar"),
     mv: `trace_metrics_agg_${projectId}`,
   };
@@ -34,7 +34,7 @@ const physical = (projectId: string) => {
 /**
  * Teardown counterpart of provisionSplitTablesForProject — DROPs a project's
  * split base tables at project-deletion time. The trace_metrics_agg_<pid> sync
- * MV is attached to events_full_<pid> and is removed with it, so dropping the
+ * MV is attached to spans_<pid> and is removed with it, so dropping the
  * two base tables is sufficient. IF EXISTS makes this idempotent: a no-op for a
  * project that was never provisioned, and safe for a delete job that retries
  * after a partial run.
@@ -43,7 +43,7 @@ export const dropSplitTablesForProject = async (
   projectId: string,
 ): Promise<void> => {
   const names = physical(projectId);
-  for (const table of [names.eventsFull, names.tracesScalar]) {
+  for (const table of [names.spans, names.tracesScalar]) {
     await commandDoris({
       query: `DROP TABLE IF EXISTS \`${table}\``,
       tags: { feature: "table-split", kind: "drop", projectId },
@@ -115,7 +115,7 @@ export const provisionSplitTablesForProject = async (params: {
   const { projectId } = params;
   const replication = params.replication ?? env.DORIS_REPLICATION_NUM;
   const names = physical(projectId);
-  const { eventsFull, tracesScalar } = buildSplitTableStatements({
+  const { spans, tracesScalar } = buildSplitTableStatements({
     projectId,
     retentionDays: params.retentionDays ?? null,
     replication,
@@ -123,7 +123,7 @@ export const provisionSplitTablesForProject = async (params: {
   });
 
   await commandDoris({
-    query: eventsFull,
+    query: spans,
     tags: { feature: "table-split", kind: "create-events-full", projectId },
   });
   await commandDoris({
@@ -137,7 +137,7 @@ export const provisionSplitTablesForProject = async (params: {
   // (setRetention / billing) take effect. Harmless right after a fresh CREATE
   // (re-sets the same value). This is why re-enqueuing provisioning is the
   // retention-change propagation path.
-  for (const table of [names.eventsFull, names.tracesScalar]) {
+  for (const table of [names.spans, names.tracesScalar]) {
     await commandDoris({
       query: buildAlterTtlStatement({
         physicalTable: table,
@@ -147,7 +147,7 @@ export const provisionSplitTablesForProject = async (params: {
     });
   }
 
-  const mvStatus = await getSplitMvStatus(names.eventsFull, names.mv);
+  const mvStatus = await getSplitMvStatus(names.spans, names.mv);
   if (mvStatus === "absent" || mvStatus === "cancelled") {
     logger.info(
       `[table-split] creating MV ${names.mv} (status was ${mvStatus})`,
@@ -155,7 +155,7 @@ export const provisionSplitTablesForProject = async (params: {
     await commandDoris({
       query: buildTraceMetricsAggMV({
         mvName: names.mv,
-        baseTable: names.eventsFull,
+        baseTable: names.spans,
       }),
       tags: { feature: "table-split", kind: "create-mv", projectId },
     });
@@ -166,7 +166,7 @@ export const provisionSplitTablesForProject = async (params: {
 
 export type SplitTablesReadiness = {
   ready: boolean;
-  eventsFullExists: boolean;
+  spansExists: boolean;
   tracesScalarExists: boolean;
   mvStatus: SplitMvStatus;
 };
@@ -182,16 +182,16 @@ export const getSplitTablesReadiness = async (
   projectId: string,
 ): Promise<SplitTablesReadiness> => {
   const names = physical(projectId);
-  const [eventsFullExists, tracesScalarExists] = await Promise.all([
-    dorisTableExists(names.eventsFull),
+  const [spansExists, tracesScalarExists] = await Promise.all([
+    dorisTableExists(names.spans),
     dorisTableExists(names.tracesScalar),
   ]);
-  const mvStatus = eventsFullExists
-    ? await getSplitMvStatus(names.eventsFull, names.mv)
+  const mvStatus = spansExists
+    ? await getSplitMvStatus(names.spans, names.mv)
     : ("absent" as SplitMvStatus);
   return {
-    ready: eventsFullExists && tracesScalarExists && mvStatus === "finished",
-    eventsFullExists,
+    ready: spansExists && tracesScalarExists && mvStatus === "finished",
+    spansExists,
     tracesScalarExists,
     mvStatus,
   };

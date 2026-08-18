@@ -536,7 +536,7 @@ describe("traces trpc", () => {
           expect(eventTrace).toBeDefined();
           expect(eventTrace?.bookmarked).toBe(true);
 
-          // Verify events_full
+          // Verify spans
           const eventTraceFull = await getTraceByIdFromEventsTable({
             projectId,
             traceId: trace.id,
@@ -615,7 +615,7 @@ describe("traces trpc", () => {
           expect(eventTrace).toBeDefined();
           expect(eventTrace?.public).toBe(true);
 
-          // Verify events_full
+          // Verify spans
           const eventTraceFull = await getTraceByIdFromEventsTable({
             projectId,
             traceId: trace.id,

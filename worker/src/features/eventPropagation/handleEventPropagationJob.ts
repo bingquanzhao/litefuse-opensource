@@ -63,10 +63,10 @@ export const updateLastProcessedPartition = async (
  * the last processed partition and always processes the next partition in order.
  * Relies on table TTL for partition cleanup instead of explicit DROP PARTITION.
  *
- * NOTE (master events_full migration): This job is **retired**. It targeted an
+ * NOTE (master spans migration): This job is **retired**. It targeted an
  * intermediate langfuse-main v4 design (observations_batch_staging → events
- * staging → events_full propagation) that langfuse-main has since abandoned —
- * spans are now written directly to events_full via OTel ingestion +
+ * staging → spans propagation) that langfuse-main has since abandoned —
+ * spans are now written directly to spans via OTel ingestion +
  * IngestionService.writeEventRecord. Neither observations_batch_staging nor
  * the legacy `events` table exists in this fork. The function body below is
  * preserved as reference and never executes; the BullMQ Processor still
@@ -80,7 +80,7 @@ export const handleEventPropagationJob = async (
     job.data.id,
   );
 
-  // Retired: see header comment. events_full is populated directly by the
+  // Retired: see header comment. spans is populated directly by the
   // OTel ingestion path (IngestionService.writeEventRecord), so the
   // partition-by-partition staging propagation below is no longer load-
   // bearing. The retire check goes through a function call (isRetired)
@@ -89,7 +89,7 @@ export const handleEventPropagationJob = async (
   // while never executing.
   if (isRetired()) {
     logger.info(
-      "[event-propagation] handler is retired (no-op); events_full is now written directly via OTel ingestion",
+      "[event-propagation] handler is retired (no-op); spans is now written directly via OTel ingestion",
     );
     return;
   }
