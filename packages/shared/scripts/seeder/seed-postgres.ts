@@ -79,20 +79,27 @@ async function main() {
     },
   });
 
+  // Paid org so the demo user's seeded data is kept (paid retention 1095d) and
+  // not dropped by the free-tier TTL. isOrgPaid requires BOTH
+  // stripe.activeSubscriptionId and a stripe.resolvedPlan that is a valid enum
+  // value ("Pro" | "Team") — anything else (e.g. "cloud:team") fails the
+  // cloudConfig Zod validation and 401s auth.
+  const seedCloudConfig = {
+    stripe: {
+      activeSubscriptionId: "sub_seed_local",
+      resolvedPlan: "Team",
+    },
+  };
   await prisma.organization.upsert({
     where: { id: seedOrgId },
     update: {
       name: "Seed Org",
-      cloudConfig: {
-        plan: "Team",
-      },
+      cloudConfig: seedCloudConfig,
     },
     create: {
       id: seedOrgId,
       name: "Seed Org",
-      cloudConfig: {
-        plan: "Team",
-      },
+      cloudConfig: seedCloudConfig,
     },
   });
 
