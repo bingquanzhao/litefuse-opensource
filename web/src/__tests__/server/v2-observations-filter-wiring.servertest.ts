@@ -20,7 +20,9 @@ import {
   type PublicApiObservationsQuery,
 } from "@langfuse/shared/src/server";
 
-const projectId = "7a88fb47-b4e2-43b8-a06c-a5ce950dc53a";
+// Table-name-safe project id (no hyphens; DORIS_PROJECT_ID_RE = [A-Za-z0-9_]+)
+// so tableFor(projectId, "spans") builds a valid spans_<pid> identifier.
+const projectId = "7a88fb47b4e243b8a06ca5ce950dc53a";
 
 const baseOpts = {
   projectId,
@@ -57,18 +59,18 @@ describe("buildObservationsQueryDoris — simple-param filter wiring", () => {
     });
 
     expect(baseQuery).toMatch(/o\.\s*trace_id\s*=\s*'trace-abc'/);
-    expect(baseQuery).not.toMatch(/JOIN\s+events_full\s+t/i);
+    expect(baseQuery).not.toMatch(/JOIN\s+spans_\S+\s+t/i);
   });
 
-  it("joins events_full as t and filters t.user_id when userId is set", () => {
+  it("joins spans as t (root span) and filters t.user_id when userId is set", () => {
     const userId = "user-xyz";
     const { baseQuery } = buildObservationsQueryDoris({
       ...baseOpts,
       userId,
     });
 
-    expect(baseQuery).toMatch(/JOIN\s+events_full\s+t\b/i);
-    expect(baseQuery).toMatch(/t\.\s*parent_span_id\s*=\s*''/);
+    expect(baseQuery).toMatch(/JOIN\s+spans_\S+\s+t\b/i);
+    expect(baseQuery).toMatch(/t\.\s*is_root\s*=\s*1/);
     expect(baseQuery).toMatch(/t\.\s*user_id\s*=\s*'user-xyz'/);
   });
 
@@ -109,7 +111,7 @@ describe("buildObservationsQueryDoris — simple-param filter wiring", () => {
     const { baseQuery, params } = buildObservationsQueryDoris(baseOpts);
 
     expect(baseQuery).toMatch(/o\.\s*project_id\s*=\s*\{projectId:\s*String\}/);
-    expect(baseQuery).not.toMatch(/JOIN\s+events_full\s+t/i);
+    expect(baseQuery).not.toMatch(/JOIN\s+spans_\S+\s+t/i);
     expect(params.projectId).toBe(projectId);
   });
 
