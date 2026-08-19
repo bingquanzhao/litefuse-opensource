@@ -18,7 +18,7 @@ service:
         Use the `fields` parameter to control which observation fields are returned:
         - `core` - Always included: id, traceId, startTime, endTime, projectId, parentObservationId, type
         - `basic` - name, level, statusMessage, version, environment, bookmarked, public, userId, sessionId
-        - `time` - completionStartTime, createdAt, updatedAt
+        - `time` - completionStartTime, createdAt
         - `io` - input, output
         - `metadata` - metadata (truncated to 200 chars by default, use `expandMetadata` to get full values)
         - `model` - providedModelName, internalModelId, modelParameters

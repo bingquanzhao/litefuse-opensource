@@ -826,7 +826,7 @@ export const getTraceByIdFromEventsTable = async ({
 export const OBSERVATION_FIELD_GROUPS = [
   "core", // Always included: id, traceId, startTime, endTime, projectId, parentObservationId, type
   "basic", // name, level, statusMessage, version, environment, bookmarked, public, userId, sessionId
-  "time", // completionStartTime, createdAt, updatedAt
+  "time", // completionStartTime, createdAt
   "io", // input, output
   "metadata", // metadata
   "model", // providedModelName, internalModelId, modelParameters
@@ -864,7 +864,9 @@ const OBSERVATION_FIELDS_BY_GROUP: Record<
     "userId",
     "sessionId",
   ],
-  time: ["completionStartTime", "createdAt", "updatedAt"],
+  // No updatedAt: spans is append-only (no updated_at column), so the events
+  // path never has it — don't advertise a field the response can't deliver.
+  time: ["completionStartTime", "createdAt"],
   io: ["input", "output"],
   metadata: ["metadata"],
   model: [
