@@ -10,7 +10,7 @@ import {
   logger,
   FilterList,
   createFilterFromFilterState,
-  tracesTableUiColumnDefinitions,
+  tracesTableUiColumnDefinitionsForDoris,
   dorisSearchCondition,
   parseDorisUTCDateTimeFormat,
   StringFilter,
@@ -47,7 +47,7 @@ export const getTraceStream = async (props: {
   // Filter out observation-level filters since we don't join the observations table
   // This prevents batch export failures when observation-level filters are present
   const traceOnlyFilters = (filter ?? []).filter((f) => {
-    const columnDef = tracesTableUiColumnDefinitions.find(
+    const columnDef = tracesTableUiColumnDefinitionsForDoris.find(
       (col) => col.uiTableName === f.column || col.uiTableId === f.column,
     );
     // Keep the filter if it's not an observation-level filter
@@ -81,7 +81,7 @@ export const getTraceStream = async (props: {
           type: "datetime" as const,
         },
       ],
-      tracesTableUiColumnDefinitions,
+      tracesTableUiColumnDefinitionsForDoris,
     ),
   );
 
@@ -109,11 +109,12 @@ export const getTraceStream = async (props: {
   //     equivalent to upstream's argMaxIf.
   //   * trace_root: tags / metadata / input / output picked from the latest
   //     is_root = 1 root span via ROW_NUMBER().
-  // tracesTableUiColumnDefinitions / tracesFilter target column names
-  // (timestamp, release, ...) compatible with the legacy traces table —
-  // they apply at the trace_scalars level before the LEFT JOIN. Filter
-  // params resolve in the spans WHERE because we don't alias the
-  // trace_scalars CTE inputs.
+  // tracesTableUiColumnDefinitionsForDoris / tracesFilter target Doris' spans
+  // schema (start_time, trace_id, trace_name, ...) with queryPrefix `t`, applied
+  // at the trace_scalars level before the LEFT JOIN. The spans source is aliased
+  // `t` so those `t.`-prefixed filter/search clauses resolve — using the legacy
+  // tracesTableUiColumnDefinitions here emitted invalid `t.timestamp`/`id`
+  // references (columns that don't exist on spans: it's start_time/trace_id).
   //
   // metadata is read via to_json(metadata) — raw MAP text does not escape inner quotes
   // parallel arrays (spans layout) into a Doris MAP that downstream
@@ -160,8 +161,8 @@ export const getTraceStream = async (props: {
         MAX_BY(IF(environment <> '', environment, NULL), created_at) AS environment,
         MAX_BY(IF(is_root = 1, bookmarked, NULL), created_at) AS bookmarked,
         MAX(\`public\`) AS \`public\`
-      FROM ${tableFor(projectId, "spans")}
-      WHERE project_id = {projectId: String}
+      FROM ${tableFor(projectId, "spans")} t
+      WHERE t.project_id = {projectId: String}
         ${appliedTracesFilter.query ? `AND ${appliedTracesFilter.query}` : ""}
         ${search.query}
       GROUP BY trace_id, project_id
