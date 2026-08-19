@@ -21,7 +21,11 @@ import {
   logger,
 } from "@langfuse/shared/src/server";
 import { randomUUID } from "crypto";
-import { StringNoHTMLNonEmpty } from "@langfuse/shared";
+import {
+  getDefaultScoreConfigsForProject,
+  StringNoHTMLNonEmpty,
+} from "@langfuse/shared";
+import { seedProjectAnnotationDefaults } from "@/src/features/projects/server/seedProjectAnnotationDefaults";
 
 export const projectsRouter = createTRPCRouter({
   create: protectedOrganizationProcedure
@@ -76,12 +80,22 @@ export const projectsRouter = createTRPCRouter({
           message: "Free plan allows up to 3 projects per organization",
         });
 
-        return tx.project.create({
+        const newProject = await tx.project.create({
           data: {
             name: input.name,
             orgId: input.orgId,
           },
         });
+
+        // Seed built-in defaults for the new project (Postgres-only), inside
+        // the same creation transaction: the standard managed score configs,
+        // plus the Correctness annotation queue + its score config.
+        await tx.scoreConfig.createMany({
+          data: getDefaultScoreConfigsForProject(newProject.id),
+        });
+        await seedProjectAnnotationDefaults(tx, newProject.id);
+
+        return newProject;
       });
 
       // Universal Doris table split: EVERY new project gets its own tables
