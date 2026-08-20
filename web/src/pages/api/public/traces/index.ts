@@ -28,6 +28,19 @@ import {
 } from "@/src/features/public-api/server/traces";
 import { env } from "@/src/env.mjs";
 
+// Master fork is OTel-only for trace/observation ingestion. The legacy
+// v1-style POST /api/public/traces endpoint is gated off (matching
+// /api/public/spans, /generations, /events) — clients must send traces via
+// /api/public/otel/v1/traces with Python SDK >= 4.0.0 or JS SDK >= 5.0.0.
+// The GET/DELETE handlers below remain fully supported.
+const OTEL_ONLY_MESSAGE =
+  "Master fork is OTel-only for traces. Send traces via " +
+  "/api/public/otel/v1/traces (Python SDK >= 4.0.0 or JS SDK >= 5.0.0).";
+
+const rejectLegacy = (): never => {
+  throw new InvalidRequestError(OTEL_ONLY_MESSAGE);
+};
+
 export default withMiddlewares({
   POST: createAuthedProjectAPIRoute({
     name: "Create Trace (Legacy)",
@@ -35,6 +48,7 @@ export default withMiddlewares({
     responseSchema: PostTracesV1Response, // Adjust this if you have a specific response schema
     rateLimitResource: "legacy-ingestion",
     fn: async ({ body, auth, res }) => {
+      rejectLegacy();
       await telemetry();
       const event = {
         id: v4(),
