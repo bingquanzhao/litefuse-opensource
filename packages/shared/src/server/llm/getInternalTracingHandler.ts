@@ -1,6 +1,7 @@
 import CallbackHandler from "langfuse-langchain";
 import { GenerationDetails, TraceSinkParams } from "./types";
-import { processEventBatch } from "../ingestion/processEventBatch";
+import { OtelIngestionProcessor } from "../otel/OtelIngestionProcessor";
+import { internalTraceEventsToResourceSpans } from "../otel/internalTraceToResourceSpans";
 import { logger } from "../logger";
 import { traceException } from "../instrumentation";
 
@@ -132,19 +133,20 @@ export function getInternalTracingHandler(traceSinkParams: TraceSinkParams): {
           return event;
         });
 
-      await processEventBatch(
-        JSON.parse(JSON.stringify(processedEvents)), // stringify to emulate network event batch from network call
-        {
-          validKey: true as const,
-          scope: {
-            projectId: traceSinkParams.targetProjectId, // Important: this controls into what project traces are ingested.
-            accessLevel: "project",
-          } as any,
-        },
-        {
-          isLangfuseInternal: true,
-        },
+      // Route internal tracing through the OTel → spans pipeline (the split
+      // model has no legacy traces/observation_source tables; the old
+      // processEventBatch path wrote to those and is dead). publishToOtelIngestionQueue
+      // is shared, so this works from both web (NL-filters) and worker (evals/experiments).
+      const resourceSpans = internalTraceEventsToResourceSpans(
+        JSON.parse(JSON.stringify(processedEvents)),
+        { environment: traceSinkParams.environment },
       );
+      if (resourceSpans[0]?.scopeSpans?.[0]?.spans?.length) {
+        const processor = new OtelIngestionProcessor({
+          projectId: traceSinkParams.targetProjectId,
+        });
+        await processor.publishToOtelIngestionQueue(resourceSpans);
+      }
 
       // Extract generation details and invoke callback (if provided)
       if (traceSinkParams.onGenerationComplete) {
