@@ -25,7 +25,7 @@ import { Slider } from "@/src/components/ui/slider";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { Skeleton } from "@/src/components/ui/skeleton";
-import { X as IconX, Search, WandSparkles, InfoIcon } from "lucide-react";
+import { X as IconX, Search, InfoIcon } from "lucide-react";
 import type {
   UIFilter,
   KeyValueFilterEntry,
@@ -35,14 +35,7 @@ import type {
   PositionInTraceMode,
 } from "@/src/features/filters/hooks/useSidebarFilterState";
 import { KeyValueFilterBuilder } from "@/src/components/table/key-value-filter-builder";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/src/components/ui/popover";
-import { DataTableAIFilters } from "@/src/components/table/data-table-ai-filters";
 import { type FilterState } from "@langfuse/shared";
-import { useLangfuseCloudRegion } from "@/src/features/organizations/hooks";
 
 interface ControlsContextType {
   open: boolean;
@@ -103,37 +96,9 @@ export interface QueryFilter {
 
 interface DataTableControlsProps {
   queryFilter: QueryFilter;
-  filterWithAI?: boolean;
 }
 
-export function DataTableControls({
-  queryFilter,
-  filterWithAI,
-}: DataTableControlsProps) {
-  const { isLangfuseCloud } = useLangfuseCloudRegion();
-  const [aiPopoverOpen, setAiPopoverOpen] = useState(false);
-
-  const handleFiltersGenerated = useCallback(
-    (filters: FilterState) => {
-      // Apply filters
-      queryFilter.setFilterState(filters);
-
-      // Extract unique column names from filters
-      const columnsToExpand = [...new Set(filters.map((f) => f.column))];
-
-      // Get current expanded state and merge with new columns
-      const currentExpanded = queryFilter.expanded;
-      const newExpanded = Array.from(
-        new Set([...currentExpanded, ...columnsToExpand]),
-      );
-      queryFilter.onExpandedChange(newExpanded);
-
-      // Close popover
-      setAiPopoverOpen(false);
-    },
-    [queryFilter],
-  );
-
+export function DataTableControls({ queryFilter }: DataTableControlsProps) {
   return (
     <div
       className={cn(
@@ -158,25 +123,6 @@ export function DataTableControls({
               </TooltipTrigger>
               <TooltipContent>Clear all filters</TooltipContent>
             </Tooltip>
-          )}
-          {filterWithAI && isLangfuseCloud && (
-            <Popover open={aiPopoverOpen} onOpenChange={setAiPopoverOpen}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <WandSparkles className="h-4 w-4" />
-                    </Button>
-                  </PopoverTrigger>
-                </TooltipTrigger>
-                <TooltipContent>Filter with AI</TooltipContent>
-              </Tooltip>
-              <PopoverContent align="center" className="w-[400px]">
-                <DataTableAIFilters
-                  onFiltersGenerated={handleFiltersGenerated}
-                />
-              </PopoverContent>
-            </Popover>
           )}
         </div>
       </div>
