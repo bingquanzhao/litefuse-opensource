@@ -51,6 +51,15 @@ services:
       # Single-BE bundled Doris: tables must be created with 1 replica
       # (migration runner default is the reliability-safe 3).
       DORIS_REPLICATION_NUM: ${DORIS_REPLICATION_NUM:-1}
+      # OTel grouper (batching): a group ships when it hits TARGET_BYTES OR
+      # TARGET_ROWS OR MAX_FILES, or when its oldest entry has waited FLUSH_MS.
+      # Bigger batches = higher throughput / lower BE fan-out; FLUSH_MS bounds
+      # latency at low traffic. NOTE: keep MAX_FILES modest (1000) — a huge value
+      # makes a single cut scan a giant pending list and can stall shared Redis.
+      LITEFUSE_OTEL_GROUP_TARGET_BYTES: ${LITEFUSE_OTEL_GROUP_TARGET_BYTES:-67108864}
+      LITEFUSE_OTEL_GROUP_TARGET_ROWS: ${LITEFUSE_OTEL_GROUP_TARGET_ROWS:-100000}
+      LITEFUSE_OTEL_GROUP_MAX_FILES: ${LITEFUSE_OTEL_GROUP_MAX_FILES:-1000}
+      LITEFUSE_OTEL_GROUP_FLUSH_MS: ${LITEFUSE_OTEL_GROUP_FLUSH_MS:-1000}
       LITEFUSE_USE_AZURE_BLOB: ${LITEFUSE_USE_AZURE_BLOB:-false}
       LITEFUSE_S3_EVENT_UPLOAD_BUCKET: ${LITEFUSE_S3_EVENT_UPLOAD_BUCKET:-litefuse}
       LITEFUSE_S3_EVENT_UPLOAD_REGION: ${LITEFUSE_S3_EVENT_UPLOAD_REGION:-auto}

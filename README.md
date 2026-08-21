@@ -39,29 +39,8 @@
    <a href="https://github.com/litefuse/litefuse/blob/main/LICENSE">
    <img src="https://img.shields.io/badge/License-MIT-E11311.svg" alt="MIT License">
    </a>
-   <a href="https://www.ycombinator.com/companies/litefuse"><img src="https://img.shields.io/badge/Y%20Combinator-W23-orange" alt="Y Combinator W23"></a>
    <a href="https://hub.docker.com/u/litefuse" target="_blank">
    <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/litefuse/litefuse?labelColor=%20%23FDB062&logo=Docker&labelColor=%20%23528bff"></a>
-   <a href="https://pypi.python.org/pypi/litefuse"><img src="https://img.shields.io/pypi/dm/litefuse?logo=python&logoColor=white&label=pypi%20litefuse&color=blue" alt="litefuse Python package on PyPi"></a>
-   <a href="https://www.npmjs.com/package/langfuse"><img src="https://img.shields.io/npm/dm/langfuse?logo=npm&logoColor=white&label=npm%20langfuse&color=blue" alt="langfuse npm package"></a>
-   <br/>
-   <a href="https://discord.com/invite/7NXusRtqYU" target="_blank">
-   <img src="https://img.shields.io/discord/1111061815649124414?logo=discord&labelColor=%20%235462eb&logoColor=%20%23f5f5f5&color=%20%235462eb"
-      alt="chat on Discord"></a>
-   <a href="https://twitter.com/intent/follow?screen_name=litefuse" target="_blank">
-   <img src="https://img.shields.io/twitter/follow/litefuse?logo=X&color=%20%23f5f5f5"
-      alt="follow on X(Twitter)"></a>
-   <a href="https://www.linkedin.com/company/litefuse/" target="_blank">
-   <img src="https://custom-icon-badges.demolab.com/badge/LinkedIn-0A66C2?logo=linkedin-white&logoColor=fff"
-      alt="follow on LinkedIn"></a>
-   <a href="https://github.com/litefuse/litefuse/graphs/commit-activity" target="_blank">
-   <img alt="Commits last month" src="https://img.shields.io/github/commit-activity/m/litefuse/litefuse?labelColor=%20%2332b583&color=%20%2312b76a"></a>
-   <a href="https://github.com/litefuse/litefuse/" target="_blank">
-   <img alt="Issues closed" src="https://img.shields.io/github/issues-search?query=repo%3Alitefuse%2Flitefuse%20is%3Aclosed&label=issues%20closed&labelColor=%20%237d89b0&color=%20%235d6b98"></a>
-   <a href="https://github.com/litefuse/litefuse/discussions/" target="_blank">
-   <img alt="Discussion posts" src="https://img.shields.io/github/discussions/litefuse/litefuse?labelColor=%20%239b8afb&color=%20%237a5af8"></a>
-   <a href="https://deepwiki.com/litefuse/litefuse" target="_blank">
-   <img alt="Ask DeepWiki" src="https://deepwiki.com/badge.svg"></a>
 </p>
 
 <p align="center">
