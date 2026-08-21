@@ -19,7 +19,6 @@ import { env } from "@/src/env.mjs";
 import { useState } from "react";
 import { LangfuseIcon } from "@/src/components/LangfuseLogo";
 import { CloudPrivacyNotice } from "@/src/features/auth/components/AuthCloudPrivacyNotice";
-import { CloudRegionSwitch } from "@/src/features/auth/components/AuthCloudRegionSwitch";
 import {
   SSOButtons,
   useHuggingFaceRedirect,
@@ -124,8 +123,6 @@ export default function SignIn({
             No credit card required.
           </div>
         ) : null}
-
-        <CloudRegionSwitch isSignUpPage />
 
         <div className="bg-background mt-14 px-6 py-10 shadow-sm sm:mx-auto sm:w-full sm:max-w-[480px] sm:rounded-lg sm:px-10">
           <Form {...form}>
