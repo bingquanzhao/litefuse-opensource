@@ -1,8 +1,11 @@
 import { env } from "@/src/env.mjs";
 import { PostHog } from "posthog-node";
 
-const FALLBACK_POSTHOG_KEY = "phc_zkMwFajk8ehObUlMth0D7DtPItFnxETi3lmSvyQDrwB";
-const FALLBACK_POSTHOG_HOST = "https://eu.posthog.com";
+// No default phone-home target: server-side analytics/telemetry only go somewhere
+// if the operator explicitly sets NEXT_PUBLIC_POSTHOG_KEY / NEXT_PUBLIC_POSTHOG_HOST
+// (their own PostHog). Empty fallbacks -> apiKey/host resolve falsy -> client stays null.
+const FALLBACK_POSTHOG_KEY = "";
+const FALLBACK_POSTHOG_HOST = "";
 
 export class ServerPosthog {
   private posthog: PostHog | null;
