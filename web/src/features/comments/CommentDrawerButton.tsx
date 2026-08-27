@@ -2,6 +2,7 @@ import Header from "@/src/components/layouts/header";
 import { Button, type ButtonProps } from "@/src/components/ui/button";
 import {
   Drawer,
+  DrawerClose,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
@@ -10,7 +11,7 @@ import {
 import { CommentList } from "@/src/features/comments/CommentList";
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
 import { type CommentObjectType } from "@langfuse/shared";
-import { MessageCircleIcon, MessageCircleOff } from "lucide-react";
+import { MessageCircleIcon, MessageCircleOff, X } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { type SelectionData } from "./contexts/InlineCommentSelectionContext";
@@ -124,6 +125,7 @@ export function CommentDrawerButton({
   return (
     <Drawer
       open={isDrawerOpen}
+      dismissible
       onOpenChange={(open) => {
         // Prevent drawer from closing when mention dropdown is open
         if (!open && isMentionDropdownOpen) {
@@ -197,6 +199,17 @@ export function CommentDrawerButton({
               <Header title="Comments"></Header>
             </DrawerTitle>
           </DrawerHeader>
+          <DrawerClose asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="absolute top-2 right-2 z-10"
+              aria-label="Close comments"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </DrawerClose>
           <div data-vaul-no-drag className="min-h-0 flex-1 px-2 pt-2">
             <CommentList
               projectId={projectId}
