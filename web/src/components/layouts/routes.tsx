@@ -26,7 +26,6 @@ import { SidebarMenuButton } from "@/src/components/ui/sidebar";
 import { useCommandMenu } from "@/src/features/command-k-menu/CommandMenuProvider";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 import { CloudStatusMenu } from "@/src/features/cloud-status-notification/components/CloudStatusMenu";
-import { env } from "@/src/env.mjs";
 
 // Product module identifier (inlined from the former EE customization schema).
 // Used to optionally show/hide top-level product groups via UI customization,
@@ -119,7 +118,7 @@ export const ROUTES: Route[] = [
     icon: Search,
     group: RouteGroup.Observability,
     section: RouteSection.Main,
-    hidden: env.NEXT_PUBLIC_ENABLE_LOGGING !== "true",
+    hidden: true,
   },
   {
     title: "Sessions",
@@ -128,6 +127,7 @@ export const ROUTES: Route[] = [
     group: RouteGroup.Observability,
     section: RouteSection.Main,
     pathname: `/project/[projectId]/sessions`,
+    hidden: true,
   },
   {
     title: "Users",
@@ -136,6 +136,7 @@ export const ROUTES: Route[] = [
     productModule: "tracing",
     group: RouteGroup.Observability,
     section: RouteSection.Main,
+    hidden: true,
   },
   {
     title: "Prompts",
@@ -145,7 +146,7 @@ export const ROUTES: Route[] = [
     productModule: "prompt-management",
     group: RouteGroup.PromptManagement,
     section: RouteSection.Main,
-    hidden: false,
+    hidden: true,
   },
   {
     title: "Playground",
@@ -154,7 +155,7 @@ export const ROUTES: Route[] = [
     productModule: "playground",
     group: RouteGroup.PromptManagement,
     section: RouteSection.Main,
-    hidden: false,
+    hidden: true,
   },
   {
     title: "Scores",
@@ -162,6 +163,7 @@ export const ROUTES: Route[] = [
     group: RouteGroup.Evaluation,
     section: RouteSection.Main,
     icon: SquarePercent,
+    hidden: true,
   },
   {
     title: "LLM-as-a-Judge",
@@ -171,7 +173,7 @@ export const ROUTES: Route[] = [
     group: RouteGroup.Evaluation,
     section: RouteSection.Main,
     pathname: `/project/[projectId]/evals`,
-    hidden: false,
+    hidden: true,
   },
   {
     title: "Human Annotation",
@@ -180,6 +182,7 @@ export const ROUTES: Route[] = [
     group: RouteGroup.Evaluation,
     section: RouteSection.Main,
     icon: ClipboardPen,
+    hidden: true,
   },
   {
     title: "Datasets",
@@ -188,6 +191,7 @@ export const ROUTES: Route[] = [
     productModule: "datasets",
     group: RouteGroup.Evaluation,
     section: RouteSection.Main,
+    hidden: true,
   },
   {
     title: "Experiments",
@@ -196,6 +200,7 @@ export const ROUTES: Route[] = [
     featureFlag: "experimentsV4Enabled",
     group: RouteGroup.Evaluation,
     section: RouteSection.Main,
+    hidden: true,
   },
   {
     title: "Cloud Status",
