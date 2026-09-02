@@ -1,3 +1,4 @@
+import { env } from "@/src/env.mjs";
 import { type Plan } from "@langfuse/shared";
 import { type CloudConfigSchema } from "@langfuse/shared";
 
@@ -43,7 +44,22 @@ export function getOrganizationPlanServerSide(
     return "cloud:hobby";
   }
 
-  // EE license keys are not supported in the OSS build; self-hosted
-  // deployments always resolve to the base self-hosted plan.
+  const selfHostedPlan = getSelfHostedInstancePlanServerSide();
+  if (selfHostedPlan) {
+    return selfHostedPlan;
+  }
   return "oss";
+}
+
+/**
+ * Plan of a self-hosted instance, resolved from the EE license key. Null when
+ * no (recognized) license is configured, i.e. the base `oss` plan applies.
+ */
+export function getSelfHostedInstancePlanServerSide(): Plan | null {
+  const licenseKey = env.LITEFUSE_EE_LICENSE_KEY;
+  if (!licenseKey) return null;
+  if (licenseKey.startsWith("litefuse_ee_")) {
+    return "self-hosted:enterprise";
+  }
+  return null;
 }

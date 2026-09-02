@@ -3,6 +3,7 @@ import { removeEmptyEnvVariables } from "./utils/environment";
 
 const EnvSchema = z.object({
   NEXT_PUBLIC_LITEFUSE_CLOUD_REGION: z.string().optional(),
+  LITEFUSE_EE_LICENSE_KEY: z.string().optional(),
   NODE_ENV: z
     .enum(["development", "test", "production"])
     .default("development"),

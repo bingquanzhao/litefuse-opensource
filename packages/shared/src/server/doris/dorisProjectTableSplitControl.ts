@@ -15,9 +15,8 @@ import { publishSplitCacheInvalidation } from "./tableSplitCache";
  */
 export const RETENTION_FLOOR_DAYS = 7;
 
-/** Cloud free-tier split-table TTL (days), fixed. On Cloud, retention is a PAID
- * feature — a free org's projects keep this fixed short window regardless of
- * Project.retentionDays. Cloud-only; never applied to self-hosted deployments. */
+/** Cloud free-tier split-table TTL (days), fixed. A free Cloud org's projects
+ * keep this fixed short window regardless of Project.retentionDays. */
 export const FREE_RETENTION_DAYS = 30;
 
 /** Cloud paid default TTL (days) when a paid org has set no explicit Project.retentionDays. */
@@ -25,14 +24,14 @@ export const PAID_DEFAULT_RETENTION_DAYS = 3 * 365;
 
 /**
  * The effective split-table TTL (days) for a project, derived from PG at
- * provisioning time. Table split is now UNIVERSAL (every project); retention is
- * decoupled and depends on the deployment:
- *   - self-hosted → Project.retentionDays (set via the data-retention
- *     entitlement, i.e. an EE license), else null = no TTL. The Cloud free /
- *     paid split below is a billing concept with no self-hosted counterpart,
- *     so it must never be applied here.
- *   - Cloud free org → FREE_RETENTION_DAYS (fixed 30d; Project.retentionDays ignored)
- *   - Cloud paid org → Project.retentionDays (user-set), else PAID_DEFAULT_RETENTION_DAYS
+ * provisioning time. Table split is now UNIVERSAL (every project); retention
+ * stays a PAID feature (the data-retention entitlement), decoupled:
+ *   - paid org (Cloud: Stripe subscription; self-hosted: EE license, see
+ *     isOrgPaid) → Project.retentionDays (user-set); when unset, Cloud falls
+ *     back to PAID_DEFAULT_RETENTION_DAYS, self-hosted keeps data indefinitely
+ *     (null = no TTL, the pre-split shared-table semantics)
+ *   - free org → Cloud: FREE_RETENTION_DAYS (fixed 30d; Project.retentionDays
+ *     ignored); self-hosted (oss, no license): null = no TTL
  * Floor-clamped (RETENTION_FLOOR_DAYS). Async (PG read) — call only in async
  * contexts (the provisioning job, the group-load retention filter), NEVER the
  * synchronous isSplitProject hot path.
@@ -40,6 +39,7 @@ export const PAID_DEFAULT_RETENTION_DAYS = 3 * 365;
 export const getSplitRetentionDays = async (
   projectId: string,
 ): Promise<number | null> => {
+  const isCloud = Boolean(env.NEXT_PUBLIC_LITEFUSE_CLOUD_REGION);
   const project = await prisma.project.findUnique({
     where: { id: projectId },
     select: {
@@ -47,19 +47,16 @@ export const getSplitRetentionDays = async (
       organization: { select: { cloudConfig: true } },
     },
   });
+  if (!project) return isCloud ? FREE_RETENTION_DAYS : null;
 
-  if (!env.NEXT_PUBLIC_LITEFUSE_CLOUD_REGION) {
-    // Self-hosted: Project.retentionDays is the single source; unset = keep
-    // indefinitely (same semantics as the pre-split shared-table model).
-    const raw = project?.retentionDays;
-    if (!raw) return null;
-    return raw < RETENTION_FLOOR_DAYS ? RETENTION_FLOOR_DAYS : raw;
+  let raw: number | null;
+  if (isOrgPaid(project.organization.cloudConfig)) {
+    raw =
+      project.retentionDays ?? (isCloud ? PAID_DEFAULT_RETENTION_DAYS : null);
+  } else {
+    raw = isCloud ? FREE_RETENTION_DAYS : null;
   }
-
-  if (!project) return FREE_RETENTION_DAYS;
-  const raw = isOrgPaid(project.organization.cloudConfig)
-    ? (project.retentionDays ?? PAID_DEFAULT_RETENTION_DAYS)
-    : FREE_RETENTION_DAYS;
+  if (raw === null) return null;
   return raw < RETENTION_FLOOR_DAYS ? RETENTION_FLOOR_DAYS : raw;
 };
 
@@ -131,20 +128,26 @@ export const deleteDorisProjectTableSplit = async (
   await publishSplitCacheInvalidation();
 };
 
-/** Paying customer iff cloudConfig has an active Stripe subscription with a
- * resolved paid plan — the same test getPlan.ts uses (activeSubscriptionId &&
- * resolvedPlan). Used by getSplitRetentionDays to pick the paid vs free TTL —
- * table split itself is universal (billing-independent). */
+/** Paying customer — the same tests getPlan.ts uses:
+ *   - Cloud: cloudConfig has an active Stripe subscription with a resolved
+ *     paid plan (activeSubscriptionId && resolvedPlan)
+ *   - self-hosted: the instance has an EE license (LITEFUSE_EE_LICENSE_KEY
+ *     with the `litefuse_ee_` prefix → self-hosted:enterprise)
+ * Used by getSplitRetentionDays to pick the paid vs free TTL — table split
+ * itself is universal (billing-independent). */
 const isOrgPaid = (cloudConfig: unknown): boolean => {
-  const stripe = (
-    cloudConfig as {
-      stripe?: {
-        activeSubscriptionId?: string | null;
-        resolvedPlan?: string | null;
-      };
-    } | null
-  )?.stripe;
-  return Boolean(stripe?.activeSubscriptionId && stripe?.resolvedPlan);
+  if (env.NEXT_PUBLIC_LITEFUSE_CLOUD_REGION) {
+    const stripe = (
+      cloudConfig as {
+        stripe?: {
+          activeSubscriptionId?: string | null;
+          resolvedPlan?: string | null;
+        };
+      } | null
+    )?.stripe;
+    return Boolean(stripe?.activeSubscriptionId && stripe?.resolvedPlan);
+  }
+  return Boolean(env.LITEFUSE_EE_LICENSE_KEY?.startsWith("litefuse_ee_"));
 };
 
 /**
