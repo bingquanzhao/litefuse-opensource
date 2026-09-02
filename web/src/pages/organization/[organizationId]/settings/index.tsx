@@ -15,10 +15,10 @@ import { ApiKeyList } from "@/src/features/public-api/components/ApiKeyList";
 import { env } from "@/src/env.mjs";
 import { BillingSettings } from "@/src/features/billing/components/BillingSettings";
 import { useHasOrganizationAccess } from "@/src/features/rbac/utils/checkOrganizationAccess";
+import { OrgAuditLogsSettingsPage } from "@/src/features/audit-logs/OrgAuditLogsSettingsPage";
 
 // EE features removed from OSS build:
 //  - SSOSettings (multi-tenant SSO config)
-//  - OrgAuditLogsSettingsPage (audit log viewer)
 
 type OrganizationSettingsPage = {
   title: string;
@@ -36,6 +36,8 @@ export function useOrganizationSettingsPages(): OrganizationSettingsPage[] {
   });
   const showBillingSettings =
     Boolean(env.NEXT_PUBLIC_LITEFUSE_CLOUD_REGION) && hasBillingAccess;
+  // This release only ships admin-api: hide the audit-logs entry point for now
+  const showAuditLogsSettings = false;
 
   if (!organization) return [];
 
@@ -43,6 +45,7 @@ export function useOrganizationSettingsPages(): OrganizationSettingsPage[] {
     organization,
     showOrgApiKeySettings,
     showBillingSettings,
+    showAuditLogsSettings,
   });
 }
 
@@ -50,10 +53,12 @@ export const getOrganizationSettingsPages = ({
   organization,
   showOrgApiKeySettings,
   showBillingSettings,
+  showAuditLogsSettings,
 }: {
   organization: { id: string; name: string; metadata: Record<string, unknown> };
   showOrgApiKeySettings: boolean;
   showBillingSettings: boolean;
+  showAuditLogsSettings: boolean;
 }): OrganizationSettingsPage[] => [
   {
     title: "General",
@@ -122,8 +127,13 @@ export const getOrganizationSettingsPages = ({
       </div>
     ),
   },
-  // Audit Logs and SSO settings pages were EE features and are not available
-  // in the OSS build.
+  {
+    title: "Audit Logs",
+    slug: "audit-logs",
+    cmdKKeywords: ["trail"],
+    content: <OrgAuditLogsSettingsPage orgId={organization.id} />,
+    show: showAuditLogsSettings,
+  },
   {
     title: "Projects",
     slug: "projects",

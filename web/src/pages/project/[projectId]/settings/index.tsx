@@ -15,15 +15,14 @@ import { PostHogLogo } from "@/src/components/PosthogLogo";
 import { MixpanelLogo } from "@/src/components/MixpanelLogo";
 import { Card } from "@/src/components/ui/card";
 import { TransferProjectButton } from "@/src/features/projects/components/TransferProjectButton";
-import { useHasEntitlement } from "@/src/features/entitlements/hooks";
+import { useHasEntitlement, usePlan } from "@/src/features/entitlements/hooks";
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
 import { useRouter } from "next/router";
 import { SettingsDangerZone } from "@/src/components/SettingsDangerZone";
 import { ActionButton } from "@/src/components/ActionButton";
 import { BatchExportsSettingsPage } from "@/src/features/batch-exports/components/BatchExportsSettingsPage";
 import { BatchActionsSettingsPage } from "@/src/features/batch-actions/components/BatchActionsSettingsPage";
-// AuditLogsSettingsPage was an EE feature; the project-level Audit Logs page
-// is gated off in the OSS build (was already commented out below).
+import { AuditLogsSettingsPage } from "@/src/features/audit-logs/AuditLogsSettingsPage";
 import { ModelsSettings } from "@/src/features/models/components/ModelSettings";
 import ConfigureRetention from "@/src/features/projects/components/ConfigureRetention";
 import ContainerPage from "@/src/components/layouts/container-page";
@@ -43,10 +42,28 @@ type ProjectSettingsPage = {
 export function useProjectSettingsPages(): ProjectSettingsPage[] {
   const router = useRouter();
   const { project, organization } = useQueryProject();
-  const showRetentionSettings = useHasEntitlement("data-retention");
-  const showProtectedLabelsSettings = useHasEntitlement(
-    "prompt-protected-labels",
-  );
+  // Data retention is gated to self-hosted enterprise only (license litefuse_ee_).
+  // Cloud org plans (incl. pro) and self-hosted free must not see it.
+  const showRetentionSettings = usePlan() === "self-hosted:enterprise";
+  const projectId =
+    typeof router.query.projectId === "string"
+      ? router.query.projectId
+      : undefined;
+  // This release only ships admin-api: hide the audit-logs / prompt-protected-labels entry points for now
+  const showProtectedLabelsSettings = false;
+  const showAuditLogsSettings = false;
+  const showExportsSettings = useHasProjectAccess({
+    projectId,
+    scope: "batchExports:read",
+  });
+  const showBatchActionsSettings = useHasProjectAccess({
+    projectId,
+    scope: "datasets:CUD",
+  });
+  const showIntegrationsSettings = useHasProjectAccess({
+    projectId,
+    scope: "integrations:CRUD",
+  });
 
   if (!project || !organization || !router.query.projectId) {
     return [];
@@ -58,6 +75,10 @@ export function useProjectSettingsPages(): ProjectSettingsPage[] {
     showRetentionSettings,
     showLLMConnectionsSettings: true,
     showProtectedLabelsSettings,
+    showAuditLogsSettings,
+    showExportsSettings,
+    showBatchActionsSettings,
+    showIntegrationsSettings,
   });
 }
 
@@ -67,12 +88,20 @@ export const getProjectSettingsPages = ({
   showRetentionSettings,
   showLLMConnectionsSettings,
   showProtectedLabelsSettings,
+  showAuditLogsSettings,
+  showExportsSettings,
+  showBatchActionsSettings,
+  showIntegrationsSettings,
 }: {
   project: { id: string; name: string; metadata: Record<string, unknown> };
   organization: { id: string; name: string; metadata: Record<string, unknown> };
   showRetentionSettings: boolean;
   showLLMConnectionsSettings: boolean;
   showProtectedLabelsSettings: boolean;
+  showAuditLogsSettings: boolean;
+  showExportsSettings: boolean;
+  showBatchActionsSettings: boolean;
+  showIntegrationsSettings: boolean;
 }): ProjectSettingsPage[] => [
   {
     title: "General",
@@ -199,25 +228,29 @@ export const getProjectSettingsPages = ({
     slug: "integrations",
     cmdKKeywords: ["posthog", "mixpanel", "analytics"],
     content: <Integrations projectId={project.id} />,
+    show: showIntegrationsSettings,
   },
   {
     title: "Exports",
     slug: "exports",
     cmdKKeywords: ["csv", "download", "json", "batch"],
     content: <BatchExportsSettingsPage projectId={project.id} />,
+    show: showExportsSettings,
   },
   {
     title: "Batch Actions",
     slug: "batch-actions",
     cmdKKeywords: ["bulk", "batch", "action", "dataset", "delete"],
     content: <BatchActionsSettingsPage projectId={project.id} />,
+    show: showBatchActionsSettings,
   },
-  // {
-  //   title: "Audit Logs",
-  //   slug: "audit-logs",
-  //   cmdKKeywords: ["trail"],
-  //   content: <AuditLogsSettingsPage projectId={project.id} />,
-  // },
+  {
+    title: "Audit Logs",
+    slug: "audit-logs",
+    cmdKKeywords: ["trail"],
+    content: <AuditLogsSettingsPage projectId={project.id} />,
+    show: showAuditLogsSettings,
+  },
   {
     title: "Notifications",
     slug: "notifications",

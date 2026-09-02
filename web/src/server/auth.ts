@@ -51,15 +51,41 @@ import {
   resolveProjectRole,
 } from "@langfuse/shared/src/server";
 import { getOrganizationPlanServerSide } from "@/src/features/entitlements/server/getPlan";
+import {
+  buildSsoProviders,
+  resolveSsoProviderIdForDomain,
+  resolveMultiTenantSsoConfig,
+} from "@/src/features/enterprise/sso/ssoProviders";
+import { ENTERPRISE_SSO_REQUIRED_MESSAGE } from "@/src/features/auth/constants";
 import { projectRoleAccessRights } from "@/src/features/rbac/constants/projectAccessRights";
 import { getSSOBlockedDomains } from "@/src/features/auth-credentials/server/signupApiHandler";
 import { createSupportEmailHash } from "@/src/features/support-chat/createSupportEmailHash";
+import { hasEntitlementBasedOnPlan } from "@/src/features/entitlements/server/hasEntitlement";
+import { resolveSelfHostedPlan } from "@/src/features/enterprise/plan/resolvePlan";
 
-function canCreateOrganizations(): boolean {
-  // Restricting organization creation (`self-host-allowed-organization-creators`)
-  // was an enterprise-licensed entitlement; in the OSS build all users may
-  // create organizations.
-  return true;
+function canCreateOrganizations(userEmail: string | null): boolean {
+  const instancePlan = resolveSelfHostedPlan(
+    process.env.LITEFUSE_EE_LICENSE_KEY,
+  );
+
+  // If no allowlist is configured, or the instance lacks the
+  // self-host-allowed-organization-creators entitlement, all users may create
+  // organizations.
+  if (
+    !env.LITEFUSE_ALLOWED_ORGANIZATION_CREATORS ||
+    !hasEntitlementBasedOnPlan({
+      plan: instancePlan,
+      entitlement: "self-host-allowed-organization-creators",
+    })
+  ) {
+    return true;
+  }
+
+  if (!userEmail) return false;
+
+  const allowedOrgCreators =
+    env.LITEFUSE_ALLOWED_ORGANIZATION_CREATORS.toLowerCase().split(",");
+  return allowedOrgCreators.includes(userEmail.toLowerCase());
 }
 
 const staticProviders: Provider[] = [
@@ -88,7 +114,13 @@ const staticProviders: Provider[] = [
         );
       }
 
-      // Multi-tenant SSO enforcement was an EE feature; not available in the OSS build.
+      // When the domain has a custom SSO config, force SSO sign-in (password sign-in is disallowed)
+      const ssoProviderId = domain
+        ? await resolveSsoProviderIdForDomain(domain)
+        : null;
+      if (ssoProviderId) {
+        throw new Error(ENTERPRISE_SSO_REQUIRED_MESSAGE);
+      }
 
       const dbUser = await prisma.user.findUnique({
         where: {
@@ -121,7 +153,7 @@ const staticProviders: Provider[] = [
         image: dbUser.image,
         emailVerified: dbUser.emailVerified?.toISOString(),
         featureFlags: parseFlags(dbUser.featureFlags),
-        canCreateOrganizations: canCreateOrganizations(),
+        canCreateOrganizations: canCreateOrganizations(dbUser.email),
         organizations: [],
       };
 
@@ -634,9 +666,14 @@ const extendedPrismaAdapter: Adapter = {
  * @see https://next-auth.js.org/configuration/options
  */
 export async function getAuthOptions(): Promise<NextAuthOptions> {
-  // Multi-tenant SSO providers were loaded dynamically by the EE module; in
-  // the OSS build the only providers available are the statically-configured ones.
-  const providers = [...staticProviders];
+  let dynamicSsoProviders: Provider[] = [];
+  try {
+    dynamicSsoProviders = await buildSsoProviders();
+  } catch (e) {
+    logger.error("Error loading dynamic SSO providers", e);
+    traceException(e);
+  }
+  const providers = [...staticProviders, ...dynamicSsoProviders];
 
   const data: NextAuthOptions = {
     session: {
@@ -690,9 +727,13 @@ export async function getAuthOptions(): Promise<NextAuthOptions> {
             environment: {
               enableExperimentalFeatures:
                 env.LITEFUSE_ENABLE_EXPERIMENTAL_FEATURES === "true",
-              // EE license keys are not supported in the OSS build; there is
-              // no elevated self-hosted instance plan.
-              selfHostedInstancePlan: null,
+              // Self-hosted instance plan: enterprise when a litefuse_ee_
+              // license is configured. Exposed so EE-gated UI (e.g. data
+              // retention) can check precisely for self-hosted:enterprise
+              // without conflating with Cloud org plans.
+              selfHostedInstancePlan: resolveSelfHostedPlan(
+                env.LITEFUSE_EE_LICENSE_KEY,
+              ),
             },
             user:
               dbUser !== null
@@ -707,7 +748,9 @@ export async function getAuthOptions(): Promise<NextAuthOptions> {
                     image: dbUser.image,
                     admin: dbUser.admin,
                     v4BetaEnabled: dbUser.v4BetaEnabled,
-                    canCreateOrganizations: canCreateOrganizations(),
+                    canCreateOrganizations: canCreateOrganizations(
+                      dbUser.email,
+                    ),
                     organizations: dbUser.organizationMemberships.map(
                       (orgMembership) => {
                         const parsedCloudConfig = CloudConfigSchema.safeParse(
@@ -784,9 +827,38 @@ export async function getAuthOptions(): Promise<NextAuthOptions> {
           span.setAttributes({
             "auth.email": email,
           });
-          // Multi-tenant SSO enforcement and provider/domain mapping were
-          // EE features; the OSS build only ships the statically-configured
-          // OAuth providers, so no domain enforcement happens here.
+          // Domain-enforced SSO: when the domain has a custom SSO config, sign-in must use that provider
+          const userDomain = email.split("@")[1].toLowerCase();
+          const ssoProviderId = await resolveSsoProviderIdForDomain(userDomain);
+          if (ssoProviderId && account?.provider !== ssoProviderId) {
+            logger.info(
+              "Custom SSO provider enforced for domain, user signed in with other provider",
+              { email, attemptedProvider: account?.provider },
+            );
+            const params = new URLSearchParams({
+              reason: "sso_enforced_domain",
+            });
+            if (email) params.set("email", email);
+            if (account?.provider)
+              params.set("attemptedProvider", account.provider);
+            return `${env.NEXT_PUBLIC_BASE_PATH ?? ""}/auth/enterprise-sso-required?${params.toString()}`;
+          }
+
+          // Verify the provider is only used for its associated domain
+          if (account?.provider) {
+            const { isMultiTenantSsoProvider, domain: ssoDomain } =
+              await resolveMultiTenantSsoConfig({
+                providerId: account.provider,
+              });
+            if (
+              isMultiTenantSsoProvider &&
+              ssoDomain.toLowerCase() !== userDomain.toLowerCase()
+            ) {
+              throw new Error(
+                `This domain is not associated with this SSO provider.`,
+              );
+            }
+          }
 
           // Only allow sign in via email link if user is already in db as this is used for password reset
           if (account?.provider === "email") {

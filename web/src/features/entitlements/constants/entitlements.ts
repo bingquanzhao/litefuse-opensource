@@ -56,7 +56,7 @@ export const entitlementAccess: Record<
     entitlementLimits: EntitlementLimits;
   }
 > = {
-  "cloud:hobby": {
+  "cloud:developer": {
     entitlements: [...cloudAllPlansEntitlements],
     entitlementLimits: {
       "organization-member-count": 2,
@@ -67,35 +67,9 @@ export const entitlementAccess: Record<
       "project-count": 3,
     },
   },
-  "cloud:core": {
-    entitlements: [...cloudAllPlansEntitlements, "cloud-spend-alerts"],
-    entitlementLimits: {
-      "organization-member-count": false,
-      "data-access-days": 90,
-      "annotation-queue-count": 3,
-      "model-based-evaluations-count-evaluators": false,
-      "prompt-management-count-prompts": false,
-      "project-count": false,
-    },
-  },
   "cloud:pro": {
     entitlements: [
       ...cloudAllPlansEntitlements,
-      "cloud-spend-alerts",
-      "data-retention",
-    ],
-    entitlementLimits: {
-      "annotation-queue-count": false,
-      "organization-member-count": false,
-      "data-access-days": 1095,
-      "model-based-evaluations-count-evaluators": false,
-      "prompt-management-count-prompts": false,
-      "project-count": false,
-    },
-  },
-  "cloud:team": {
-    entitlements: [
-      ...cloudAllPlansEntitlements,
       "rbac-project-roles",
       "audit-logs",
       "data-retention",
@@ -109,44 +83,12 @@ export const entitlementAccess: Record<
       "annotation-queue-count": false,
       "organization-member-count": false,
       "data-access-days": 1095,
-      "model-based-evaluations-count-evaluators": false,
-      "prompt-management-count-prompts": false,
-      "project-count": false,
-    },
-  },
-  "cloud:enterprise": {
-    entitlements: [
-      ...cloudAllPlansEntitlements,
-      "rbac-project-roles",
-      "audit-logs",
-      "data-retention",
-      "cloud-multi-tenant-sso",
-      "prompt-protected-labels",
-      "admin-api",
-      "scheduled-blob-exports",
-      "cloud-spend-alerts",
-    ],
-    entitlementLimits: {
-      "annotation-queue-count": false,
-      "organization-member-count": false,
-      "data-access-days": false,
       "model-based-evaluations-count-evaluators": false,
       "prompt-management-count-prompts": false,
       "project-count": false,
     },
   },
   oss: {
-    entitlements: selfHostedAllPlansEntitlements,
-    entitlementLimits: {
-      "annotation-queue-count": false,
-      "organization-member-count": false,
-      "data-access-days": false,
-      "model-based-evaluations-count-evaluators": false,
-      "prompt-management-count-prompts": false,
-      "project-count": false,
-    },
-  },
-  "self-hosted:pro": {
     entitlements: selfHostedAllPlansEntitlements,
     entitlementLimits: {
       "annotation-queue-count": false,
