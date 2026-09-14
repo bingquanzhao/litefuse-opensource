@@ -71,8 +71,12 @@ export const upsertDorisProjectTableSplit = async (params: {
   projectId: string;
   split?: boolean;
   note?: string | null;
+  /** Kick the worker provisioning job (default). `false` when the caller
+   * provisions inline itself (provisionSplitForNewProject) and only falls back
+   * to the queue if that fails. */
+  enqueue?: boolean;
 }): Promise<void> => {
-  const { projectId, split, note } = params;
+  const { projectId, split, note, enqueue = true } = params;
   // Retention (split-table TTL) is NOT stored here — it is single-sourced on
   // Project.retentionDays and read (+ floor-clamped) at provisioning time.
   await prisma.dorisProjectTableSplit.upsert({
@@ -88,7 +92,7 @@ export const upsertDorisProjectTableSplit = async (params: {
     },
   });
   logger.info(
-    `[table-split] designated ${projectId} (split=${split ?? false}); enqueuing provisioning`,
+    `[table-split] designated ${projectId} (split=${split ?? false})${enqueue ? "; enqueuing provisioning" : ""}`,
   );
   // The control row above is the provisioning/readiness guarantee for the
   // project's lane. Propagation + the provisioning kick are RECOVERABLE
@@ -99,6 +103,7 @@ export const upsertDorisProjectTableSplit = async (params: {
   } catch (e) {
     logger.error(`[table-split] cache invalidation for ${projectId} failed`, e);
   }
+  if (!enqueue) return;
   try {
     await enqueueDorisSplitTableProvisioning(projectId);
   } catch (e) {
@@ -140,19 +145,9 @@ const isOrgPaid = (cloudConfig: unknown): boolean => {
   return Boolean(license?.startsWith("litefuse_ee_"));
 };
 
-/**
- * Designate a newly-created project for table split and kick provisioning.
- * Table split is UNIVERSAL — every project gets its own spans_<pid> /
- * traces_scalar_<pid> tables, independent of billing (retention TTL stays
- * paid-differentiated, derived at provisioning by getSplitRetentionDays).
- * Idempotent (upsert omits `split`, CREATE IF NOT EXISTS, per-project queue
- * de-dups).
- */
-export const provisionSplitForNewProject = async (
-  projectId: string,
-): Promise<void> => {
-  await upsertDorisProjectTableSplit({ projectId });
-};
+// provisionSplitForNewProject lives in ./splitProjectActivation — it needs the
+// Doris DDL path (provisionSplitTables → tableRouting → this module), which
+// would form an import cycle here.
 
 /**
  * All-split ingestion guard for existing/legacy projects. If a project has no

@@ -4,11 +4,7 @@ import {
   TQueueJobTypes,
   getCurrentSpan,
   logger,
-  provisionSplitTablesForProject,
-  getSplitTablesReadiness,
-  publishSplitCacheInvalidation,
-  SPLIT_SCHEMA_VERSION,
-  getSplitRetentionDays,
+  provisionAndActivateSplitProject,
 } from "@langfuse/shared/src/server";
 import { prisma } from "@langfuse/shared/src/db";
 
@@ -18,6 +14,11 @@ import { prisma } from "@langfuse/shared/src/db";
  * EXISTENCE is the "designated to split" gate; the retention (TTL) is read
  * fresh from Project.retentionDays (single source), so a setRetention / billing
  * change re-provisions the TTL correctly (provisioning ALTERs it).
+ *
+ * New projects are normally provisioned INLINE by project creation
+ * (provisionSplitForNewProject); this job is the retry/fallback path for that,
+ * and the primary path for retention changes, legacy auto-designation and the
+ * grouper's self-heal.
  *
  * The MV build is async; this job returns after CREATE has been issued. It logs
  * the readiness snapshot but does NOT block on the MV finishing — the readiness
@@ -44,38 +45,7 @@ export const dorisSplitTableProvisioningProcessor: Processor = async (
     return;
   }
 
-  // Retention (split-table TTL) is single-sourced on Project.retentionDays,
-  // floor-clamped (helper).
-  const retentionDays = await getSplitRetentionDays(projectId);
-
-  logger.info(
-    `[table-split] provisioning tables for ${projectId} (retentionDays=${retentionDays ?? "none"})`,
-  );
-  await provisionSplitTablesForProject({
-    projectId,
-    retentionDays,
-  });
-
-  const readiness = await getSplitTablesReadiness(projectId);
-  // Go LIVE once the BASE tables exist (provision creates them synchronously).
-  // The MV may still be building — that is fine: reads route to the now-existing
-  // tables (empty until data), registration goes to the lane, and the grouper's
-  // own readiness gate (getSplitTablesReadiness → MV FINISHED) holds cutting
-  // until the MV is ready, so no data is written before the rollup is live.
-  // Flipping here (not at designation) keeps the pending window to the few
-  // seconds of CREATE TABLE; project-lane files wait until readiness completes.
-  if (!readiness.spansExists || !readiness.tracesScalarExists) {
-    // Should not happen — CREATE TABLE is synchronous. Retry.
-    throw new Error(
-      `[table-split] base tables missing after provisioning ${projectId} (${JSON.stringify(readiness)})`,
-    );
-  }
-  await prisma.dorisProjectTableSplit.update({
-    where: { projectId },
-    data: { split: true, schemaVersion: SPLIT_SCHEMA_VERSION },
-  });
-  await publishSplitCacheInvalidation();
-  logger.info(
-    `[table-split] ${projectId} live (split=true, schemaVersion=${SPLIT_SCHEMA_VERSION}); mvStatus=${readiness.mvStatus}`,
-  );
+  // Provision + flip LIVE (throws if the base tables are missing afterwards →
+  // BullMQ retries with backoff).
+  await provisionAndActivateSplitProject(projectId);
 };

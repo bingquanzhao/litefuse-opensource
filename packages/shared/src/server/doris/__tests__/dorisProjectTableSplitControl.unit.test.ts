@@ -61,6 +61,13 @@ describe("upsertDorisProjectTableSplit", () => {
     expect(publishMock).toHaveBeenCalledTimes(1);
   });
 
+  it("enqueue:false writes the row + invalidates but does NOT enqueue", async () => {
+    await upsertDorisProjectTableSplit({ projectId: PID, enqueue: false });
+    expect(upsertMock).toHaveBeenCalledTimes(1);
+    expect(publishMock).toHaveBeenCalledTimes(1);
+    expect(enqueueMock).not.toHaveBeenCalled();
+  });
+
   it("carries NO retention (single-sourced on Project.retentionDays)", async () => {
     await upsertDorisProjectTableSplit({ projectId: PID, split: true });
     const arg = JSON.stringify(upsertMock.mock.calls[0][0]);
