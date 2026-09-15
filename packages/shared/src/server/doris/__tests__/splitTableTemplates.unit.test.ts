@@ -73,9 +73,7 @@ describe("buildAlterTtlStatement (set/change TTL later)", () => {
         physicalTable: "spans_pid",
         retentionDays: 14,
       }),
-    ).toBe(
-      'ALTER TABLE `spans_pid` SET ("dynamic_partition.start" = "-14")',
-    );
+    ).toBe('ALTER TABLE `spans_pid` SET ("dynamic_partition.start" = "-14")');
   });
 
   it("moves the drop threshold on a plan upgrade (AUTO PARTITION back-fills)", () => {
@@ -84,9 +82,7 @@ describe("buildAlterTtlStatement (set/change TTL later)", () => {
         physicalTable: "spans_pid",
         retentionDays: 1095,
       }),
-    ).toBe(
-      'ALTER TABLE `spans_pid` SET ("dynamic_partition.start" = "-1095")',
-    );
+    ).toBe('ALTER TABLE `spans_pid` SET ("dynamic_partition.start" = "-1095")');
   });
 
   it("null retention removes TTL (back to no-drop threshold)", () => {
@@ -160,7 +156,9 @@ describe("buildSplitTableStatements (reads OUR split templates)", () => {
       "AUTO PARTITION BY RANGE (date_trunc(`start_time`, 'day')) ()",
     );
     // split key shape + full column schema flowed through (not a truncated stub)
-    expect(spans).toContain("DUPLICATE KEY(`trace_id`, `start_time`, `span_id`)");
+    expect(spans).toContain(
+      "DUPLICATE KEY(`trace_id`, `start_time`, `span_id`)",
+    );
     expect(spans).toContain("`experiment_id`");
     expect(spans).toContain('"storage_page_size" = "262144"');
     // removed columns must NOT be present
@@ -187,6 +185,20 @@ describe("buildSplitTableStatements (reads OUR split templates)", () => {
   });
 });
 
+describe("resolveMigrationsDir", () => {
+  it("finds packages/shared/doris/migrations by walking up, and it holds the templates", () => {
+    const dir = resolveMigrationsDir();
+    expect(dir.replace(/\\/g, "/")).toMatch(
+      /packages\/shared\/doris\/migrations$/,
+    );
+    const files = readdirSync(dir);
+    expect(files).toContain("0037_spans.sql");
+    expect(files).toContain("0040_trace_metrics_agg.sql");
+    // memoised: same answer on the second call
+    expect(resolveMigrationsDir()).toBe(dir);
+  });
+});
+
 // Drift guard: the split path reads ONLY the CREATE migration / split template.
 // If a later migration ALTERs these tables, the single CREATE file would no
 // longer be the whole schema and the split tables would silently miss columns.
@@ -196,10 +208,7 @@ describe("split-table schema drift guard", () => {
     const offenders: string[] = [];
     for (const f of readdirSync(dir)) {
       if (!f.endsWith(".up.sql")) continue;
-      if (
-        f.includes("create_spans") ||
-        f.includes("create_traces_scalar")
-      )
+      if (f.includes("create_spans") || f.includes("create_traces_scalar"))
         continue;
       const sql = readFileSync(`${dir}/${f}`, "utf8");
       // strip line comments so the ALTER example inside a comment doesn't trip it
