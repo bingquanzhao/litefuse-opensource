@@ -540,19 +540,6 @@ export const traceRouter = createTRPCRouter({
         if (traceById) {
           trace = traceById;
           traceById.bookmarked = input.bookmarked;
-          const promises: Promise<void>[] = [];
-          // Master spans migration: traces table is dead-write under
-          // OTel-only ingestion. Keep this for code-retention (harmless
-          // no-op against the empty table); traces_scalar below is the
-          // authoritative write — that's what the UI reads back.
-          promises.push(
-            partialUpdateDoris({
-              table: "traces",
-              where: { project_id: input.projectId, id: input.traceId },
-              set: { bookmarked: input.bookmarked },
-            }),
-          );
-
           // spans is a DUPLICATE-model table (migration 0037): UPDATE
           // is unsupported, so the spans root row is NOT rewritten.
           // traces_scalar (UNIQUE/MoW) is the authoritative store for
@@ -560,14 +547,13 @@ export const traceRouter = createTRPCRouter({
           // pick bookmarked from spans will surface the stale value.
           // traces_scalar serves the trace LIST (and compact byId); without
           // this mirror the toggled bookmark reverts on the next list load.
-          promises.push(
-            partialUpdateDoris({
-              table: "traces_scalar",
-              where: { project_id: input.projectId, id: input.traceId },
-              set: { bookmarked: input.bookmarked },
-            }),
-          );
-          await Promise.all(promises);
+          // (The legacy `traces` table no longer exists — an UPDATE against
+          // it fails the whole mutation — so it is not written.)
+          await partialUpdateDoris({
+            table: "traces_scalar",
+            where: { project_id: input.projectId, id: input.traceId },
+            set: { bookmarked: input.bookmarked },
+          });
         } else {
           logger.error(
             `Trace not found in Doris: ${input.traceId}. Skipping bookmark.`,
@@ -619,28 +605,15 @@ export const traceRouter = createTRPCRouter({
           });
         }
         traceById.public = input.public;
-        const promises: Promise<void>[] = [];
-        // Master spans migration: keep the legacy traces write for
-        // code-retention (no-op against the now-empty table); spans
-        // is the authoritative write that the UI reads back.
-        promises.push(
-          partialUpdateDoris({
-            table: "traces",
-            where: { project_id: input.projectId, id: input.traceId },
-            set: { public: input.public },
-          }),
-        );
         // spans is DUPLICATE-model (migration 0037): UPDATE is
         // unsupported, so the per-span public flag is NOT rewritten there.
-        // traces_scalar mirror — the list/compact-byId read target.
-        promises.push(
-          partialUpdateDoris({
-            table: "traces_scalar",
-            where: { project_id: input.projectId, id: input.traceId },
-            set: { public: input.public },
-          }),
-        );
-        await Promise.all(promises);
+        // traces_scalar mirror — the list/compact-byId read target. (The
+        // legacy `traces` table no longer exists, so it is not written.)
+        await partialUpdateDoris({
+          table: "traces_scalar",
+          where: { project_id: input.projectId, id: input.traceId },
+          set: { public: input.public },
+        });
         return traceById;
       } catch (error) {
         logger.error("Failed to call traces.publish", error);
@@ -686,26 +659,16 @@ export const traceRouter = createTRPCRouter({
           });
         }
         traceById.tags = input.tags;
-        // Master spans migration: legacy traces write kept for
-        // code-retention (no-op); spans update is the one the UI
-        // reads back. Tags live on the trace root span (parent_span_id
-        // = '') in spans.
-        await Promise.all([
-          partialUpdateDoris({
-            table: "traces",
-            where: { project_id: input.projectId, id: input.traceId },
-            set: { tags: input.tags },
-          }),
-          // spans is DUPLICATE-model (migration 0037): UPDATE is
-          // unsupported, so the root-span tags are NOT rewritten there.
-          // traces_scalar mirror — the list/compact-byId read target (tags
-          // filters run on its inverted index).
-          partialUpdateDoris({
-            table: "traces_scalar",
-            where: { project_id: input.projectId, id: input.traceId },
-            set: { tags: input.tags },
-          }),
-        ]);
+        // spans is DUPLICATE-model (migration 0037): UPDATE is
+        // unsupported, so the root-span tags are NOT rewritten there.
+        // traces_scalar mirror — the list/compact-byId read target (tags
+        // filters run on its inverted index). (The legacy `traces` table no
+        // longer exists, so it is not written.)
+        await partialUpdateDoris({
+          table: "traces_scalar",
+          where: { project_id: input.projectId, id: input.traceId },
+          set: { tags: input.tags },
+        });
       } catch (error) {
         logger.error("Failed to call traces.updateTags", error);
         throw new TRPCError({
