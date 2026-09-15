@@ -103,13 +103,13 @@ export const projectsRouter = createTRPCRouter({
       // Universal Doris table split: EVERY new project gets its own tables
       // (billing-independent; retention TTL stays paid-differentiated, derived
       // at provisioning). The client gets the project id only after this
-      // returns, so designating it BEFORE then guarantees its first rows wait
-      // on the project lane while tables are provisioned. RELIABLE +
-      // compensating: if designation fails
-      // (a rare PG blip on the control-row write), delete the just-created
-      // project so the mutation fails cleanly instead of leaving an undesignated
-      // project. The provisioning
-      // enqueue/propagation inside upsert are best-effort.
+      // returns and redirects straight into the project, so the tables are
+      // provisioned INLINE here (bounded; on Doris error/timeout it falls back
+      // to the worker job) — Home/Tracing must not hit a not-yet-existing
+      // spans_<pid>. RELIABLE + compensating: if designation fails (a rare PG
+      // blip on the control-row write), delete the just-created project so the
+      // mutation fails cleanly instead of leaving an undesignated project. The
+      // DDL / enqueue / propagation are best-effort and never fail creation.
       try {
         await provisionSplitForNewProject(project.id);
       } catch (e) {

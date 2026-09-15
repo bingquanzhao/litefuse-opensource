@@ -103,6 +103,7 @@ export * from "./queries/doris-sql/search";
 export * from "./repositories";
 export * from "./doris/provisionSplitTables";
 export * from "./doris/dorisProjectTableSplitControl";
+export * from "./doris/splitProjectActivation";
 export * from "./repositories/traces";
 export * from "./repositories/billing";
 export * from "./repositories/dataset-items";
