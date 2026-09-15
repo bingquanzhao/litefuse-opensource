@@ -91,10 +91,9 @@ export async function upsertDoris<T extends Record<string, unknown>>(opts: {
 export async function partialUpdateDoris(opts: {
   // spans added for the master spans migration; traces_scalar for
   // the trace-list mirror (bookmark/public/tags toggles must reach the list's
-  // read target). Legacy table names retained per code-retention principle
-  // (their write paths are unreachable under the OTel-only contract but the
-  // type stays valid).
-  table: "traces" | "observations" | "scores" | "spans" | "traces_scalar";
+  // read target). The legacy traces/observations tables do NOT exist in the
+  // split model — an UPDATE against them fails — so they are not accepted.
+  table: "scores" | "spans" | "traces_scalar";
   where: Record<string, unknown>;
   set: Record<string, unknown>;
 }): Promise<void> {
