@@ -1,5 +1,5 @@
 import { readFileSync, existsSync } from "fs";
-import { join } from "path";
+import { dirname, join } from "path";
 
 /**
  * Per-project Doris table DDL generation (docs/project-per-table-*.md, Stage 1.2).
@@ -218,22 +218,51 @@ export const buildTraceMetricsAggMV = (params: {
     .trim();
 };
 
+/** Every ancestor of `from`, nearest first, including `from` itself. */
+const ancestorsOf = (from: string): string[] => {
+  const out: string[] = [];
+  let dir = from;
+  for (;;) {
+    out.push(dir);
+    const parent = dirname(dir);
+    if (parent === dir) return out;
+    dir = parent;
+  }
+};
+
+let resolvedMigrationsDir: string | undefined;
+
 /**
- * Locate the shared package's doris/migrations dir. Resolved relative to this
- * module so it works whether loaded from src (vitest) or dist (runtime); the
- * two layouts differ in depth, so we probe candidates. The dir ships in the
- * web/worker images (packages/shared/doris).
+ * Locate the shared package's doris/migrations dir. The dir ships in both
+ * images as packages/shared/doris, but this module is loaded from different
+ * places: shared/dist (worker, scripts), shared/src (vitest), or BUNDLED into
+ * web/.next/server/chunks by Next.js — where a fixed number of `..` from
+ * __dirname lands nowhere near it. So walk UP from __dirname and from
+ * process.cwd() and take the first ancestor that contains
+ * `packages/shared/doris/migrations` (repo / image layout) or
+ * `doris/migrations` (an ancestor that IS the shared package). Memoised —
+ * the layout cannot change while the process runs.
  */
 export const resolveMigrationsDir = (): string => {
-  const candidates = [
-    join(__dirname, "../../../../doris/migrations"), // dist/src/server/doris → shared/doris
-    join(__dirname, "../../../doris/migrations"), // src/server/doris → shared/doris
-  ];
+  if (resolvedMigrationsDir) return resolvedMigrationsDir;
+  const roots = [__dirname, process.cwd()];
+  const candidates: string[] = [];
+  for (const root of roots) {
+    for (const ancestor of ancestorsOf(root)) {
+      candidates.push(
+        join(ancestor, "packages/shared/doris/migrations"),
+        join(ancestor, "doris/migrations"),
+      );
+    }
+  }
   for (const dir of candidates) {
-    if (existsSync(join(dir, "0037_spans.sql"))) return dir;
+    if (existsSync(join(dir, "0037_spans.sql"))) {
+      resolvedMigrationsDir = dir;
+      return dir;
+    }
   }
   throw new Error(
-    `resolveMigrationsDir: doris/migrations not found near ${__dirname} (candidates: ${candidates.join(", ")})`,
+    `resolveMigrationsDir: doris/migrations not found walking up from ${roots.join(" and ")}`,
   );
 };
 
