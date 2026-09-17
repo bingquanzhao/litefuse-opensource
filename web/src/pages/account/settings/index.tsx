@@ -33,6 +33,7 @@ import Link from "next/link";
 import { showSuccessToast } from "@/src/features/notifications/showSuccessToast";
 import { showErrorToast } from "@/src/features/notifications/showErrorToast";
 import { env } from "@/src/env.mjs";
+import { LanguageSettingsCard } from "@/src/features/i18n/LanguageSettingsCard";
 
 const displayNameSchema = z.object({
   name: StringNoHTML.min(1, "Name cannot be empty").max(
@@ -295,6 +296,7 @@ const getAccountSettingsPages = (userEmail: string): AccountSettingsPage[] => [
             </Button>
           </Card>
         </div>
+        <LanguageSettingsCard />
         <SettingsDangerZone
           items={[
             {

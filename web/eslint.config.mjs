@@ -1,5 +1,14 @@
 import nextConfig from "@repo/eslint-config/next";
 import { tableRoutingRule } from "@repo/eslint-config/base";
+import i18next from "eslint-plugin-i18next";
+
+// Directories already migrated to react-i18next. Hardcoded UI strings are an
+// error there so they cannot regress. Extend as directories are migrated; the
+// zh-CN rollout gate is this list covering all of src/.
+const I18N_MIGRATED_FILES = [
+  "src/features/i18n/**/*.tsx",
+  "src/components/nav/**/*.tsx",
+];
 
 export default [
   ...nextConfig,
@@ -11,6 +20,31 @@ export default [
     "src/pages/api/**/*.ts",
     "src/server/**/*.ts",
   ]),
+
+  {
+    name: "litefuse/web/i18n-no-literal-string",
+    files: I18N_MIGRATED_FILES,
+    plugins: { i18next },
+    rules: {
+      "i18next/no-literal-string": [
+        "error",
+        {
+          mode: "jsx-only",
+          "jsx-attributes": {
+            include: [
+              "title",
+              "placeholder",
+              "label",
+              "description",
+              "tooltip",
+              "aria-label",
+              "alt",
+            ],
+          },
+        },
+      ],
+    },
+  },
 
   // Restrict react-icons imports
   {
