@@ -162,7 +162,7 @@ export const TracesAndObservationsTimeSeriesChart = ({
           tabTitle: i18nKey("Observations by Level"),
           data: transformedObservations,
           totalMetric: totalObservations,
-          metricDescription: `Observations tracked`,
+          metricDescription: t("Observations tracked"),
         },
       ]
     : [
@@ -170,13 +170,13 @@ export const TracesAndObservationsTimeSeriesChart = ({
           tabTitle: i18nKey("Traces"),
           data: transformedTraces,
           totalMetric: total,
-          metricDescription: `Traces tracked`,
+          metricDescription: t("Traces tracked"),
         },
         {
           tabTitle: i18nKey("Observations by Level"),
           data: transformedObservations,
           totalMetric: totalObservations,
-          metricDescription: `Observations tracked`,
+          metricDescription: t("Observations tracked"),
         },
       ];
 

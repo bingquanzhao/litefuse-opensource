@@ -43,7 +43,7 @@ export default function Events() {
         title: t("Tracing - Events Table (New)"),
         help: {
           description: t(
-            "An observation captures a single function call in an application. This view uses the new ClickHouse events table.",
+            "An observation captures a single function call in an application. This view uses the new events table.",
           ),
           href: "https://litefuse.ai/docs/observability/data-model",
         },

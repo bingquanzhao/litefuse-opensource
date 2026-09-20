@@ -89,6 +89,7 @@ import { type WidgetChartConfig } from "@/src/features/widgets/utils";
 
 import { useTranslation } from "react-i18next";
 
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 /** Metric aggregation enum value, not user-facing text. */
 const DEFAULT_AGGREGATION = "sum";
 type ChartConfig = WidgetChartConfig;
@@ -213,6 +214,14 @@ interface SelectedMetric {
   /** Display label for the metric */
   label: string;
 }
+
+/** View names are query identifiers; these are the labels shown for them. */
+const viewLabels: Record<string, string> = {
+  traces: i18nKey("Traces"),
+  observations: i18nKey("Observations"),
+  "scores-numeric": i18nKey("Scores (numeric)"),
+  "scores-categorical": i18nKey("Scores (categorical)"),
+};
 
 export function WidgetForm({
   initialValues,
@@ -1290,7 +1299,7 @@ export function WidgetForm({
 
               {/* View Selection */}
               <div className="space-y-2">
-                <Label htmlFor="view-select">{t("View")}</Label>
+                <Label htmlFor="view-select">{t("Data view")}</Label>
                 <Select
                   value={selectedView}
                   onValueChange={(value) => {
@@ -1358,7 +1367,7 @@ export function WidgetForm({
                       <WidgetPropertySelectItem
                         key={view}
                         value={view}
-                        label={startCase(view)}
+                        label={t(viewLabels[view] ?? startCase(view))}
                         description={
                           viewDeclarations[viewVersion][view].description
                         }
@@ -1638,9 +1647,7 @@ export function WidgetForm({
                     </span>
                   )}
                   <p className="text-muted-foreground text-xs">
-                    {t(
-                      "Raw SQL appended to WHERE clause. Use Doris/ClickHouse syntax.",
-                    )}
+                    {t("Raw SQL appended to WHERE clause. Use Doris syntax.")}
                   </p>
                 </div>
               </div>

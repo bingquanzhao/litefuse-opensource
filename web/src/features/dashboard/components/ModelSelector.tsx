@@ -118,6 +118,7 @@ export const useModelSelection = (
     queryId: string;
   },
 ) => {
+  const { t } = useTranslation();
   const allModels = useAllModels(
     projectId,
     globalFilterState,
@@ -133,8 +134,8 @@ export const useModelSelection = (
   const isAllSelected = selectedModels.length === allModels.length;
 
   const buttonText = isAllSelected
-    ? "All models"
-    : `${selectedModels.length} selected`;
+    ? t("All models")
+    : t("{{count}} selected", { count: selectedModels.length });
 
   const handleSelectAll = () => {
     setSelectedModels(isAllSelected ? [] : [...allModels.map((m) => m.model)]);
