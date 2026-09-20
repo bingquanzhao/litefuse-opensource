@@ -244,7 +244,9 @@ export function BillingSettings({ orgId }: BillingSettingsProps) {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Badge variant={plan === "cloud:developer" ? "secondary" : "success"}>
+            <Badge
+              variant={plan === "cloud:developer" ? "secondary" : "success"}
+            >
               {planLabels[plan as Plan]}
             </Badge>
             {status ? (

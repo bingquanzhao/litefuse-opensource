@@ -31,6 +31,7 @@ import { Input } from "@/src/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/src/components/ui/radio-group";
 import { usePromptNameValidation } from "@/src/features/prompts/hooks/usePromptNameValidation";
 
+import { useTranslation } from "react-i18next";
 enum CopySettings {
   SINGLE_VERSION = "single_version",
   ALL_VERSIONS = "all_versions",
@@ -48,6 +49,7 @@ const DuplicatePromptForm: React.FC<{
   promptVersion: number;
   onFormSuccess: () => void;
 }> = ({ projectId, promptId, promptName, promptVersion, onFormSuccess }) => {
+  const { t } = useTranslation();
   const capture = usePostHogClientCapture();
   const router = useRouter();
   const form = useForm({
@@ -169,7 +171,7 @@ const DuplicatePromptForm: React.FC<{
             loading={duplicatePrompt.isPending}
             className="mt-auto w-full"
           >
-            Submit
+            {t("Submit")}
           </Button>
         </DialogFooter>
       </form>
@@ -183,6 +185,7 @@ export const DuplicatePromptButton: React.FC<{
   promptName: string;
   promptVersion: number;
 }> = ({ projectId, promptId, promptName, promptVersion }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const hasAccess = useHasProjectAccess({
     projectId,
@@ -211,18 +214,18 @@ export const DuplicatePromptButton: React.FC<{
           hasAccess={hasAccess}
           variant="outline"
           limit={promptLimit}
-          title="Duplicate prompt"
+          title={t("Duplicate prompt")}
           limitValue={allPromptNames.data?.length ?? undefined}
           onClick={() => {
             capture("prompt_detail:duplicate_button_click");
           }}
         >
-          <span className="hidden md:ml-1 md:inline">Duplicate</span>
+          <span className="hidden md:ml-1 md:inline">{t("Duplicate")}</span>
         </ActionButton>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] min-h-0">
         <DialogHeader>
-          <DialogTitle>Duplicate prompt</DialogTitle>
+          <DialogTitle>{t("Duplicate prompt")}</DialogTitle>
         </DialogHeader>
         <DuplicatePromptForm
           projectId={projectId}

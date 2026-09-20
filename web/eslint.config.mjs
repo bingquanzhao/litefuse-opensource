@@ -26,6 +26,10 @@ const I18N_MIGRATED_FILES = [
   "src/features/evals/**/*.tsx",
   "src/features/datasets/**/*.tsx",
   "src/features/batch-actions/**/*.tsx",
+  "src/features/prompts/**/*.tsx",
+  "src/features/score-analytics/**/*.tsx",
+  "src/features/widgets/**/*.tsx",
+  "src/features/models/**/*.tsx",
 ];
 
 export default [

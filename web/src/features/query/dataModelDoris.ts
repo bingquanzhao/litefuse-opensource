@@ -230,7 +230,9 @@ export const tracesViewDoris = (projectId: string): ViewDeclarationType => ({
   baseCte: `${tableFor(projectId, "traces_scalar")} traces`,
 });
 
-export const observationsViewDoris = (projectId: string): ViewDeclarationType => ({
+export const observationsViewDoris = (
+  projectId: string,
+): ViewDeclarationType => ({
   name: "observations",
   description:
     "Observations represent individual requests or operations within a trace. They are grouped into Spans, Generations, and Events.",
@@ -671,7 +673,9 @@ export const scoreBaseDimensionsDoris = {
   },
 };
 
-export const scoresNumericViewDoris = (projectId: string): ViewDeclarationType => ({
+export const scoresNumericViewDoris = (
+  projectId: string,
+): ViewDeclarationType => ({
   name: "scores_numeric",
   description:
     "Scores are flexible objects that are used for evaluations. This view contains numeric scores.",
@@ -720,7 +724,9 @@ export const scoresNumericViewDoris = (projectId: string): ViewDeclarationType =
   baseCte: `scores scores_numeric`,
 });
 
-export const scoresCategoricalViewDoris = (projectId: string): ViewDeclarationType => ({
+export const scoresCategoricalViewDoris = (
+  projectId: string,
+): ViewDeclarationType => ({
   name: "scores_categorical",
   description:
     "Scores are flexible objects that are used for evaluations. This view contains categorical scores.",

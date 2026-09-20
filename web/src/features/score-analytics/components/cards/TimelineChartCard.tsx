@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 import { useScoreAnalytics } from "../ScoreAnalyticsProvider";
 import { ScoreTimeSeriesChart } from "../charts/ScoreTimeSeriesChart";
 import { SamplingDetailsHoverCard } from "../SamplingDetailsHoverCard";
+import { useTranslation } from "react-i18next";
 import {
   getScoreCategoryColors,
   getScoreBooleanColors,
@@ -33,6 +34,7 @@ type TimelineTab = "score1" | "score2" | "all" | "matched";
  * - Numeric vs categorical data types
  */
 export function TimelineChartCard() {
+  const { t } = useTranslation();
   const { data, isLoading, params, colorMappings, getColorForScore } =
     useScoreAnalytics();
   const [activeTab, setActiveTab] = useState<TimelineTab>("all");
@@ -188,7 +190,9 @@ export function TimelineChartCard() {
       overallAverage !== null &&
       overallAverage > 0
     ) {
-      parts.push(`Overall avg: ${overallAverage.toFixed(3)}`);
+      parts.push(
+        t("Overall avg: {{value}}", { value: overallAverage.toFixed(3) }),
+      );
     }
 
     // Matched count for two-score mode
@@ -208,8 +212,8 @@ export function TimelineChartCard() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Trend Over Time</CardTitle>
-          <CardDescription>Loading chart...</CardDescription>
+          <CardTitle>{t("Trend Over Time")}</CardTitle>
+          <CardDescription>{t("Loading chart...")}</CardDescription>
         </CardHeader>
         <CardContent className="flex h-[340px] grow items-center justify-center">
           <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
@@ -223,11 +227,11 @@ export function TimelineChartCard() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Trend Over Time</CardTitle>
-          <CardDescription>No data available</CardDescription>
+          <CardTitle>{t("Trend Over Time")}</CardTitle>
+          <CardDescription>{t("No data available")}</CardDescription>
         </CardHeader>
         <CardContent className="text-muted-foreground flex h-[340px] items-center justify-center text-sm">
-          Select a score to view trends
+          {t("Select a score to view trends")}
         </CardContent>
       </Card>
     );
@@ -271,7 +275,7 @@ export function TimelineChartCard() {
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <CardTitle className="flex items-center gap-2">
-                Trend Over Time
+                {t("Trend Over Time")}
                 {data.samplingMetadata.isSampled && (
                   <SamplingDetailsHoverCard
                     samplingMetadata={data.samplingMetadata}
@@ -303,10 +307,10 @@ export function TimelineChartCard() {
                   {truncateLabel(score2FullLabel)}
                 </TabsTrigger>
                 <TabsTrigger value="all" className="h-5 px-2 text-xs">
-                  all
+                  {t("all")}
                 </TabsTrigger>
                 <TabsTrigger value="matched" className="h-5 px-2 text-xs">
-                  matched
+                  {t("matched")}
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -338,7 +342,7 @@ export function TimelineChartCard() {
           />
         ) : (
           <div className="text-muted-foreground flex h-full items-center justify-center text-sm">
-            No time series data available for the selected time range
+            {t("No time series data available for the selected time range")}
           </div>
         )}
       </CardContent>
