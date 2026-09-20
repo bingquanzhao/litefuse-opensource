@@ -29,6 +29,9 @@ import { passwordSchema } from "@/src/features/auth/lib/signupSchema";
 
 import { Trans, useTranslation } from "react-i18next";
 import { i18nKey } from "@/src/features/i18n/i18nKey";
+
+/** Example address shown in the field, identical in every language. */
+const EXAMPLE_EMAIL = "jsdoe@example.com";
 const resetPasswordSchema = z
   .object({
     email: z.string().email(),
@@ -101,7 +104,7 @@ export function ResetPasswordPage({
     return (
       <ErrorPage
         title={t("Not available")}
-        message="Password reset is not configured on this instance"
+        message={t("Password reset is not configured on this instance")}
         additionalButton={{
           label: t("Setup instructions"),
           href: "https://litefuse.ai/self-hosting/security/authentication-and-sso#auth-email-password",
@@ -146,18 +149,18 @@ export function ResetPasswordPage({
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{t("Email")}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
-                            placeholder="jsdoe@example.com"
+                            placeholder={EXAMPLE_EMAIL}
                             disabled={session.status === "authenticated"}
                             allowPasswordManager
                             autoComplete="email"
                             {...field}
                           />
                           {emailVerified.verified && (
-                            <span title="Email verified">
+                            <span title={t("Email verified")}>
                               <ShieldCheck className="text-muted-green absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform" />
                             </span>
                           )}
@@ -174,7 +177,7 @@ export function ResetPasswordPage({
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>New Password</FormLabel>
+                          <FormLabel>{t("New Password")}</FormLabel>
                           <FormControl>
                             <PasswordInput
                               autoComplete="new-password"
@@ -190,7 +193,7 @@ export function ResetPasswordPage({
                       name="confirmPassword"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Confirm New Password</FormLabel>
+                          <FormLabel>{t("Confirm New Password")}</FormLabel>
                           <FormControl>
                             <PasswordInput
                               autoComplete="new-password"

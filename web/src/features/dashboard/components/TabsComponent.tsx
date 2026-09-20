@@ -28,7 +28,7 @@ export const TabComponent = ({ tabs }: TabComponentProps) => {
           onChange={(e) => setSelectedIndex(Number(e.target.selectedIndex))}
         >
           {tabs.map((tab) => (
-            <option key={tab.tabTitle}>{tab.tabTitle}</option>
+            <option key={tab.tabTitle}>{t(tab.tabTitle)}</option>
           ))}
         </select>
       </div>
@@ -55,7 +55,7 @@ export const TabComponent = ({ tabs }: TabComponentProps) => {
                   });
                 }}
               >
-                {tab.tabTitle}
+                {t(tab.tabTitle)}
               </a>
             ))}
           </nav>

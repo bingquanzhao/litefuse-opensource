@@ -122,7 +122,7 @@ export const DatasetActionButton = forwardRef<
             ) : (
               <LockIcon className="mr-2 h-4 w-4" aria-hidden="true" />
             )}
-            Delete
+            {t("Delete")}
           </Button>
         ) : (
           <Button

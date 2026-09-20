@@ -106,7 +106,7 @@ export default function EvaluatorsPage() {
                 limitValue={countsQuery.data?.configActiveCount ?? 0}
                 limit={evaluatorLimit}
               >
-                Set up evaluator
+                {t("Set up evaluator")}
               </ActionButton>
             </>
           ),

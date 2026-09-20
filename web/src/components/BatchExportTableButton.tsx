@@ -22,6 +22,7 @@ import { showSuccessToast } from "@/src/features/notifications/showSuccessToast"
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
 
 import { useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 export type BatchExportTableButtonProps = {
   projectId: string;
   tableName: BatchExportTableName;
@@ -42,12 +43,14 @@ export const BatchExportTableButton: React.FC<BatchExportTableButtonProps> = (
     },
     onSuccess: () => {
       showSuccessToast({
-        title: t("Export queued"),
-        description: t("You will receive an email when the export is ready."),
+        title: t(t("Export queued")),
+        description: t(
+          t("You will receive an email when the export is ready."),
+        ),
         duration: 10000,
         link: {
           href: `/project/${props.projectId}/settings/exports`,
-          text: "View exports",
+          text: i18nKey(t("View exports")),
         },
       });
     },

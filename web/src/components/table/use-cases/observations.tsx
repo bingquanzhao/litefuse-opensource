@@ -502,7 +502,7 @@ export default function ObservationsTable({
   const addToQueueMutation = api.annotationQueueItems.createMany.useMutation({
     onSuccess: (data) => {
       showSuccessToast({
-        title: t("Observations added to queue"),
+        title: t(t("Observations added to queue")),
         description: t(
           'Selected observations will be added to queue "{{queue}}". This may take a minute.',
           { queue: data.queueName },
@@ -715,8 +715,9 @@ export default function ObservationsTable({
       id: "statusMessage",
       size: 150,
       headerTooltip: {
-        description:
+        description: t(
           "Use a statusMessage to e.g. provide additional information on a status such as level=ERROR.",
+        ),
         href: "https://litefuse.ai/docs/observability/features/log-levels",
       },
       enableHiding: true,

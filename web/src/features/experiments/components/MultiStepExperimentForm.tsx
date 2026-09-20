@@ -101,7 +101,7 @@ export const MultiStepExperimentForm = ({
   );
 
   const steps = [
-    { id: "prompt", label: "Prompt & Model" },
+    { id: "prompt", label: t("Prompt & Model") },
     { id: "dataset", label: t("Dataset") },
     { id: "evaluators", label: t("Evaluators") },
     { id: "details", label: t("Experiment run details") },
@@ -219,8 +219,8 @@ export const MultiStepExperimentForm = ({
     onSuccess: handleExperimentSuccess ?? (() => {}),
     onError: (error) => {
       showErrorToast(
-        error.message || "Failed to trigger dataset run",
-        "Please try again.",
+        error.message || t("Failed to trigger dataset run"),
+        t("Please try again."),
       );
     },
     onSettled: handleExperimentSettled ?? (() => {}),

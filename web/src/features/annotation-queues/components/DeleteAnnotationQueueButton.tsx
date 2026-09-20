@@ -44,7 +44,7 @@ export const DeleteAnnotationQueueButton = ({
         ) : (
           <LockIcon className="mr-1.5 -ml-0.5 h-4 w-4" aria-hidden="true" />
         )}
-        <span className="text-sm font-normal">Delete</span>
+        <span className="text-sm font-normal">{t("Delete")}</span>
       </div>
     </Button>
   );

@@ -154,7 +154,7 @@ const HistogramChart = ({
               payload={payload}
               label={label}
               valueFormatter={(v) => compactSmallNumberFormatter(Number(v))}
-              nameFormatter={(name) => (name === "count" ? "Count" : name)}
+              nameFormatter={(name) => (name === "count" ? t("Count") : name)}
               labelFormatter={(label) => `Bin: ${label}`}
             />
           )}

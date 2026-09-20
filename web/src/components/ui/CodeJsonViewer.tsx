@@ -201,7 +201,7 @@ export function JSONView(props: {
                 size="icon-xs"
                 onClick={handleToggleCollapse}
                 className="hover:bg-border -mr-2"
-                title={isCollapsed ? "Expand all" : "Collapse all"}
+                title={isCollapsed ? t("Expand all") : t("Collapse all")}
               >
                 {isCollapsed ? (
                   <UnfoldVertical className="h-3 w-3" />

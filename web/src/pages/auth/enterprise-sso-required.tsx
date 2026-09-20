@@ -22,6 +22,8 @@ import { captureException } from "@sentry/nextjs";
 
 import { Trans, useTranslation } from "react-i18next";
 
+/** Example address shown in the field, identical in every language. */
+const EXAMPLE_EMAIL = "jsdoe@example.com";
 /** Support inbox, never translated. */
 const SUPPORT_EMAIL = "support@litefuse.ai";
 const enterpriseSsoFormSchema = z.object({
@@ -171,10 +173,10 @@ export default function EnterpriseSsoRequiredPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>{t("Email")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="jsdoe@example.com"
+                        placeholder={EXAMPLE_EMAIL}
                         allowPasswordManager
                         autoComplete="email"
                         {...field}

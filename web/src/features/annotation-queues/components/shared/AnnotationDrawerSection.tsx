@@ -56,7 +56,9 @@ export const AnnotationDrawerSection: React.FC<
             <div className="border-dark-red bg-light-red flex items-center justify-center rounded-sm border p-1">
               <TriangleAlertIcon className="text-dark-red mr-1 h-4 w-4" />
               <span className="text-dark-red text-xs">
-                Currently edited by {item.lockedByUser.name}
+                {t("Currently edited by {{name}}", {
+                  name: item.lockedByUser.name,
+                })}
               </span>
             </div>
           ) : undefined

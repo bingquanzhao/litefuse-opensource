@@ -112,7 +112,7 @@ export function DeleteButton({
               ) : (
                 <LockIcon className="mr-2 h-4 w-4" />
               )}
-              Delete
+              {t("Delete")}
             </>
           )}
         </Button>
@@ -148,13 +148,13 @@ export function DeleteButton({
                 deleteConfirmation &&
                 deleteConfirmationInput !== deleteConfirmation
               ) {
-                alert("Please type the correct confirmation");
+                alert(t("Please type the correct confirmation"));
                 return;
               }
               void executeDeleteMutation(onDeleteSuccess);
             }}
           >
-            Delete {entityToDeleteName}
+            {t("Delete {{entity}}", { entity: entityToDeleteName })}
           </Button>
         </div>
       </PopoverContent>
@@ -182,9 +182,11 @@ export function DeleteTraceButton(props: DeleteButtonProps) {
       return Promise.reject(error);
     }
     showSuccessToast({
-      title: t("Trace deleted"),
+      title: t(t("Trace deleted")),
       description: t(
-        "Selected trace will be deleted. Traces are removed asynchronously and may continue to be visible for up to 24 hours.",
+        t(
+          "Selected trace will be deleted. Traces are removed asynchronously and may continue to be visible for up to 24 hours.",
+        ),
       ),
     });
     onSuccess();
@@ -214,6 +216,7 @@ export function DeleteTraceButton(props: DeleteButtonProps) {
 }
 
 export function DeleteDatasetButton(props: DeleteButtonProps) {
+  const { t } = useTranslation();
   const utils = api.useUtils();
   const {
     itemId,
@@ -275,8 +278,8 @@ export function DeleteDashboardButton(props: DeleteButtonProps) {
       return Promise.reject(error);
     }
     showSuccessToast({
-      title: t("Dashboard deleted"),
-      description: t("The dashboard has been deleted successfully"),
+      title: t(t("Dashboard deleted")),
+      description: t(t("The dashboard has been deleted successfully")),
     });
     onSuccess();
   };
@@ -312,8 +315,10 @@ export function DeleteEvalConfigButton(props: DeleteButtonProps) {
   const evaluatorMutation = api.evals.deleteEvalJob.useMutation({
     onSuccess: () => {
       showSuccessToast({
-        title: t("Running evaluator deleted"),
-        description: t("The running evaluator has been deleted successfully"),
+        title: t(t("Running evaluator deleted")),
+        description: t(
+          t("The running evaluator has been deleted successfully"),
+        ),
       });
       void utils.evals.invalidate();
     },
@@ -346,8 +351,10 @@ export function DeleteEvalConfigButton(props: DeleteButtonProps) {
           source: isTableAction ? "table-single-row" : "eval config detail",
         })
       }
-      customDeletePrompt="This action cannot be undone and removes all logs associated with this running evaluator. Scores produced by this evaluator will not be deleted."
-      entityToDeleteName="running evaluator"
+      customDeletePrompt={t(
+        "This action cannot be undone and removes all logs associated with this running evaluator. Scores produced by this evaluator will not be deleted.",
+      )}
+      entityToDeleteName={t("running evaluator")}
       executeDeleteMutation={executeDeleteMutation}
       isDeleteMutationLoading={evaluatorMutation.isPending}
     />
@@ -369,9 +376,11 @@ export function DeleteEvaluationModelButton(
     api.defaultLlmModel.deleteDefaultModel.useMutation({
       onSuccess: () => {
         showSuccessToast({
-          title: t("Default evaluation model deleted"),
+          title: t(t("Default evaluation model deleted")),
           description: t(
-            "The default evaluation model has been deleted. Any running evaluations relying on the default model will be inactivated. Queued jobs will fail.",
+            t(
+              "The default evaluation model has been deleted. Any running evaluations relying on the default model will be inactivated. Queued jobs will fail.",
+            ),
           ),
         });
         utils.defaultLlmModel.fetchDefaultModel.invalidate({ projectId });
@@ -405,8 +414,10 @@ export function DeleteEvaluationModelButton(
           source: isTableAction ? "table-single-row" : "evaluator",
         })
       }
-      entityToDeleteName="default evaluation model"
-      customDeletePrompt="Deleting this model might cause running evaluators to fail. Please make sure you have no running evaluators relying on this model."
+      entityToDeleteName={t("default evaluation model")}
+      customDeletePrompt={t(
+        "Deleting this model might cause running evaluators to fail. Please make sure you have no running evaluators relying on this model.",
+      )}
       deleteConfirmation="delete"
       executeDeleteMutation={executeDeleteMutation}
       isDeleteMutationLoading={isPending}

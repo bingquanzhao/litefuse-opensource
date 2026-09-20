@@ -223,8 +223,8 @@ export default function Dashboard() {
                 }
               />
               <MultiSelect
-                title="Environment"
-                label="Env"
+                title={t("Environment")}
+                label={t("Env")}
                 values={selectedEnvironments}
                 onValueChange={useDebounce(setSelectedEnvironments)}
                 options={environmentOptions.map((env) => ({
@@ -243,8 +243,10 @@ export default function Dashboard() {
             <>
               {uiCustomization?.feedbackHref === undefined && (
                 <FeedbackButtonWrapper
-                  title="Request Chart"
-                  description="Your feedback matters! Let the Litefuse team know what additional data or metrics you'd like to see in your dashboard."
+                  title={t("Request Chart")}
+                  description={t(
+                    "Your feedback matters! Let the Litefuse team know what additional data or metrics you'd like to see in your dashboard.",
+                  )}
                   className="hidden lg:flex"
                 >
                   <Button
@@ -258,7 +260,7 @@ export default function Dashboard() {
                       className="text-primary group-hover:text-primary-accent hidden h-6 w-6 shrink-0 lg:block"
                       aria-hidden="true"
                     />
-                    Request Chart
+                    {t("Request Chart")}
                   </Button>
                 </FeedbackButtonWrapper>
               )}

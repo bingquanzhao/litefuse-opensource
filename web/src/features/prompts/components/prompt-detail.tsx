@@ -67,6 +67,7 @@ import { PromptVariableListPreview } from "@/src/features/prompts/components/Pro
 import { createBreadcrumbItems } from "@/src/features/folders/utils";
 
 import { useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 const getPythonCode = (
   name: string,
   version: number,
@@ -203,10 +204,10 @@ export const PromptDetail = ({
     void utils.datasets.baseRunDataByDatasetId.invalidate();
     void utils.datasets.runsByDatasetId.invalidate();
     showSuccessToast({
-      title: t("Experiment triggered successfully"),
-      description: t("Waiting for experiment to complete..."),
+      title: t(t("Experiment triggered successfully")),
+      description: t(t("Waiting for experiment to complete...")),
       link: {
-        text: "View experiment",
+        text: i18nKey(t("View experiment")),
         href: `/project/${projectId}/datasets/${data.datasetId}/compare?runs=${data.runId}`,
       },
     });
@@ -300,7 +301,7 @@ export const PromptDetail = ({
         },
         breadcrumb: [
           {
-            name: "Prompts",
+            name: t("Prompts"),
             href: `/project/${projectId}/prompts/`,
           },
           ...breadcrumbItems.map((item) => ({

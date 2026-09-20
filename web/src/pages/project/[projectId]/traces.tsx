@@ -11,7 +11,7 @@ import {
 } from "@/src/features/navigation/utils/tracing-tabs";
 import { useQueryProject } from "@/src/features/projects/hooks";
 
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 export default function Traces() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -50,8 +50,9 @@ export default function Traces() {
         headerProps={{
           title: t("Tracing"),
           help: {
-            description:
+            description: t(
               "A trace represents a single function/api invocation. Traces contain observations. See [docs](https://litefuse.ai/docs/observability/data-model) to learn more.",
+            ),
             href: "https://litefuse.ai/docs/observability/data-model",
           },
         }}
@@ -69,18 +70,19 @@ export default function Traces() {
         help: {
           description: (
             <>
-              A trace represents a single function/api invocation. Traces
-              contain observations. See{" "}
-              <a
-                href="https://litefuse.ai/docs/observability/data-model"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="decoration-primary/30 hover:decoration-primary underline"
-                onClick={(e) => e.stopPropagation()}
-              >
-                docs
-              </a>{" "}
-              to learn more.
+              <Trans
+                i18nKey="A trace represents a single function/api invocation. Traces contain observations. See <0>docs</0> to learn more."
+                components={[
+                  <a
+                    key="0"
+                    href="https://litefuse.ai/docs/observability/data-model"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="decoration-primary/30 hover:decoration-primary underline"
+                    onClick={(e) => e.stopPropagation()}
+                  />,
+                ]}
+              />
             </>
           ),
           href: "https://litefuse.ai/docs/observability/data-model",

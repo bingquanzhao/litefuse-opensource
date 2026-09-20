@@ -31,7 +31,7 @@ import {
 } from "@/src/hooks/useEnvironmentFilter";
 import { Badge } from "@/src/components/ui/badge";
 
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 type RowData = {
   userId: string;
   environment?: string;
@@ -87,18 +87,19 @@ export default function UsersPage() {
         help: {
           description: (
             <>
-              Attribute data in Litefuse to a user by adding a userId to your
-              traces. See{" "}
-              <a
-                href="https://litefuse.ai/docs/observability/features/users"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="decoration-primary/30 hover:decoration-primary underline"
-                onClick={(e) => e.stopPropagation()}
-              >
-                docs
-              </a>{" "}
-              to learn more.
+              <Trans
+                i18nKey="Attribute data in Litefuse to a user by adding a userId to your traces. See <0>docs</0> to learn more."
+                components={[
+                  <a
+                    key="0"
+                    href="https://litefuse.ai/docs/observability/features/users"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="decoration-primary/30 hover:decoration-primary underline"
+                    onClick={(e) => e.stopPropagation()}
+                  />,
+                ]}
+              />
             </>
           ),
           href: "https://litefuse.ai/docs/observability/features/users",
@@ -447,23 +448,23 @@ const UsersTable = ({ isBetaEnabled }: { isBetaEnabled: boolean }) => {
               : {
                   isLoading: false,
                   isError: false,
-                  data: userRowData.rows?.map((t) => {
+                  data: userRowData.rows?.map((row) => {
                     return {
-                      userId: t.id,
-                      environment: t.environment ?? undefined,
+                      userId: row.id,
+                      environment: row.environment ?? undefined,
                       firstEvent:
-                        t.firstTrace?.toLocaleString() ?? "No event yet",
+                        row.firstTrace?.toLocaleString() ?? t("No event yet"),
                       lastEvent:
-                        t.lastTrace?.toLocaleString() ?? "No event yet",
+                        row.lastTrace?.toLocaleString() ?? t("No event yet"),
                       totalEvents: compactNumberFormatter(
                         isBetaEnabled
-                          ? Number(t.totalObservations ?? 0)
-                          : Number(t.totalTraces ?? 0) +
-                              Number(t.totalObservations ?? 0),
+                          ? Number(row.totalObservations ?? 0)
+                          : Number(row.totalTraces ?? 0) +
+                              Number(row.totalObservations ?? 0),
                       ),
-                      totalTokens: compactNumberFormatter(t.totalTokens ?? 0),
+                      totalTokens: compactNumberFormatter(row.totalTokens ?? 0),
                       totalCost: usdFormatter(
-                        t.sumCalculatedTotalCost ?? 0,
+                        row.sumCalculatedTotalCost ?? 0,
                         2,
                         2,
                       ),

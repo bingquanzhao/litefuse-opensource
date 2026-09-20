@@ -128,7 +128,7 @@ export function AppLayout(props: PropsWithChildren) {
   // The authGuard hook ensures we don't reach here without a valid session
   if (!session.data) {
     // This should never happen due to guards above, but TypeScript needs this
-    return <LoadingLayout message="Loading" />;
+    return <LoadingLayout message={t("Loading")} />;
   }
 
   const handleSignOut = async () => {

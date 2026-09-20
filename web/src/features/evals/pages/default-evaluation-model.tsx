@@ -32,7 +32,7 @@ export default function DefaultEvaluationModelPage() {
         },
         breadcrumb: [
           {
-            name: "Evaluator Library",
+            name: t("Evaluator Library"),
             href: `/project/${projectId}/evals/templates`,
           },
         ],

@@ -335,7 +335,7 @@ export function DatasetItemsTable({
                 }}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                Delete
+                {t("Delete")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

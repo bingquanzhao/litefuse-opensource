@@ -91,8 +91,8 @@ export function ScoreCombobox({
         onValueChange={handleValueChange}
         options={groupedOptions}
         placeholder={placeholder}
-        searchPlaceholder="Search scores..."
-        emptyText="No scores found."
+        searchPlaceholder={t("Search scores...")}
+        emptyText={t("No scores found.")}
         disabled={disabled}
         className={className}
       />

@@ -338,14 +338,14 @@ export default function AutomationsPage() {
         title: t("Automations"),
         breadcrumb: [
           {
-            name: "Prompts",
+            name: t("Prompts"),
             href: `/project/${projectId}/prompts/`,
           },
         ],
         actionButtonsRight: (
           <Button onClick={handleCreateAutomation}>
             <Plus className="mr-2 h-4 w-4" />
-            Create Automation
+            {t("Create Automation")}
           </Button>
         ),
       }}

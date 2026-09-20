@@ -45,7 +45,7 @@ export function LegacyEvalCallout({
             }
             className="text-dark-blue h-7 text-xs hover:opacity-80"
           >
-            Upgrade this evaluator
+            {t("Upgrade this evaluator")}
           </Button>
         </>
       )}

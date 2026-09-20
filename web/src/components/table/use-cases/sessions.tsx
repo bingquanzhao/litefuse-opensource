@@ -314,7 +314,7 @@ export default function SessionsTable({
   const addToQueueMutation = api.annotationQueueItems.createMany.useMutation({
     onSuccess: (data) => {
       showSuccessToast({
-        title: t("Sessions added to queue"),
+        title: t(t("Sessions added to queue")),
         description: t(
           'Selected sessions will be added to queue "{{queue}}". This may take a minute.',
           { queue: data.queueName },

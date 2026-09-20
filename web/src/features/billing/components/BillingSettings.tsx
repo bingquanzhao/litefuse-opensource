@@ -89,7 +89,7 @@ export function BillingSettings({ orgId }: BillingSettingsProps) {
     onSuccess: async () => {
       setPendingPlan(null);
       await refresh();
-      toast.success("Billing plan updated.");
+      toast.success(t("Billing plan updated."));
     },
     onError: () => setPendingPlan(null),
   });
@@ -99,7 +99,7 @@ export function BillingSettings({ orgId }: BillingSettingsProps) {
       portalTabRef.current = null;
 
       if (!portalTab || portalTab.closed) {
-        toast.error("The billing portal tab was closed. Please try again.");
+        toast.error(t("The billing portal tab was closed. Please try again."));
         return;
       }
 
@@ -155,13 +155,13 @@ export function BillingSettings({ orgId }: BillingSettingsProps) {
 
   const openPortal = () => {
     if (!hasCustomer) {
-      toast.error("No Stripe customer exists for this organization yet.");
+      toast.error(t("No Stripe customer exists for this organization yet."));
       return;
     }
 
     const portalTab = window.open("about:blank", "_blank");
     if (!portalTab) {
-      toast.error("Allow pop-ups to open the billing portal.");
+      toast.error(t("Allow pop-ups to open the billing portal."));
       return;
     }
 
@@ -351,18 +351,20 @@ export function BillingSettings({ orgId }: BillingSettingsProps) {
       <section className="grid gap-4 lg:grid-cols-3">
         <PlanCard
           title={t("Developer")}
-          price="Free"
+          price={t("Free")}
           description={t("For individual projects and proofs of concept.")}
           features={["100k units each month", "30 days data access", "2 users"]}
           current={plan === "cloud:developer"}
         />
         <PlanCard
           title={t("Pro")}
-          price="$199 / month"
+          price={t("$199 / month")}
           description={t("For projects that need scale and longer history.")}
           features={proFeatures}
           current={plan === "cloud:pro"}
-          actionLabel={hasSubscription ? "Switch to Pro" : "Upgrade to Pro"}
+          actionLabel={
+            hasSubscription ? t("Switch to Pro") : t("Upgrade to Pro")
+          }
           onAction={() => selectPlan("cloud:pro")}
           loading={pendingPlan === "cloud:pro"}
           disabled={!availablePlans.has("cloud:pro") || isManualPlanOverride}

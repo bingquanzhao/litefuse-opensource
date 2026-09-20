@@ -29,6 +29,7 @@ import { timeSeriesToDataPoints } from "@/src/features/dashboard/lib/chart-data-
 import { useScheduledDashboardExecuteQuery } from "@/src/hooks/useDashboardQueryScheduler";
 
 import { useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 export const ModelUsageChart = ({
   className,
   projectId,
@@ -323,21 +324,21 @@ export const ModelUsageChart = ({
 
   const data = [
     {
-      tabTitle: "Cost by model",
+      tabTitle: i18nKey("Cost by model"),
       data: costByModel,
       totalMetric: totalCostDashboardFormatted(totalCost),
       metricDescription: `Cost`,
       formatter: totalCostDashboardFormatted,
     },
     {
-      tabTitle: "Cost by type",
+      tabTitle: i18nKey("Cost by type"),
       data: costByType,
       totalMetric: totalCostDashboardFormatted(totalCost),
       metricDescription: `Cost`,
       formatter: totalCostDashboardFormatted,
     },
     {
-      tabTitle: "Usage by model",
+      tabTitle: i18nKey("Usage by model"),
       data: unitsByModel,
       totalMetric: totalTokens
         ? compactNumberFormatter(totalTokens)
@@ -345,7 +346,7 @@ export const ModelUsageChart = ({
       metricDescription: `Model Units`,
     },
     {
-      tabTitle: "Usage by type",
+      tabTitle: i18nKey("Usage by type"),
       data: unitsByType,
       totalMetric: totalTokens
         ? compactNumberFormatter(totalTokens)

@@ -76,7 +76,7 @@ export function TierAccordionItem({
           name={`pricingTiers.${index}.name`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Tier Name</FormLabel>
+              <FormLabel>{t("Tier Name")}</FormLabel>
               <FormControl>
                 <Input {...field} disabled={isDefault} />
               </FormControl>

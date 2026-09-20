@@ -84,7 +84,7 @@ export const SlackActionForm: React.FC<SlackActionFormProps> = ({
             name="slack.channelId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Channel</FormLabel>
+                <FormLabel>{t("Channel")}</FormLabel>
                 <FormControl>
                   <div className="max-w-md">
                     <ChannelSelector
@@ -92,13 +92,15 @@ export const SlackActionForm: React.FC<SlackActionFormProps> = ({
                       selectedChannelId={field.value}
                       onChannelSelect={handleChannelSelect}
                       disabled={disabled}
-                      placeholder="Select a channel"
+                      placeholder={t("Select a channel")}
                       showRefreshButton={true}
                     />
                   </div>
                 </FormControl>
                 <FormDescription>
-                  Select the Slack channel where notifications will be sent.
+                  {t(
+                    "Select the Slack channel where notifications will be sent.",
+                  )}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -121,7 +123,7 @@ export const SlackActionForm: React.FC<SlackActionFormProps> = ({
                 hasAccess={hasAccess}
                 disabled={disabled}
                 size="sm"
-                buttonText="Test Channel"
+                buttonText={t("Test Channel")}
               />
               <p className="text-muted-foreground text-sm">
                 {t("Test this channel to verify the bot can send messages.")}

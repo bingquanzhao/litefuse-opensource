@@ -214,12 +214,13 @@ export const LatencyTables = ({
         <DashboardTable
           headers={[
             "Trace Name",
-            <RightAlignedCell key="p50">p50</RightAlignedCell>,
-            <RightAlignedCell key="p90">p90</RightAlignedCell>,
+            <RightAlignedCell key="p50">{"p50"}</RightAlignedCell>,
+            <RightAlignedCell key="p90">{"p90"}</RightAlignedCell>,
             <RightAlignedCell key="p95">
-              p95<span className="ml-1">▼</span>
+              {"p95"}
+              <span className="ml-1">▼</span>
             </RightAlignedCell>,
-            <RightAlignedCell key="p99">p99</RightAlignedCell>,
+            <RightAlignedCell key="p99">{"p99"}</RightAlignedCell>,
           ]}
           rows={generateLatencyData(tracesLatencies.data)}
           isLoading={isLoading || tracesLatencies.isPending}
@@ -234,12 +235,13 @@ export const LatencyTables = ({
         <DashboardTable
           headers={[
             "Generation Name",
-            <RightAlignedCell key="p50">p50</RightAlignedCell>,
-            <RightAlignedCell key="p90">p90</RightAlignedCell>,
+            <RightAlignedCell key="p50">{"p50"}</RightAlignedCell>,
+            <RightAlignedCell key="p90">{"p90"}</RightAlignedCell>,
             <RightAlignedCell key="p95">
-              p95<span className="ml-1">▼</span>
+              {"p95"}
+              <span className="ml-1">▼</span>
             </RightAlignedCell>,
-            <RightAlignedCell key="p99">p99</RightAlignedCell>,
+            <RightAlignedCell key="p99">{"p99"}</RightAlignedCell>,
           ]}
           rows={generateLatencyData(generationsLatencies.data)}
           isLoading={isLoading || generationsLatencies.isPending}
@@ -254,12 +256,13 @@ export const LatencyTables = ({
         <DashboardTable
           headers={[
             "Observation",
-            <RightAlignedCell key="p50">p50</RightAlignedCell>,
-            <RightAlignedCell key="p90">p90</RightAlignedCell>,
+            <RightAlignedCell key="p50">{"p50"}</RightAlignedCell>,
+            <RightAlignedCell key="p90">{"p90"}</RightAlignedCell>,
             <RightAlignedCell key="p95">
-              p95<span className="ml-1">▼</span>
+              {"p95"}
+              <span className="ml-1">▼</span>
             </RightAlignedCell>,
-            <RightAlignedCell key="p99">p99</RightAlignedCell>,
+            <RightAlignedCell key="p99">{"p99"}</RightAlignedCell>,
           ]}
           rows={generateLatencyData(observationsLatencies.data)}
           isLoading={isLoading || observationsLatencies.isPending}

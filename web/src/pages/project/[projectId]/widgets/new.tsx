@@ -28,8 +28,8 @@ export default function NewWidget() {
   const createWidgetMutation = api.dashboardWidgets.create.useMutation({
     onSuccess: (data) => {
       showSuccessToast({
-        title: t("Widget created successfully"),
-        description: t("Your widget has been created."),
+        title: t(t("Widget created successfully")),
+        description: t(t("Your widget has been created.")),
       });
 
       if (dashboardId) {
@@ -42,7 +42,7 @@ export default function NewWidget() {
       }
     },
     onError: (error) => {
-      showErrorToast("Failed to save widget", error.message);
+      showErrorToast(t("Failed to save widget"), error.message);
     },
   });
 
@@ -59,7 +59,7 @@ export default function NewWidget() {
     minVersion: number;
   }) => {
     if (!widgetData.name.trim()) {
-      showErrorToast("Error", "Widget name is required");
+      showErrorToast(t("Error"), t("Widget name is required"));
       return;
     }
 

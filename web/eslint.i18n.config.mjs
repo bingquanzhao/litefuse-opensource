@@ -2,6 +2,9 @@ import tsParser from "@typescript-eslint/parser";
 
 import { i18nRuleBlock } from "./eslint.i18n.rules.mjs";
 
+/** A rule that never reports: only its existence matters. */
+const noop = { create: () => ({}) };
+
 /**
  * Standalone config for the i18n gate.
  *
@@ -14,6 +17,18 @@ import { i18nRuleBlock } from "./eslint.i18n.rules.mjs";
  * Run it through `pnpm i18n:gate`.
  */
 export default [
+  {
+    // The source carries `eslint-disable` comments for rules this config does
+    // not enable. ESLint errors on an unknown rule name in a disable comment,
+    // so the plugins are registered here with every rule left off.
+    name: "litefuse/web/i18n-gate-known-rules",
+    linterOptions: { reportUnusedDisableDirectives: "off" },
+    plugins: {
+      "@typescript-eslint": { rules: { "no-unused-vars": noop } },
+      "@next/next": { rules: { "no-img-element": noop } },
+      "react-hooks": { rules: { "exhaustive-deps": noop } },
+    },
+  },
   {
     ...i18nRuleBlock,
     name: "litefuse/web/i18n-gate",

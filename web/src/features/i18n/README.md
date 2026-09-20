@@ -77,22 +77,36 @@ gate runs the same rules through `eslint.i18n.config.mjs`, which imports
 way: the moment the rules module imports the repo config, the gate stops being
 able to fail.
 
-Two blind spots have already cost a release's worth of rework, so they are
-called out here:
+The rules and why they are shaped that way:
 
-- `jsx-attributes` must stay an **exclude** denylist. With an `include`
+- `i18next/no-literal-string` runs in **`jsx-text-only`** mode, so it reports
+  only literals rendered directly as JSX children. Everything else it could see
+  (call arguments, object literals, arrays inside event handlers) holds
+  identifiers far more often than text, and judging those by value shape
+  produced hundreds of false positives.
+- `jsx-attributes` must stay an **exclude** denylist even so. With an `include`
   allowlist the plugin skips every other attribute _together with its whole JSX
   subtree_, which exempted every react-hook-form `render={...}` body in the app.
-- The JSX rule is `jsx-only`, so it sees nothing outside JSX: toast arguments,
-  helper return values, `confirm()` copy and template literals are invisible to
-  it. Those still need a human, or a scan.
+- Attribute values, data properties, toast copy and native dialog copy each get
+  an explicit `no-restricted-syntax` selector. Naming the attributes and
+  property keys keeps enum-valued props (`variant`, `col`, `context`,
+  `severity`) out without re-introducing the subtree skipping.
+
+Still outside every rule, and so still a human's job: text returned from a
+helper function, text built with a template literal, and `TRPCError` messages
+raised on the server and printed verbatim by the global error toast. Measure
+the first of those with:
+
+```sh
+grep -rnoE '\breturn\s+"[^"]{6,}"' src --include='*.ts*' | grep -vE 'discover|test'
+```
 
 ## Rollout rule
 
-zh-CN stays off (`LITEFUSE_I18N_LOCALES=en`) until `pnpm i18n:gate` is clean
-across `src/`. The user rejects mixed-language pages, and an untranslated key
-renders its English source, so shipping early means exactly that. Test
-environments may set `en,zh-CN` to review progress.
+zh-CN stays off (`LITEFUSE_I18N_LOCALES=en`) while any user-visible English
+remains. A green gate is necessary but not sufficient: it says no rule-visible
+literal is left, not that the UI is translated. The categories listed above are
+the known gap. Test environments may set `en,zh-CN` to review progress.
 
 After every upstream merge: `pnpm i18n:extract`, translate the new keys against
 the glossary, then `pnpm i18n:check` and `pnpm i18n:gate`.

@@ -105,7 +105,7 @@ export default function PromptsWithFolder() {
                 capture("prompts:new_form_open");
               }}
             >
-              New prompt
+              {t("New prompt")}
             </ActionButton>
           </>
         ),

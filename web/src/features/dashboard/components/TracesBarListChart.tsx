@@ -175,7 +175,7 @@ export const TracesBarListChart = ({
           expandText={
             transformedTraces.length > maxNumberOfEntries.expanded
               ? t("Show top {{count}}", { count: maxNumberOfEntries.expanded })
-              : "Show all"
+              : t("Show all")
           }
         />
       </>

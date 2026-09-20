@@ -31,11 +31,11 @@ export const ExperimentDetailsStep: React.FC<ExperimentDetailsStepProps> = ({
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Experiment name</FormLabel>
+            <FormLabel>{t("Experiment name")}</FormLabel>
             <FormControl>
               <Input
                 {...field}
-                placeholder="Enter experiment name"
+                placeholder={t("Enter experiment name")}
                 className="w-full"
               />
             </FormControl>
@@ -49,11 +49,13 @@ export const ExperimentDetailsStep: React.FC<ExperimentDetailsStepProps> = ({
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Description (optional)</FormLabel>
+            <FormLabel>{t("Description (optional)")}</FormLabel>
             <FormControl>
               <Textarea
                 {...field}
-                placeholder="Describe the purpose or context of this experiment"
+                placeholder={t(
+                  "Describe the purpose or context of this experiment",
+                )}
                 className="min-h-[100px] w-full"
               />
             </FormControl>

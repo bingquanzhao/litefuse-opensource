@@ -31,6 +31,9 @@ import { getSafeRedirectPath } from "@/src/utils/redirect";
 import useLocalStorage from "@/src/components/useLocalStorage";
 
 import { useTranslation } from "react-i18next";
+
+/** Example address shown in the field, identical in every language. */
+const EXAMPLE_EMAIL = "jsdoe@example.com";
 // Use the same getServerSideProps function as src/pages/auth/sign-in.tsx
 export { getServerSideProps } from "@/src/pages/auth/sign-in";
 
@@ -134,9 +137,9 @@ export default function SignIn({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>{t("Name")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Jane Doe" {...field} />
+                      <Input placeholder={t("Jane Doe")} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -147,10 +150,10 @@ export default function SignIn({
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>{t("Email")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="jsdoe@example.com"
+                        placeholder={EXAMPLE_EMAIL}
                         allowPasswordManager
                         autoComplete="email"
                         {...field}
@@ -165,7 +168,7 @@ export default function SignIn({
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>{t("Password")}</FormLabel>
                     <FormControl>
                       <PasswordInput {...field} />
                     </FormControl>
@@ -190,7 +193,7 @@ export default function SignIn({
           </Form>
           <SSOButtons
             authProviders={authProviders}
-            action="sign up"
+            action={t("sign up")}
             lastUsedMethod={lastUsedAuthMethod}
             onProviderSelect={setLastUsedAuthMethod}
           />
@@ -204,7 +207,7 @@ export default function SignIn({
             </Link>
           </p>
         </div>
-        <CloudPrivacyNotice action="creating an account" />
+        <CloudPrivacyNotice action={t("creating an account")} />
       </div>
     </>
   );

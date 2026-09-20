@@ -74,7 +74,7 @@ export default function UserPage() {
     <Page
       headerProps={{
         title: userId,
-        breadcrumb: [{ name: "Users", href: `/project/${projectId}/users` }],
+        breadcrumb: [{ name: t("Users"), href: `/project/${projectId}/users` }],
         itemType: "USER",
         actionButtonsRight: (
           <>
@@ -83,7 +83,7 @@ export default function UserPage() {
               variant="secondary"
               icon={<LayoutDashboard className="h-4 w-4" />}
             >
-              Dashboard
+              {t("Dashboard")}
             </ActionButton>
             <DetailPageNav
               currentId={userId}

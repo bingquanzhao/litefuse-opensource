@@ -87,7 +87,7 @@ export const DashboardTable = ({
               expandText={
                 rows.length > collapse.expanded
                   ? t("Show top {{count}}", { count: collapse.expanded })
-                  : "Show all"
+                  : t("Show all")
               }
             />
           ) : null}

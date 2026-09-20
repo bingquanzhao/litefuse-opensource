@@ -47,6 +47,9 @@ import { getSafeRedirectPath } from "@/src/utils/redirect";
 import { hasSsoConfig } from "@/src/features/enterprise/sso/ssoProviders";
 
 import { i18nKey } from "@/src/features/i18n/i18nKey";
+
+/** Example address shown in the field, identical in every language. */
+const EXAMPLE_EMAIL = "jsdoe@example.com";
 const credentialAuthForm = z.object({
   email: z.string().email(),
   password: z.string().min(8, {
@@ -741,7 +744,7 @@ export default function SignIn({
                           <FormLabel>{t("Email")}</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="jsdoe@example.com"
+                              placeholder={EXAMPLE_EMAIL}
                               allowPasswordManager
                               autoComplete="email"
                               {...field}
@@ -763,7 +766,7 @@ export default function SignIn({
                               href="/auth/reset-password"
                               className="text-primary-accent hover:text-hover-primary-accent ml-1 text-xs"
                               tabIndex={-1}
-                              title="What is this?"
+                              title={t("What is this?")}
                             >
                               {t("(forgot password?)")}
                             </Link>
@@ -852,7 +855,7 @@ export default function SignIn({
           ) : null}
         </div>
         <LanguageSwitcher className="mx-auto mt-8" />
-        <CloudPrivacyNotice action="signing in" />
+        <CloudPrivacyNotice action={t("signing in")} />
       </div>
     </>
   );

@@ -182,14 +182,14 @@ export const ApiKeyRender = ({
           )}
         </div>
         <CodeView
-          content={generatedKeys?.secretKey ?? "Loading ..."}
+          content={generatedKeys?.secretKey ?? t("Loading ...")}
           className="mt-2"
         />
       </div>
       <div>
         <SubHeader title={t("Public Key")} />
         <CodeView
-          content={generatedKeys?.publicKey ?? "Loading ..."}
+          content={generatedKeys?.publicKey ?? t("Loading ...")}
           className="mt-2"
         />
       </div>

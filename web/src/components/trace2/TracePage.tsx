@@ -61,7 +61,7 @@ export function TracePage({
   );
 
   if (tracesQuery.error?.data?.code === "UNAUTHORIZED")
-    return <ErrorPage message="You do not have access to this trace." />;
+    return <ErrorPage message={t("You do not have access to this trace.")} />;
 
   if (tracesQuery.error?.data?.code === "NOT_FOUND")
     return (
@@ -124,7 +124,7 @@ export function TracePage({
         itemType: "TRACE",
         breadcrumb: [
           {
-            name: "Traces",
+            name: t("Traces"),
             href: `/project/${router.query.projectId as string}/traces`,
           },
         ],

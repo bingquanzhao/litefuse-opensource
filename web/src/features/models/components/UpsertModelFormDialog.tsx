@@ -44,7 +44,7 @@ import { useRouter } from "next/router";
 import { showSuccessToast } from "@/src/features/notifications/showSuccessToast";
 import { PricingSection } from "./pricing-tiers/PricingSection";
 
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 type UpsertModelDialogProps =
   | {
       action: "create";
@@ -207,7 +207,9 @@ export const UpsertModelFormDialog = (({
       setOpen(false);
       showSuccessToast({
         title:
-          props.action === "edit" ? t("Model updated") : t("Model created"),
+          props.action === "edit"
+            ? t(t("Model updated"))
+            : t(t("Model created")),
         description:
           props.action === "edit"
             ? t(
@@ -333,11 +335,11 @@ export const UpsertModelFormDialog = (({
                 disabled={props.action === "edit"}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Model Name</FormLabel>
+                    <FormLabel>{t("Model Name")}</FormLabel>
                     <FormDescription>
-                      The name of the model. This will be used to reference the
-                      model in the API. You can track price changes of models by
-                      using the same name and match pattern.
+                      {t(
+                        "The name of the model. This will be used to reference the model in the API. You can track price changes of models by using the same name and match pattern.",
+                      )}
                     </FormDescription>
                     <FormControl>
                       <Input {...field} />
@@ -351,12 +353,11 @@ export const UpsertModelFormDialog = (({
                 name="matchPattern"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Match pattern</FormLabel>
+                    <FormLabel>{t("Match pattern")}</FormLabel>
                     <FormDescription>
-                      Regular expression (Postgres syntax) to match ingested
-                      generations (model attribute) to this model definition.
-                      For an exact, case-insensitive match to a model name, use
-                      the expression: (?i)^(modelname)$
+                      {t(
+                        "Regular expression (Postgres syntax) to match ingested generations (model attribute) to this model definition. For an exact, case-insensitive match to a model name, use the expression: (?i)^(modelname)$",
+                      )}
                     </FormDescription>
                     <FormControl>
                       <Input {...field} />
@@ -379,7 +380,7 @@ export const UpsertModelFormDialog = (({
                 name="tokenizerId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tokenizer</FormLabel>
+                    <FormLabel>{t("Tokenizer")}</FormLabel>
                     <Select
                       onValueChange={(tokenizerId) => {
                         field.onChange(tokenizerId);
@@ -391,7 +392,7 @@ export const UpsertModelFormDialog = (({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a unit" />
+                          <SelectValue placeholder={t("Select a unit")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -403,18 +404,17 @@ export const UpsertModelFormDialog = (({
                       </SelectContent>
                     </Select>
                     <FormDescription>
-                      Optionally, Litefuse can tokenize the input and output of
-                      a generation if no unit counts are ingested. This is
-                      useful for e.g. streamed OpenAI completions. For details
-                      on the supported tokenizers, see the{" "}
-                      <Link
-                        href="https://litefuse.ai/docs/model-usage-and-cost"
-                        className="underline"
-                        target="_blank"
-                      >
-                        docs
-                      </Link>
-                      .
+                      <Trans
+                        i18nKey="Optionally, Litefuse can tokenize the input and output of a generation if no unit counts are ingested. This is useful for e.g. streamed OpenAI completions. For details on the supported tokenizers, see the <0>docs</0>."
+                        components={[
+                          <Link
+                            key="0"
+                            href="https://litefuse.ai/docs/model-usage-and-cost"
+                            className="underline"
+                            target="_blank"
+                          />,
+                        ]}
+                      />
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -426,23 +426,24 @@ export const UpsertModelFormDialog = (({
                   name="tokenizerConfig"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tokenizer Config</FormLabel>
+                      <FormLabel>{t("Tokenizer Config")}</FormLabel>
                       <CodeMirrorEditor
                         mode="json"
                         value={field.value ?? "{}"}
                         onChange={field.onChange}
                       />
                       <FormDescription>
-                        The config for the tokenizer. Required for openai. See
-                        the{" "}
-                        <Link
-                          href="https://litefuse.ai/docs/model-usage-and-cost"
-                          className="underline"
-                          target="_blank"
-                        >
-                          docs
-                        </Link>{" "}
-                        for details.
+                        <Trans
+                          i18nKey="The config for the tokenizer. Required for openai. See the <0>docs</0> for details."
+                          components={[
+                            <Link
+                              key="0"
+                              href="https://litefuse.ai/docs/model-usage-and-cost"
+                              className="underline"
+                              target="_blank"
+                            />,
+                          ]}
+                        />
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

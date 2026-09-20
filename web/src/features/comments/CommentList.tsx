@@ -53,6 +53,9 @@ import { Badge } from "@/src/components/ui/badge";
 import { useTheme } from "next-themes";
 
 import { useTranslation } from "react-i18next";
+
+/** Printed on the keyboard, so never translated. */
+const KEYCAP_ENTER = "Enter";
 // IO field background colors - same as IOPreviewJSON.tsx
 const IO_FIELD_COLORS = {
   input: { light: "rgb(249, 252, 255)", dark: "rgb(15, 23, 42)" },
@@ -682,7 +685,7 @@ export function CommentList({
                       onClick={() => {
                         if (
                           confirm(
-                            "Are you sure you want to delete this comment?",
+                            t("Are you sure you want to delete this comment?"),
                           )
                         )
                           deleteCommentMutation.mutateAsync({
@@ -722,7 +725,7 @@ export function CommentList({
                         <div>
                           <FormControl>
                             <Textarea
-                              placeholder="Add a comment..."
+                              placeholder={t("Add a comment...")}
                               {...field}
                               ref={(el) => {
                                 if (textareaRef.current !== el) {
@@ -800,7 +803,8 @@ export function CommentList({
                         <div className="flex items-center gap-2 text-sm">
                           <span>{t("Send comment")}</span>
                           <kbd className="bg-muted text-muted-foreground pointer-events-none inline-flex h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium opacity-100 select-none">
-                            <span className="text-xs">⌘</span>Enter
+                            <span className="text-xs">⌘</span>
+                            {KEYCAP_ENTER}
                           </kbd>
                         </div>
                       </HoverCardContent>

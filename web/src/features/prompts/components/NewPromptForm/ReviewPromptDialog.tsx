@@ -96,7 +96,7 @@ export const ReviewPromptDialog: React.FC<ReviewPromptDialogProps> = (
                     oldLabel={t("Previous content (v{{version}})", {
                       version: initialPrompt.version,
                     })}
-                    newLabel="New content (draft)"
+                    newLabel={t("New content (draft)")}
                   />
                 </div>
                 <div>
@@ -107,7 +107,7 @@ export const ReviewPromptDialog: React.FC<ReviewPromptDialogProps> = (
                     oldLabel={t("Previous config (v{{version}})", {
                       version: initialPrompt.version,
                     })}
-                    newLabel="New config (draft)"
+                    newLabel={t("New config (draft)")}
                   />
                 </div>
               </div>

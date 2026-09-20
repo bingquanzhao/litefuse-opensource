@@ -238,8 +238,8 @@ export const AutomationForm = ({
   const onSubmit = async (data: FormValues) => {
     if (!hasAccess) {
       showErrorToast(
-        "Permission Denied",
-        "You don't have permission to modify automations.",
+        t("Permission Denied"),
+        t("You don't have permission to modify automations."),
       );
       return;
     }
@@ -250,9 +250,9 @@ export const AutomationForm = ({
 
     if (!validation.isValid) {
       showErrorToast(
-        t("Validation Error"),
+        t(t("Validation Error")),
         validation.errors?.join(", ") ||
-          t("Please fill in all required fields"),
+          t(t("Please fill in all required fields")),
       );
       return;
     }
@@ -274,7 +274,7 @@ export const AutomationForm = ({
       });
 
       showSuccessToast({
-        title: t("Automation Updated"),
+        title: t(t("Automation Updated")),
         description: t('Successfully updated automation "{{name}}".', {
           name: data.name,
         }),
@@ -295,7 +295,7 @@ export const AutomationForm = ({
       });
 
       showSuccessToast({
-        title: t("Automation Created"),
+        title: t(t("Automation Created")),
         description: t('Successfully created automation "{{name}}".', {
           name: data.name,
         }),
@@ -370,12 +370,12 @@ export const AutomationForm = ({
               <FormField
                 control={form.control}
                 name="name"
-                rules={{ required: "Name is required" }}
+                rules={{ required: t("Name is required") }}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
                       <Input
-                        placeholder="Automation name"
+                        placeholder={t("Automation name")}
                         {...field}
                         disabled={!hasAccess || !isEditing}
                         className="border-border rounded-none border-0 border-b bg-transparent px-0 text-2xl font-semibold focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -391,7 +391,9 @@ export const AutomationForm = ({
               name="status"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center gap-2">
-                  <FormLabel className="text-sm font-medium">Active</FormLabel>
+                  <FormLabel className="text-sm font-medium">
+                    {t("Active")}
+                  </FormLabel>
                   <FormControl>
                     <Switch
                       checked={field.value === "ACTIVE"}
@@ -421,7 +423,7 @@ export const AutomationForm = ({
               name="eventSource"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Event Source</FormLabel>
+                  <FormLabel>{t("Event Source")}</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     value={field.value}
@@ -429,20 +431,22 @@ export const AutomationForm = ({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select an event source" />
+                        <SelectValue
+                          placeholder={t("Select an event source")}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       <SelectItem value={TriggerEventSource.Prompt}>
-                        Prompt
+                        {t("Prompt")}
                       </SelectItem>
                       <SelectItem disabled={true} value="planned">
-                        More coming soon...
+                        {t("More coming soon...")}
                       </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    The event that triggers this automation.
+                    {t("The event that triggers this automation.")}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -453,11 +457,11 @@ export const AutomationForm = ({
               name="eventAction"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Event Action</FormLabel>
+                  <FormLabel>{t("Event Action")}</FormLabel>
                   <FormControl>
                     <MultiSelect
-                      title="Event Actions"
-                      label="Actions"
+                      title={t("Event Actions")}
+                      label={t("Actions")}
                       values={field.value}
                       onValueChange={field.onChange}
                       options={[
@@ -486,8 +490,9 @@ export const AutomationForm = ({
                     />
                   </FormControl>
                   <FormDescription>
-                    The actions on the event source that trigger this
-                    automation.
+                    {t(
+                      "The actions on the event source that trigger this automation.",
+                    )}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -498,7 +503,7 @@ export const AutomationForm = ({
               name="filter"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Filter</FormLabel>
+                  <FormLabel>{t("Filter")}</FormLabel>
                   <FormControl>
                     <InlineFilterBuilder
                       columns={webhookActionFilterOptions()}
@@ -512,7 +517,9 @@ export const AutomationForm = ({
                     />
                   </FormControl>
                   <FormDescription>
-                    Add conditions to narrow down when this trigger fires.
+                    {t(
+                      "Add conditions to narrow down when this trigger fires.",
+                    )}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -534,7 +541,7 @@ export const AutomationForm = ({
               name="actionType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Action Type</FormLabel>
+                  <FormLabel>{t("Action Type")}</FormLabel>
                   <Select
                     onValueChange={handleActionTypeChange}
                     value={field.value}
@@ -542,7 +549,7 @@ export const AutomationForm = ({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select an action type" />
+                        <SelectValue placeholder={t("Select an action type")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -550,22 +557,22 @@ export const AutomationForm = ({
                         (actionType) => (
                           <SelectItem key={actionType} value={actionType}>
                             {actionType === "WEBHOOK"
-                              ? "Webhook"
+                              ? t("Webhook")
                               : actionType === "SLACK"
-                                ? "Slack"
+                                ? t("Slack")
                                 : actionType === "GITHUB_DISPATCH"
-                                  ? "GitHub Dispatch"
-                                  : "Annotation Queue"}
+                                  ? t("GitHub Dispatch")
+                                  : t("Annotation Queue")}
                           </SelectItem>
                         ),
                       )}
                       <SelectItem disabled={true} value="planned">
-                        More coming soon...
+                        {t("More coming soon...")}
                       </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    The type of action to perform when the trigger fires.
+                    {t("The type of action to perform when the trigger fires.")}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

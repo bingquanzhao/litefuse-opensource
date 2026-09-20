@@ -77,10 +77,10 @@ export const NewProjectForm = ({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Project name</FormLabel>
+              <FormLabel>{t("Project name")}</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="my-llm-project"
+                  placeholder={t("my-llm-project")}
                   {...field}
                   data-testid="new-project-name-input"
                 />

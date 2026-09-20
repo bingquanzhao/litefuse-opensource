@@ -8,6 +8,7 @@ import { Bar, BarChart, XAxis, YAxis } from "recharts";
 import { type ChartProps } from "@/src/features/widgets/chart-library/chart-props";
 import { compactNumberFormatter } from "@/src/utils/numbers";
 
+import { useTranslation } from "react-i18next";
 /**
  * VerticalBarChart component
  * @param data - Data to be displayed. Expects an array of objects with dimension and metric properties.
@@ -28,6 +29,7 @@ export const VerticalBarChart: React.FC<ChartProps> = ({
   valueFormatter = compactNumberFormatter,
   subtleFill = false,
 }) => {
+  const { t } = useTranslation();
   return (
     <ChartContainer
       config={config}

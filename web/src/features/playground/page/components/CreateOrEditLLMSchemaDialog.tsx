@@ -144,8 +144,8 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
       form.setValue("schema", prettified);
     } catch {
       showErrorToast(
-        "Failed to prettify JSON",
-        "Please verify your input is valid JSON",
+        t("Failed to prettify JSON"),
+        t("Please verify your input is valid JSON"),
         "WARNING",
       );
     }
@@ -181,9 +181,12 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>{t("Name")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., get_weather" {...field} />
+                        <Input
+                          placeholder={t("e.g., get_weather")}
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -195,10 +198,10 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>{t("Description")}</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Describe the schema"
+                          placeholder={t("Describe the schema")}
                           className="max-h-[120px] focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                           {...field}
                           onKeyDown={(e) => {
@@ -216,17 +219,18 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
                   name="schema"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>JSON Schema</FormLabel>
+                      <FormLabel>{t("JSON Schema")}</FormLabel>
                       <FormDescription>
-                        Define the structure of your schema using JSON Schema
-                        format.{" "}
+                        {t(
+                          "Define the structure of your schema using JSON Schema format.",
+                        )}{" "}
                         <a
                           href="https://json-schema.org/learn/miscellaneous-examples"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center"
                         >
-                          See JSON Schema examples here
+                          {t("See JSON Schema examples here")}
                           <ArrowUpRight className="h-3 w-3" />
                         </a>
                       </FormDescription>
@@ -246,12 +250,12 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
                             onClick={prettifyJson}
                             className="absolute top-3 right-3 text-xs"
                           >
-                            Prettify
+                            {t("Prettify")}
                           </Button>
                         </div>
                       </FormControl>
                       <p className="text-muted-foreground text-xs">
-                        Parameters must be a valid JSON Schema object
+                        {t("Parameters must be a valid JSON Schema object")}
                       </p>
                       <FormMessage />
                     </FormItem>
@@ -275,7 +279,7 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
                       onClick={handleDelete}
                       className="mr-auto"
                     >
-                      Delete
+                      {t("Delete")}
                     </Button>
                   )}
                   <Button

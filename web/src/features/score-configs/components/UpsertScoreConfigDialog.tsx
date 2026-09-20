@@ -171,7 +171,7 @@ export function UpsertScoreConfigDialog({
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>{t("Name")}</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -190,7 +190,7 @@ export function UpsertScoreConfigDialog({
                   name="dataType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Data type</FormLabel>
+                      <FormLabel>{t("Data type")}</FormLabel>
                       <Select
                         disabled={!!id}
                         defaultValue={field.value}
@@ -216,8 +216,8 @@ export function UpsertScoreConfigDialog({
                               // labels and matched by the SDK and the public
                               // API, so these are never translated.
                               replace([
-                                { label: "True", value: 1 },
-                                { label: "False", value: 0 },
+                                { label: t("True"), value: 1 },
+                                { label: t("False"), value: 0 },
                               ]);
                             } else {
                               replace([{ label: "", value: 0 }]);
@@ -227,7 +227,9 @@ export function UpsertScoreConfigDialog({
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a data type" />
+                            <SelectValue
+                              placeholder={t("Select a data type")}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -251,7 +253,7 @@ export function UpsertScoreConfigDialog({
                       name="minValue"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Minimum (optional) </FormLabel>
+                          <FormLabel>{t("Minimum (optional)")} </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
@@ -275,7 +277,7 @@ export function UpsertScoreConfigDialog({
                       name="maxValue"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Maximum (optional)</FormLabel>
+                          <FormLabel>{t("Maximum (optional)")}</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
@@ -305,7 +307,7 @@ export function UpsertScoreConfigDialog({
                           {fields.length > 0 && (
                             <div className="mb-2 grid grid-cols-[1fr_3fr] items-center gap-2 text-left sm:grid-cols-[1fr_7fr]">
                               <FormLabel className="grid grid-flow-col">
-                                Value
+                                {t("Value")}
                                 <DocPopup
                                   description={
                                     isCategoricalDataType(
@@ -320,7 +322,7 @@ export function UpsertScoreConfigDialog({
                                   }
                                 />
                               </FormLabel>
-                              <FormLabel>Label</FormLabel>
+                              <FormLabel>{t("Label")}</FormLabel>
                             </div>
                           )}
                           {fields.map((category, index) => (
@@ -403,7 +405,7 @@ export function UpsertScoreConfigDialog({
                                   append({ label: "", value: fields.length })
                                 }
                               >
-                                Add category
+                                {t("Add category")}
                               </Button>
                             </div>
                           )}
@@ -418,11 +420,13 @@ export function UpsertScoreConfigDialog({
                   render={({ field }) => (
                     <>
                       <FormItem>
-                        <FormLabel>Description (optional)</FormLabel>
+                        <FormLabel>{t("Description (optional)")}</FormLabel>
                         <FormControl>
                           <Textarea
                             {...field}
-                            placeholder="Provide an optional description of the score config..."
+                            placeholder={t(
+                              "Provide an optional description of the score config...",
+                            )}
                             value={field.value ?? undefined}
                           />
                         </FormControl>

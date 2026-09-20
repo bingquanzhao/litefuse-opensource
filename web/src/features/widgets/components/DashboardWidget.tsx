@@ -273,7 +273,7 @@ export function DashboardWidget({
       });
     },
     onError: (e) => {
-      showErrorToast("Failed to clone widget", e.message);
+      showErrorToast(t("Failed to clone widget"), e.message);
     },
   });
   const handleCopy = () => {
@@ -286,7 +286,7 @@ export function DashboardWidget({
   };
 
   const handleDelete = () => {
-    if (onDeleteWidget && confirm("Please confirm deletion")) {
+    if (onDeleteWidget && confirm(t("Please confirm deletion"))) {
       onDeleteWidget(placement.id);
     }
   };

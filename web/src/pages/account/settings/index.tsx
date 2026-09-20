@@ -63,8 +63,8 @@ function UpdateDisplayName() {
       await utils.invalidate();
       form.reset();
       showSuccessToast({
-        title: t("Display Name Updated"),
-        description: t("Your display name has been successfully updated."),
+        title: t(t("Display Name Updated")),
+        description: t(t("Your display name has been successfully updated.")),
       });
     },
     onError: (error) => form.setError("name", { message: error.message }),
@@ -161,16 +161,18 @@ function DeleteAccountButton() {
     try {
       await deleteAccount.mutateAsync();
       showSuccessToast({
-        title: t("Account Deleted"),
-        description: t("Your account has been successfully deleted."),
+        title: t(t("Account Deleted")),
+        description: t(t("Your account has been successfully deleted.")),
       });
       await new Promise((resolve) => setTimeout(resolve, 2000));
       await signOut();
     } catch (error) {
       console.error(error);
       showErrorToast(
-        "Failed to Delete Account",
-        error instanceof Error ? error.message : "An unexpected error occurred",
+        t("Failed to Delete Account"),
+        error instanceof Error
+          ? error.message
+          : t("An unexpected error occurred"),
       );
     }
   };

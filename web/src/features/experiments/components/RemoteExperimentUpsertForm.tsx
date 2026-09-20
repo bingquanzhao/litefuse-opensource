@@ -76,8 +76,8 @@ export const RemoteExperimentUpsertForm = ({
     api.datasets.upsertRemoteExperiment.useMutation({
       onSuccess: () => {
         showSuccessToast({
-          title: t("Setup successfully"),
-          description: t("Your changes have been saved."),
+          title: t(t("Setup successfully")),
+          description: t(t("Your changes have been saved.")),
         });
         setShowRemoteExperimentUpsertForm(false);
         utils.datasets.getRemoteExperiment.invalidate({
@@ -87,8 +87,8 @@ export const RemoteExperimentUpsertForm = ({
       },
       onError: (error) => {
         showErrorToast(
-          error.message || "Failed to setup",
-          "Please check your URL and config and try again.",
+          error.message || t("Failed to setup"),
+          t("Please check your URL and config and try again."),
         );
       },
     });
@@ -97,17 +97,19 @@ export const RemoteExperimentUpsertForm = ({
     api.datasets.deleteRemoteExperiment.useMutation({
       onSuccess: () => {
         showSuccessToast({
-          title: t("Deleted successfully"),
+          title: t(t("Deleted successfully")),
           description: t(
-            "The remote dataset run trigger has been removed from this dataset.",
+            t(
+              "The remote dataset run trigger has been removed from this dataset.",
+            ),
           ),
         });
         setShowRemoteExperimentUpsertForm(false);
       },
       onError: (error) => {
         showErrorToast(
-          error.message || "Failed to delete remote dataset run trigger",
-          "Please try again.",
+          error.message || t("Failed to delete remote dataset run trigger"),
+          t("Please try again."),
         );
       },
     });
@@ -135,7 +137,7 @@ export const RemoteExperimentUpsertForm = ({
   const handleDelete = () => {
     if (
       confirm(
-        "Are you sure you want to delete this remote dataset run trigger?",
+        t("Are you sure you want to delete this remote dataset run trigger?"),
       )
     ) {
       deleteRemoteExperimentMutation.mutate({
@@ -193,8 +195,9 @@ export const RemoteExperimentUpsertForm = ({
                 <FormItem>
                   <FormLabel>URL</FormLabel>
                   <FormDescription>
-                    The URL that will be called when the remote dataset run is
-                    triggered.
+                    {t(
+                      "The URL that will be called when the remote dataset run is triggered.",
+                    )}
                   </FormDescription>
                   <FormControl>
                     <Input
@@ -212,11 +215,11 @@ export const RemoteExperimentUpsertForm = ({
               name="defaultPayload"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Default config</FormLabel>
+                  <FormLabel>{t("Default config")}</FormLabel>
                   <FormDescription>
-                    Set a default config that will be sent to the remote dataset
-                    run URL. This can be modified before starting a new run.
-                    View docs for more details.
+                    {t(
+                      "Set a default config that will be sent to the remote dataset run URL. This can be modified before starting a new run. View docs for more details.",
+                    )}
                   </FormDescription>
                   <CodeMirrorEditor
                     value={field.value}
@@ -244,7 +247,7 @@ export const RemoteExperimentUpsertForm = ({
                   {deleteRemoteExperimentMutation.isPending && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  Delete
+                  {t("Delete")}
                 </Button>
               )}
               <Button

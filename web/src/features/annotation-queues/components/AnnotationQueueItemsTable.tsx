@@ -82,7 +82,7 @@ const QueueItemTableMultiSelectAction = ({
             }}
           >
             <Trash className="mr-2 h-4 w-4" />
-            <span>Delete</span>
+            <span>{t("Delete")}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -473,8 +473,9 @@ export function AnnotationQueueItemsTable({
                 }
         }
         help={{
-          description:
+          description: t(
             "Add traces and/or observations to your annotation queue to have them annotated by your team across predefined dimensions.",
+          ),
           href: "https://litefuse.ai/docs/evaluation/evaluation-methods/llm-as-a-judge",
         }}
         pagination={{

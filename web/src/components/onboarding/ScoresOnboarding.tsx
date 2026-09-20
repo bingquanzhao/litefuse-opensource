@@ -17,8 +17,9 @@ export function ScoresOnboarding() {
     },
     {
       title: t("Run model-based evaluations"),
-      description:
+      description: t(
         "Use LLMs to automatically evaluate your application's outputs",
+      ),
       icon: <Star className="h-4 w-4" />,
     },
     {
@@ -30,8 +31,9 @@ export function ScoresOnboarding() {
     },
     {
       title: t("Use custom metrics"),
-      description:
+      description: t(
         "Litefuse's scores are flexible and can be used to track any metric that's associated with an LLM application",
+      ),
       icon: <Code className="h-4 w-4" />,
     },
   ];

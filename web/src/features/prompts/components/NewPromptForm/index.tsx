@@ -51,7 +51,7 @@ import { useQueryParam } from "use-query-params";
 import { usePromptNameValidation } from "@/src/features/prompts/hooks/usePromptNameValidation";
 import { useFormPersistence } from "@/src/hooks/useFormPersistence";
 
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 /** Prompt template syntax, not translatable text. */
 const PROMPT_VARIABLE_SYNTAX = "{{variable}}";
@@ -245,21 +245,23 @@ export const NewPromptForm: React.FC<NewPromptFormProps> = (props) => {
               return (
                 <div>
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>{t("Name")}</FormLabel>
                     <FormDescription>
-                      Use slashes &apos;/&apos; in prompt names to organize them
-                      into{" "}
-                      <a
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href="https://litefuse.ai/docs/prompt-management/get-started#prompt-folders-for-organization"
-                      >
-                        <i>folders</i>
-                      </a>
-                      .
+                      <Trans
+                        i18nKey="Use slashes '/' in prompt names to organize them into <0><1>folders</1></0>."
+                        components={[
+                          <a
+                            key="0"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href="https://litefuse.ai/docs/prompt-management/get-started#prompt-folders-for-organization"
+                          />,
+                          <i key="1" />,
+                        ]}
+                      />
                     </FormDescription>
                     <FormControl>
-                      <Input placeholder="Name your prompt" {...field} />
+                      <Input placeholder={t("Name your prompt")} {...field} />
                     </FormControl>
                     {/* Custom form message to include a link to the already existing prompt */}
                     {form.getFieldState("name").error ? (
@@ -272,7 +274,7 @@ export const NewPromptForm: React.FC<NewPromptFormProps> = (props) => {
                             href={`/project/${projectId}/prompts/${currentName.trim()}`}
                             className="flex flex-row items-center"
                           >
-                            Create a new version for it here.
+                            {t("Create a new version for it here.")}
                             <SquareArrowOutUpRight className="ml-1 h-3 w-3" />
                           </Link>
                         ) : null}
@@ -396,11 +398,11 @@ export const NewPromptForm: React.FC<NewPromptFormProps> = (props) => {
           name="config"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Config</FormLabel>
+              <FormLabel>{t("Config")}</FormLabel>
               <FormDescription>
-                Arbitrary JSON configuration that is available on the prompt.
-                Use this to track LLM parameters, function definitions, or any
-                other metadata.
+                {t(
+                  "Arbitrary JSON configuration that is available on the prompt. Use this to track LLM parameters, function definitions, or any other metadata.",
+                )}
               </FormDescription>
               <CodeMirrorEditor
                 value={field.value}
@@ -428,7 +430,7 @@ export const NewPromptForm: React.FC<NewPromptFormProps> = (props) => {
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel>Set the &quot;production&quot; label</FormLabel>
+                  <FormLabel>{t('Set the "production" label')}</FormLabel>
                 </div>
               </div>
             </FormItem>
@@ -440,14 +442,15 @@ export const NewPromptForm: React.FC<NewPromptFormProps> = (props) => {
           name="commitMessage"
           render={({ field }) => (
             <FormItem className="relative">
-              <FormLabel>Commit message</FormLabel>
+              <FormLabel>{t("Commit message")}</FormLabel>
               <FormDescription>
-                Provide information about the changes made in this version.
-                Helps maintain a clear history of prompt iterations.
+                {t(
+                  "Provide information about the changes made in this version. Helps maintain a clear history of prompt iterations.",
+                )}
               </FormDescription>
               <FormControl>
                 <Textarea
-                  placeholder="Add commit message..."
+                  placeholder={t("Add commit message...")}
                   {...field}
                   className="rounded-md border text-sm focus:ring-0 focus:outline-hidden focus-visible:ring-0 focus-visible:ring-offset-0 active:ring-0"
                 />

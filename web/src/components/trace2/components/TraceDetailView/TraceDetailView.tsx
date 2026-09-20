@@ -427,7 +427,7 @@ export function TraceDetailView({
                 omittedFilter={["Trace ID"]}
                 traceId={trace.id}
                 hiddenColumns={["traceName", "jobConfigurationId", "userId"]}
-                localStorageSuffix="TracePreview"
+                localStorageSuffix={"TracePreview"}
                 disableUrlPersistence
               />
             </div>

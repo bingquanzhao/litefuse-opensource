@@ -185,9 +185,11 @@ export default function ScoresTable({
   const scoreDeleteMutation = api.scores.deleteMany.useMutation({
     onSuccess: () => {
       showSuccessToast({
-        title: t("Scores deleted"),
+        title: t(t("Scores deleted")),
         description: t(
-          "Selected scores will be deleted. Scores are removed asynchronously and may continue to be visible for up to 15 minutes.",
+          t(
+            "Selected scores will be deleted. Scores are removed asynchronously and may continue to be visible for up to 15 minutes.",
+          ),
         ),
       });
     },
@@ -912,14 +914,14 @@ export default function ScoresTable({
               columns={columns}
               noResultsMessage={
                 <div className="flex flex-col items-center">
-                  <span>No scores found.</span>
+                  <span>{t("No scores found.")}</span>
                   <a
                     href="https://litefuse.ai/faq/all/what-are-scores"
                     className="text-primary pointer-events-auto italic underline"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    What are scores?
+                    {t("What are scores?")}
                   </a>
                 </div>
               }

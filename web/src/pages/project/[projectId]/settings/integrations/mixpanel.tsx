@@ -78,13 +78,13 @@ export default function MixpanelIntegrationSettings() {
       headerProps={{
         title: t("Mixpanel Integration"),
         breadcrumb: [
-          { name: "Settings", href: `/project/${projectId}/settings` },
+          { name: t("Settings"), href: `/project/${projectId}/settings` },
         ],
         actionButtonsLeft: <>{status && <StatusBadge type={status} />}</>,
         actionButtonsRight: (
           <Button asChild variant="secondary">
             <Link href="https://litefuse.ai/integrations/analytics/mixpanel">
-              Integration Docs ↗
+              {t("Integration Docs ↗")}
             </Link>
           </Button>
         ),
@@ -211,11 +211,11 @@ const MixpanelIntegrationSettingsForm = ({
           name="mixpanelRegion"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Mixpanel Region</FormLabel>
+              <FormLabel>{t("Mixpanel Region")}</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a region" />
+                    <SelectValue placeholder={t("Select a region")} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -227,7 +227,7 @@ const MixpanelIntegrationSettingsForm = ({
                 </SelectContent>
               </Select>
               <FormDescription>
-                Select the Mixpanel region where your project is hosted
+                {t("Select the Mixpanel region where your project is hosted")}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -238,13 +238,14 @@ const MixpanelIntegrationSettingsForm = ({
           name="mixpanelProjectToken"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Mixpanel Project Token</FormLabel>
+              <FormLabel>{t("Mixpanel Project Token")}</FormLabel>
               <FormControl>
                 <PasswordInput {...field} />
               </FormControl>
               <FormDescription>
-                You can find your Project Token in your Mixpanel project
-                settings
+                {t(
+                  "You can find your Project Token in your Mixpanel project settings",
+                )}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -257,7 +258,7 @@ const MixpanelIntegrationSettingsForm = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="flex items-center gap-1.5 pt-2">
-                  Export Source
+                  {t("Export Source")}
                   <Tooltip>
                     <TooltipTrigger>
                       <Info className="text-muted-foreground h-3.5 w-3.5" />
@@ -281,7 +282,7 @@ const MixpanelIntegrationSettingsForm = ({
                           rel="noopener noreferrer"
                           className="text-muted-foreground hover:text-primary inline-flex items-center gap-1 text-xs hover:underline"
                         >
-                          For further information see
+                          {t("For further information see")}
                           <ExternalLink className="h-3 w-3" />
                         </a>
                       </div>
@@ -291,7 +292,7 @@ const MixpanelIntegrationSettingsForm = ({
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select data to export" />
+                      <SelectValue placeholder={t("Select data to export")} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -303,8 +304,9 @@ const MixpanelIntegrationSettingsForm = ({
                   </SelectContent>
                 </Select>
                 <FormDescription>
-                  Choose which data sources to export to Mixpanel. Scores are
-                  always included.
+                  {t(
+                    "Choose which data sources to export to Mixpanel. Scores are always included.",
+                  )}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -316,7 +318,7 @@ const MixpanelIntegrationSettingsForm = ({
           name="enabled"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Enabled</FormLabel>
+              <FormLabel>{t("Enabled")}</FormLabel>
               <FormControl>
                 <Switch
                   id="mixpanel-integration-enabled"
@@ -347,7 +349,9 @@ const MixpanelIntegrationSettingsForm = ({
           onClick={() => {
             if (
               confirm(
-                "Are you sure you want to reset the Mixpanel integration for this project?",
+                t(
+                  "Are you sure you want to reset the Mixpanel integration for this project?",
+                ),
               )
             )
               mutDelete.mutate({ projectId });

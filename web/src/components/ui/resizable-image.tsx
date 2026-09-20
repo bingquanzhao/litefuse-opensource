@@ -74,7 +74,9 @@ export const ResizableImage = ({
     return (
       <ImageErrorDisplay
         src={src}
-        displayError="Images not rendered on public traces and observations"
+        displayError={t(
+          "Images not rendered on public traces and observations",
+        )}
       />
     );
   }

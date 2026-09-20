@@ -490,7 +490,7 @@ export default function ObservationsEventsTable({
       type: BatchActionType.Create,
       label: t("Add to Annotation Queue"),
       description: t("Add selected observations to an annotation queue."),
-      targetLabel: "Annotation Queue",
+      targetLabel: t("Annotation Queue"),
       execute: handleAddToAnnotationQueue,
       accessCheck: {
         scope: "annotationQueues:CUD",
@@ -687,8 +687,9 @@ export default function ObservationsEventsTable({
       id: "statusMessage",
       size: 150,
       headerTooltip: {
-        description:
+        description: t(
           "Use a statusMessage to e.g. provide additional information on a status such as level=ERROR.",
+        ),
         href: "https://litefuse.ai/docs/observability/features/log-levels",
       },
       enableHiding: true,

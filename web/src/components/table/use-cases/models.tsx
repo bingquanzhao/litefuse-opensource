@@ -322,7 +322,7 @@ export default function ModelTable({ projectId }: { projectId: string }) {
                 hasAccess={hasWriteAccess}
                 onClick={() => capture("models:new_form_open")}
               >
-                Add Model Definition
+                {t("Add Model Definition")}
               </ActionButton>
             </UpsertModelFormDialog>
           </>

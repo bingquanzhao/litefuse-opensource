@@ -205,7 +205,7 @@ export const TracePreview = ({
             <span className="mb-0 ml-1 line-clamp-2 min-w-0 font-medium break-all md:break-normal md:wrap-break-word">
               {trace.name}
             </span>
-            <CopyIdsPopover idItems={[{ id: trace.id, name: "Trace ID" }]} />
+            <CopyIdsPopover idItems={[{ id: trace.id, name: t("Trace ID") }]} />
           </div>
           <div className="flex h-full flex-wrap content-start items-start justify-start gap-0.5 @2xl:mr-1 @2xl:justify-end">
             {viewType === "detailed" && (
@@ -590,7 +590,7 @@ export const TracePreview = ({
                   omittedFilter={["Trace ID"]}
                   traceId={trace.id}
                   hiddenColumns={["traceName", "jobConfigurationId", "userId"]}
-                  localStorageSuffix="TracePreview"
+                  localStorageSuffix={"TracePreview"}
                   disableUrlPersistence
                 />
               </div>

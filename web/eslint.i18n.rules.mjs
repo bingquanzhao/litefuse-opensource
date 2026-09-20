@@ -46,15 +46,49 @@ export const i18nRuleBlock = {
       "error",
       {
         selector:
-          "Property[key.name=/^(header|label|title|description|placeholder|tooltip|message|emptyMessage)$/] > Literal[value=/^[A-Za-z][A-Za-z0-9 ,.()-]*$/]",
+          "Property[key.name=/^(header|label|title|description|placeholder|tooltip|message|emptyMessage|heading|helpText|text|required|confirmText|targetLabel|buttonText|emptyText|searchPlaceholder|noResultsMessage|setUpMessage|oldLabel|newLabel|tabTitle|errorMessage|subtitle|question|hint|caption|summary|note)$/] > Literal[value=/^(?=.*[A-Z ])[A-Za-z][A-Za-z0-9 ,.()'!?:;&%$#@*+=-]*$/]",
         message:
           "User-facing text in a data property must be an i18n key: wrap it with i18nKey() and translate it where it is rendered.",
+      },
+      {
+        // Toast copy is a call argument, which no JSX rule can see, and it is
+        // some of the most visible text in the app.
+        selector:
+          "CallExpression[callee.name=/^(showErrorToast|showSuccessToast)$/] Literal[value=/^(?=.*[a-z])(?=.*[A-Z ])[A-Za-z][A-Za-z0-9 ,.()'!?:;&%$#@*+=-]*$/]:not(CallExpression[callee.name=/^(t|i18nKey|translate)$/] > *)",
+        message:
+          "Toast text must go through t(). Pass the translated string, not the English literal.",
+      },
+      {
+        selector:
+          "CallExpression[callee.object.name='toast'] Literal[value=/^(?=.*[a-z])(?=.*[A-Z ])[A-Za-z][A-Za-z0-9 ,.()'!?:;&%$#@*+=-]*$/]:not(CallExpression[callee.name=/^(t|i18nKey|translate)$/] > *)",
+        message:
+          "Toast text must go through t(). Pass the translated string, not the English literal.",
+      },
+      {
+        // A native dialog is still UI, and its copy is invisible to every
+        // other rule here.
+        selector:
+          "CallExpression[callee.name=/^(alert|confirm|prompt)$/] > :matches(Literal, TemplateLiteral)",
+        message: "Native dialog copy must go through t().",
+      },
+      {
+        // The i18next rule runs in jsx-text-only mode, so attribute values are
+        // covered here instead. Naming the attributes explicitly keeps the
+        // enum-valued props (variant, side, col, context, ...) out, without
+        // the subtree-skipping that an allowlist inside the plugin causes.
+        selector:
+          "JSXAttribute[name.name=/^(title|placeholder|label|description|tooltip|alt|aria-label|heading|helpText|text|confirmText|targetLabel|buttonText|emptyText|searchPlaceholder|noResultsMessage|setUpMessage|oldLabel|newLabel|message|errorMessage|subtitle|caption|hint)$/] > Literal[value=/^(?=.*[A-Z ])[A-Za-z][A-Za-z0-9 ,.()'!?:;&%$#@*+=-]*$/]",
+        message: "User-facing text in a JSX attribute must go through t().",
       },
     ],
     "i18next/no-literal-string": [
       "error",
       {
-        mode: "jsx-only",
+        // jsx-text-only: only literals whose direct parent is a JSX element
+        // are reported. Attribute values and the call arguments, arrays and
+        // object literals inside handler expressions are covered by the
+        // selectors above instead, which judge them far more precisely.
+        mode: "jsx-text-only",
         // Replaces the plugin defaults, so they are restated here. The last
         // two entries let symbols and key caps through while still flagging
         // hardcoded Chinese, which has appeared in this codebase before.
@@ -103,6 +137,16 @@ export const i18nRuleBlock = {
             "replace",
             "prefetch",
             "setQueryParam",
+            // Event handlers inside JSX attributes are now visible to the
+            // rule, and their arguments are field names, ids and enum values
+            // rather than text. Matched in full, so showSuccessToast,
+            // showErrorToast, alert and confirm still get checked.
+            "(set|update|toggle|handle|track|emit|navigate|goto|select|apply|register|unregister)[A-Z].*",
+            ".*\\.(theme|setState|emit|track|capture|send)",
+            "cva",
+            "cn",
+            "clsx",
+            "twMerge",
           ],
         },
         // A denylist, deliberately: with an `include` allowlist the plugin
@@ -110,6 +154,68 @@ export const i18nRuleBlock = {
         // which exempted every react-hook-form `render={...}` body in the
         // app. Only attributes that never carry human-readable text belong
         // here.
+        // A denylist rather than an allowlist, for the same reason as
+        // jsx-attributes: an allowlist would skip the JSX nested inside any
+        // other property. Text-bearing keys stay checked here and are also
+        // guarded by the no-restricted-syntax rule above.
+        "object-properties": {
+          exclude: [
+            "href",
+            "url",
+            "src",
+            "to",
+            "type",
+            "id",
+            "key",
+            "value",
+            "name",
+            "path",
+            "pathname",
+            "source",
+            "action",
+            "scope",
+            "status",
+            "level",
+            "severity",
+            "variant",
+            "size",
+            "mode",
+            "step",
+            "format",
+            "column",
+            "operator",
+            "dataType",
+            "objectType",
+            "field",
+            "accessorKey",
+            "queryKey",
+            "event",
+            "method",
+            "target",
+            "rel",
+            "role",
+            "icon",
+            "color",
+            "className",
+            "testId",
+            "slug",
+            "kind",
+            "tag",
+            "code",
+            "locale",
+            "currency",
+            "provider",
+            "adapter",
+            "model",
+            "unit",
+            "sql",
+            "alias",
+            "relationTable",
+            "chartType",
+            "aggregation",
+            ".*(Key|Id|Type|Mode|Url|Href|Path|Class|Variant|Field|Column)",
+          ],
+        },
         "jsx-attributes": {
           exclude: [
             "className",
@@ -140,6 +246,34 @@ export const i18nRuleBlock = {
             "path",
             "pathname",
             "testId",
+            // Typed literal unions and data keys: the typechecker rejects a
+            // t() call in these positions, so flagging them is pure noise.
+            "dataKey",
+            "interval",
+            "analyticsEventName",
+            "currentView",
+            "columnIdentifier",
+            "source",
+            "direction",
+            "orientation",
+            "layout",
+            "collapsible",
+            "collapsedSize",
+            "minSize",
+            "defaultSize",
+            "level",
+            "severity",
+            "status",
+            "state",
+            "paramKey",
+            "tableName",
+            // Component props that name a thing rather than say something.
+            ".*(Variant|Key|Type|Mode|Id|Direction|Align|Side|Size|Color|Icon|Format|Field|Column|Scope|Action|Step)",
+            "step",
+            "maxHeight",
+            "minHeight",
+            "draggableHandle",
+            "localStorageSuffix",
             "data-.*",
             "aria-hidden",
             "autoComplete",

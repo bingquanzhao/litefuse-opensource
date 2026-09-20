@@ -75,13 +75,13 @@ export default function PosthogIntegrationSettings() {
       headerProps={{
         title: t("PostHog Integration"),
         breadcrumb: [
-          { name: "Settings", href: `/project/${projectId}/settings` },
+          { name: t("Settings"), href: `/project/${projectId}/settings` },
         ],
         actionButtonsLeft: <>{status && <StatusBadge type={status} />}</>,
         actionButtonsRight: (
           <Button asChild variant="secondary">
             <Link href="https://litefuse.ai/integrations/analytics/posthog">
-              Integration Docs ↗
+              {t("Integration Docs ↗")}
             </Link>
           </Button>
         ),
@@ -201,13 +201,14 @@ const PostHogIntegrationSettings = ({
           name="posthogHostname"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Posthog Hostname</FormLabel>
+              <FormLabel>{t("Posthog Hostname")}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
               <FormDescription>
-                US region: https://us.posthog.com; EU region:
-                https://eu.posthog.com
+                {t(
+                  "US region: https://us.posthog.com; EU region: https://eu.posthog.com",
+                )}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -218,7 +219,7 @@ const PostHogIntegrationSettings = ({
           name="posthogProjectApiKey"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Posthog Project API Key</FormLabel>
+              <FormLabel>{t("Posthog Project API Key")}</FormLabel>
               <FormControl>
                 <PasswordInput {...field} />
               </FormControl>
@@ -233,7 +234,7 @@ const PostHogIntegrationSettings = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="flex items-center gap-1.5 pt-2">
-                  Export Source
+                  {t("Export Source")}
                   <Tooltip>
                     <TooltipTrigger>
                       <Info className="text-muted-foreground h-3.5 w-3.5" />
@@ -257,7 +258,7 @@ const PostHogIntegrationSettings = ({
                           rel="noopener noreferrer"
                           className="text-muted-foreground hover:text-primary inline-flex items-center gap-1 text-xs hover:underline"
                         >
-                          For further information see
+                          {t("For further information see")}
                           <ExternalLink className="h-3 w-3" />
                         </a>
                       </div>
@@ -267,7 +268,7 @@ const PostHogIntegrationSettings = ({
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select data to export" />
+                      <SelectValue placeholder={t("Select data to export")} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -279,8 +280,9 @@ const PostHogIntegrationSettings = ({
                   </SelectContent>
                 </Select>
                 <FormDescription>
-                  Choose which data sources to export to PostHog. Scores are
-                  always included.
+                  {t(
+                    "Choose which data sources to export to PostHog. Scores are always included.",
+                  )}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -292,7 +294,7 @@ const PostHogIntegrationSettings = ({
           name="enabled"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Enabled</FormLabel>
+              <FormLabel>{t("Enabled")}</FormLabel>
               <FormControl>
                 <Switch
                   id="posthog-integration-enabled"
@@ -323,7 +325,9 @@ const PostHogIntegrationSettings = ({
           onClick={() => {
             if (
               confirm(
-                "Are you sure you want to reset the PostHog integration for this project?",
+                t(
+                  "Are you sure you want to reset the PostHog integration for this project?",
+                ),
               )
             )
               mutDelete.mutate({ projectId });

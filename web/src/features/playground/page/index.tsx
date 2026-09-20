@@ -152,8 +152,7 @@ export default function PlaygroundPage() {
               {/* Window Count Display - Hidden on mobile */}
               <div className="text-muted-foreground hidden items-center gap-2 text-sm md:flex">
                 <span className="whitespace-nowrap">
-                  {windowIds.length} window
-                  {windowIds.length === 1 ? "" : "s"}
+                  {t("{{count}} window", { count: windowIds.length })}
                 </span>
                 {executionStatus && (
                   <>
@@ -176,8 +175,8 @@ export default function PlaygroundPage() {
                 className="hidden shrink-0 gap-1 md:flex"
                 title={
                   !hasAnyModelConfigured
-                    ? "Please configure a model in Project Settings first"
-                    : "Execute all playground windows simultaneously"
+                    ? t("Please configure a model in Project Settings first")
+                    : t("Execute all playground windows simultaneously")
                 }
               >
                 {globalIsExecutingAll ? (
@@ -185,7 +184,9 @@ export default function PlaygroundPage() {
                 ) : (
                   <Play className="h-3 w-3" />
                 )}
-                <span className="hidden lg:inline">Run All (Ctrl + Enter)</span>
+                <span className="hidden lg:inline">
+                  {t("Run All (Ctrl + Enter)")}
+                </span>
               </Button>
 
               {/* Reset Playground Button */}
