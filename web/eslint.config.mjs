@@ -21,6 +21,7 @@ const I18N_MIGRATED_FILES = [
   "src/features/notifications/**/*.tsx",
   "src/components/ui/**/*.tsx",
   "src/components/table/**/*.tsx",
+  "src/components/trace2/**/*.tsx",
 ];
 
 export default [
