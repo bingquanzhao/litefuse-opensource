@@ -11,6 +11,8 @@ import {
 } from "@/src/components/ui/form";
 import { Input } from "@/src/components/ui/input";
 import { env } from "@/src/env.mjs";
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "@/src/features/i18n/LanguageSwitcher";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   SiOkta,
@@ -553,6 +555,7 @@ export default function SignIn({
   showDemoSignIn,
   runningOnHuggingFaceSpaces,
 }: PageProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   useHuggingFaceRedirect(runningOnHuggingFaceSpaces);
 
@@ -695,7 +698,7 @@ export default function SignIn({
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <LangfuseIcon className="mx-auto" />
           <h2 className="text-primary mt-4 text-center text-2xl leading-9 font-bold tracking-tight">
-            Sign in to your account
+            {t("Sign in to your account")}
           </h2>
         </div>
 
@@ -731,7 +734,7 @@ export default function SignIn({
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email</FormLabel>
+                          <FormLabel>{t("Email")}</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="jsdoe@example.com"
@@ -751,14 +754,14 @@ export default function SignIn({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            Password{" "}
+                            {t("Password")}{" "}
                             <Link
                               href="/auth/reset-password"
                               className="text-primary-accent hover:text-hover-primary-accent ml-1 text-xs"
                               tabIndex={-1}
                               title="What is this?"
                             >
-                              (forgot password?)
+                              {t("(forgot password?)")}
                             </Link>
                           </FormLabel>
                           <FormControl>
@@ -783,7 +786,7 @@ export default function SignIn({
                       }
                       data-testid="submit-email-password-sign-in-form"
                     >
-                      Sign in
+                      {t("Sign in")}
                     </Button>
                     {showDemoSignIn ? (
                       <Button
@@ -810,7 +813,7 @@ export default function SignIn({
                       : "hidden",
                   )}
                 >
-                  Last used
+                  {t("Last used")}
                 </div>
               </div>
             )}
@@ -834,16 +837,17 @@ export default function SignIn({
           env.NEXT_PUBLIC_SIGN_UP_DISABLED !== "true" &&
           authProviders.credentials ? (
             <p className="text-muted-foreground mt-10 text-center text-sm">
-              No account yet?{" "}
+              {t("No account yet?")}{" "}
               <Link
                 href={`/auth/sign-up${router.asPath.includes("?") ? router.asPath.substring(router.asPath.indexOf("?")) : ""}`}
                 className="text-primary-accent hover:text-hover-primary-accent leading-6 font-semibold"
               >
-                Sign up
+                {t("Sign up")}
               </Link>
             </p>
           ) : null}
         </div>
+        <LanguageSwitcher className="mx-auto mt-8" />
         <CloudPrivacyNotice action="signing in" />
       </div>
     </>

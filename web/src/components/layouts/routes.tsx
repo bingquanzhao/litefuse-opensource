@@ -27,6 +27,7 @@ import { useCommandMenu } from "@/src/features/command-k-menu/CommandMenuProvide
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 import { CloudStatusMenu } from "@/src/features/cloud-status-notification/components/CloudStatusMenu";
 import { env } from "@/src/env.mjs";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 
 // Product module identifier (inlined from the former EE customization schema).
 // Used to optionally show/hide top-level product groups via UI customization,
@@ -73,40 +74,40 @@ export type Route = {
 
 export const ROUTES: Route[] = [
   {
-    title: "Go to...",
+    title: i18nKey("Go to..."),
     pathname: "", // Empty pathname since this is a dropdown
     icon: Search,
     menuNode: <CommandMenuTrigger />,
     section: RouteSection.Main,
   },
   {
-    title: "Organizations",
+    title: i18nKey("Organizations"),
     pathname: "/",
     icon: Grid2X2,
     show: ({ organization }) => organization === undefined,
     section: RouteSection.Main,
   },
   {
-    title: "Projects",
+    title: i18nKey("Projects"),
     pathname: "/organization/[organizationId]",
     icon: Grid2X2,
     section: RouteSection.Main,
   },
   {
-    title: "Home",
+    title: i18nKey("Home"),
     pathname: `/project/[projectId]`,
     icon: Home,
     section: RouteSection.Main,
   },
   {
-    title: "Dashboards",
+    title: i18nKey("Dashboards"),
     pathname: `/project/[projectId]/dashboards`,
     icon: LayoutDashboard,
     productModule: "dashboards",
     section: RouteSection.Main,
   },
   {
-    title: "Tracing",
+    title: i18nKey("Tracing"),
     icon: ListTree,
     productModule: "tracing",
     group: RouteGroup.Observability,
@@ -114,7 +115,7 @@ export const ROUTES: Route[] = [
     pathname: `/project/[projectId]/traces`,
   },
   {
-    title: "Logging",
+    title: i18nKey("Logging"),
     pathname: `/project/[projectId]/logging`,
     icon: Search,
     group: RouteGroup.Observability,
@@ -122,7 +123,7 @@ export const ROUTES: Route[] = [
     hidden: env.NEXT_PUBLIC_ENABLE_LOGGING !== "true",
   },
   {
-    title: "Sessions",
+    title: i18nKey("Sessions"),
     icon: Clock,
     productModule: "tracing",
     group: RouteGroup.Observability,
@@ -130,7 +131,7 @@ export const ROUTES: Route[] = [
     pathname: `/project/[projectId]/sessions`,
   },
   {
-    title: "Users",
+    title: i18nKey("Users"),
     pathname: `/project/[projectId]/users`,
     icon: UsersIcon,
     productModule: "tracing",
@@ -138,7 +139,7 @@ export const ROUTES: Route[] = [
     section: RouteSection.Main,
   },
   {
-    title: "Prompts",
+    title: i18nKey("Prompts"),
     pathname: "/project/[projectId]/prompts",
     icon: FileJson,
     projectRbacScopes: ["prompts:read"],
@@ -148,7 +149,7 @@ export const ROUTES: Route[] = [
     hidden: false,
   },
   {
-    title: "Playground",
+    title: i18nKey("Playground"),
     pathname: "/project/[projectId]/playground",
     icon: TerminalIcon,
     productModule: "playground",
@@ -157,14 +158,14 @@ export const ROUTES: Route[] = [
     hidden: false,
   },
   {
-    title: "Scores",
+    title: i18nKey("Scores"),
     pathname: `/project/[projectId]/scores`,
     group: RouteGroup.Evaluation,
     section: RouteSection.Main,
     icon: SquarePercent,
   },
   {
-    title: "LLM-as-a-Judge",
+    title: i18nKey("LLM-as-a-Judge"),
     icon: Lightbulb,
     productModule: "evaluation",
     projectRbacScopes: ["evalJob:read"],
@@ -174,7 +175,7 @@ export const ROUTES: Route[] = [
     hidden: false,
   },
   {
-    title: "Human Annotation",
+    title: i18nKey("Human Annotation"),
     pathname: `/project/[projectId]/annotation-queues`,
     projectRbacScopes: ["annotationQueues:read"],
     group: RouteGroup.Evaluation,
@@ -182,7 +183,7 @@ export const ROUTES: Route[] = [
     icon: ClipboardPen,
   },
   {
-    title: "Datasets",
+    title: i18nKey("Datasets"),
     pathname: `/project/[projectId]/datasets`,
     icon: Database,
     productModule: "datasets",
@@ -190,7 +191,7 @@ export const ROUTES: Route[] = [
     section: RouteSection.Main,
   },
   {
-    title: "Experiments",
+    title: i18nKey("Experiments"),
     pathname: `/project/[projectId]/experiments`,
     icon: Beaker,
     featureFlag: "experimentsV4Enabled",
@@ -198,19 +199,19 @@ export const ROUTES: Route[] = [
     section: RouteSection.Main,
   },
   {
-    title: "Cloud Status",
+    title: i18nKey("Cloud Status"),
     section: RouteSection.Secondary,
     pathname: "",
     menuNode: <CloudStatusMenu />,
   },
   {
-    title: "Settings",
+    title: i18nKey("Settings"),
     pathname: "/project/[projectId]/settings",
     icon: Settings,
     section: RouteSection.Secondary,
   },
   {
-    title: "Settings",
+    title: i18nKey("Settings"),
     pathname: "/organization/[organizationId]/settings",
     icon: Settings,
     section: RouteSection.Secondary,
