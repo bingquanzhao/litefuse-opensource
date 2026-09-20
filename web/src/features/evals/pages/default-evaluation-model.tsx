@@ -4,7 +4,9 @@ import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAcces
 import { SupportOrUpgradePage } from "@/src/components/SupportOrUpgradePage";
 import { DefaultEvalModelSetup } from "@/src/features/evals/components/default-eval-model-setup";
 
+import { useTranslation } from "react-i18next";
 export default function DefaultEvaluationModelPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const projectId = router.query.projectId as string;
 
@@ -21,9 +23,11 @@ export default function DefaultEvaluationModelPage() {
     <Page
       withPadding
       headerProps={{
-        title: "Default Evaluation Model",
+        title: t("Default Evaluation Model"),
         help: {
-          description: "Configure a default evaluation model for your project.",
+          description: t(
+            "Configure a default evaluation model for your project.",
+          ),
           href: "https://litefuse.ai/docs/evaluation/evaluation-methods/llm-as-a-judge",
         },
         breadcrumb: [

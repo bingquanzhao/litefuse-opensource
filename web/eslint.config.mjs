@@ -22,6 +22,10 @@ const I18N_MIGRATED_FILES = [
   "src/components/ui/**/*.tsx",
   "src/components/table/**/*.tsx",
   "src/components/trace2/**/*.tsx",
+  "src/features/comments/**/*.tsx",
+  "src/features/evals/**/*.tsx",
+  "src/features/datasets/**/*.tsx",
+  "src/features/batch-actions/**/*.tsx",
 ];
 
 export default [
@@ -57,6 +61,56 @@ export default [
         "error",
         {
           mode: "jsx-only",
+          // Replaces the plugin defaults, so they are restated here. The last
+          // two entries let symbols and key caps through while still flagging
+          // hardcoded Chinese, which has appeared in this codebase before.
+          words: {
+            exclude: [
+              "[0-9!-/:-@[-`{-~]+",
+              "[A-Z_-]+",
+              "[^A-Za-z\\u4e00-\\u9fff]+",
+              "(Ctrl|Cmd|Alt|Shift|Enter|Esc|Tab|Backspace|Delete|Space)(\\+\\w+)?",
+            ],
+          },
+          // Literals handed to these calls are field names, format strings and
+          // ids, never text. Restates the plugin defaults, which this replaces.
+          callees: {
+            exclude: [
+              "i18n(ext)?",
+              "t",
+              "require",
+              "addEventListener",
+              "removeEventListener",
+              "postMessage",
+              "getElementById",
+              "dispatch",
+              "commit",
+              "includes",
+              "indexOf",
+              "endsWith",
+              "startsWith",
+              "watch",
+              "getValues",
+              "setValue",
+              "resetField",
+              "register",
+              "trigger",
+              "clearErrors",
+              "setError",
+              "getFieldState",
+              "format",
+              "formatDate",
+              "parse",
+              "get",
+              "set",
+              "has",
+              "capture",
+              "push",
+              "replace",
+              "prefetch",
+              "setQueryParam",
+            ],
+          },
           "jsx-attributes": {
             include: [
               "title",

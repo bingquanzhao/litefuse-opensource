@@ -38,6 +38,7 @@ import { useFullTextSearch } from "@/src/components/table/use-cases/useFullTextS
 import { useDatasetVersion } from "../hooks/useDatasetVersion";
 import { EditDatasetItemDialog } from "./EditDatasetItemDialog";
 
+import { useTranslation } from "react-i18next";
 type RowData = {
   id: string;
   source?: {
@@ -60,6 +61,7 @@ export function DatasetItemsTable({
   datasetId: string;
   menuItems?: React.ReactNode;
 }) {
+  const { t } = useTranslation();
   const { setDetailPageList } = useDetailPageLists();
   const utils = api.useUtils();
   const capture = usePostHogClientCapture();
@@ -144,7 +146,7 @@ export function DatasetItemsTable({
   const columns: LangfuseColumnDef<RowData>[] = [
     {
       accessorKey: "id",
-      header: "Item id",
+      header: t("Item id"),
       id: "id",
       size: 90,
       isFixedPosition: true,
@@ -163,10 +165,11 @@ export function DatasetItemsTable({
     },
     {
       accessorKey: "source",
-      header: "Source",
+      header: t("Source"),
       headerTooltip: {
-        description:
+        description: t(
           "Link to the source trace based on which this item was added",
+        ),
       },
       id: "source",
       size: 90,
@@ -190,7 +193,7 @@ export function DatasetItemsTable({
     },
     {
       accessorKey: "status",
-      header: "Status",
+      header: t("Status"),
       id: "status",
       size: 80,
       cell: ({ row }) => {
@@ -206,7 +209,7 @@ export function DatasetItemsTable({
     },
     {
       accessorKey: "createdAt",
-      header: "Created At",
+      header: t("Created At"),
       id: "createdAt",
       size: 150,
       enableHiding: true,
@@ -217,7 +220,7 @@ export function DatasetItemsTable({
     },
     {
       accessorKey: "input",
-      header: "Input",
+      header: t("Input"),
       id: "input",
       size: 200,
       enableHiding: true,
@@ -230,7 +233,7 @@ export function DatasetItemsTable({
     },
     {
       accessorKey: "expectedOutput",
-      header: "Expected Output",
+      header: t("Expected Output"),
       id: "expectedOutput",
       size: 200,
       enableHiding: true,
@@ -249,7 +252,7 @@ export function DatasetItemsTable({
     },
     {
       accessorKey: "metadata",
-      header: "Metadata",
+      header: t("Metadata"),
       id: "metadata",
       size: 200,
       enableHiding: true,
@@ -263,7 +266,7 @@ export function DatasetItemsTable({
     {
       id: "actions",
       accessorKey: "actions",
-      header: "Actions",
+      header: t("Actions"),
       size: 70,
       cell: ({ row }) => {
         const id: string = row.getValue("id");
@@ -272,12 +275,12 @@ export function DatasetItemsTable({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only relative">Open menu</span>
+                <span className="sr-only relative">{t("Open menu")}</span>
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>{t("Actions")}</DropdownMenuLabel>
               <DropdownMenuItem
                 disabled={!hasAccess || !!selectedVersion}
                 onClick={() => {
@@ -286,7 +289,7 @@ export function DatasetItemsTable({
                 }}
               >
                 <Edit className="mr-2 h-4 w-4" />
-                Edit
+                {t("Edit")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 disabled={!hasAccess || !!selectedVersion}
@@ -309,7 +312,9 @@ export function DatasetItemsTable({
                 }}
               >
                 <Archive className="mr-2 h-4 w-4" />
-                {status === DatasetStatus.ARCHIVED ? "Unarchive" : "Archive"}
+                {status === DatasetStatus.ARCHIVED
+                  ? t("Unarchive")
+                  : t("Archive")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 disabled={!hasAccess || !!selectedVersion}

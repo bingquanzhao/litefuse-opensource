@@ -39,6 +39,7 @@ import { DialogFooter, DialogBody } from "@/src/components/ui/dialog";
 import { AlertCircle } from "lucide-react";
 import { useValidateCustomModel } from "@/src/features/evals/hooks/useValidateCustomModel";
 
+import { useTranslation } from "react-i18next";
 type PartialEvalTemplate = Omit<
   EvalTemplate,
   "id" | "version" | "createdAt" | "updatedAt"
@@ -163,6 +164,7 @@ export const InnerEvalTemplateForm = (props: {
   preventRedirect?: boolean;
   cloneSourceId?: string | null;
 }) => {
+  const { t } = useTranslation();
   const capture = usePostHogClientCapture();
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -236,9 +238,10 @@ export const InnerEvalTemplateForm = (props: {
         props.existingEvalTemplateId
       ) {
         showSuccessToast({
-          title: "Updated evaluators",
-          description:
+          title: t("Updated evaluators"),
+          description: t(
             "Updated referenced evaluators to use new template version.",
+          ),
         });
       }
     },
@@ -375,7 +378,7 @@ export const InnerEvalTemplateForm = (props: {
       {/* Model Selection Section */}
       <Card>
         <CardContent>
-          <p className="my-2 font-semibold">Model</p>
+          <p className="my-2 font-semibold">{t("Model")}</p>
           <FormField
             control={form.control}
             name="shouldUseDefaultModel"
@@ -408,9 +411,10 @@ export const InnerEvalTemplateForm = (props: {
               <div className="text-destructive mt-2 flex items-center space-x-1 text-sm">
                 <AlertCircle className="h-4 w-4" />
                 <p>
-                  This evaluator is configured to use{" "}
-                  {modelParams.provider.value}s models but no API key exists.
-                  Add a key or choose another provider.
+                  {t(
+                    "This evaluator is configured to use {{provider}} models but no API key exists. Add a key or choose another provider.",
+                    { provider: modelParams.provider.value },
+                  )}
                 </p>
               </div>
             ) : (
@@ -427,8 +431,9 @@ export const InnerEvalTemplateForm = (props: {
                   availableProviders,
                   updateModelParamValue: updateModelParamValue,
                   setModelParamEnabled,
-                  modelParamsDescription:
+                  modelParamsDescription: t(
                     "Select a model which supports function calling.",
+                  ),
                 }}
                 formDisabled={!props.isEditing}
               />
@@ -439,7 +444,7 @@ export const InnerEvalTemplateForm = (props: {
       <Card>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <p className="my-2 font-semibold">Prompt</p>
+            <p className="my-2 font-semibold">{t("Prompt")}</p>
             <FormField
               control={form.control}
               name="prompt"
@@ -521,12 +526,12 @@ export const InnerEvalTemplateForm = (props: {
           loading={createEvalTemplateMutation.isPending}
           className="max-w-fit"
         >
-          Save
+          {t("Save")}
         </Button>
       )}
       {formError ? (
         <p className="text-red w-full text-center">
-          <span className="font-bold">Error:</span> {formError}
+          <span className="font-bold">{t("Error:")}</span> {formError}
         </p>
       ) : null}
     </div>

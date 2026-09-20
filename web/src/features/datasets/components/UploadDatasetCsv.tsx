@@ -15,6 +15,7 @@ import {
 } from "@/src/components/ui/shadcn-io/dropzone";
 import type { CsvPreviewResult } from "@/src/features/datasets/lib/csv/types";
 
+import { useTranslation } from "react-i18next";
 export const MAX_FILE_SIZE_BYTES = 1024 * 1024 * 1 * 10; // 10MB
 const ACCEPTED_FILE_TYPES = ["text/csv"] as const;
 
@@ -30,6 +31,7 @@ export const UploadDatasetCsv = ({
   setPreview: (preview: CsvPreviewResult | null) => void;
   setCsvFile: (file: File | null) => void;
 }) => {
+  const { t } = useTranslation();
   const handleFiles = async (files: File[]) => {
     const file = files[0];
     if (!file) return;
@@ -70,10 +72,11 @@ export const UploadDatasetCsv = ({
     <DialogBody className="border-t">
       <Card className="h-full items-center justify-center border-none">
         <CardHeader className="text-center">
-          <CardTitle className="text-lg">Add items to dataset</CardTitle>
+          <CardTitle className="text-lg">{t("Add items to dataset")}</CardTitle>
           <CardDescription>
-            Add items to dataset by uploading a file, add items manually or via
-            our SDKs/API
+            {t(
+              "Add items to dataset by uploading a file, add items manually or via our SDKs/API",
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent>

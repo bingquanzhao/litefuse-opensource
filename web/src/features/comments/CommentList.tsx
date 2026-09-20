@@ -52,6 +52,7 @@ import { type SelectionData } from "./contexts/InlineCommentSelectionContext";
 import { Badge } from "@/src/components/ui/badge";
 import { useTheme } from "next-themes";
 
+import { useTranslation } from "react-i18next";
 // IO field background colors - same as IOPreviewJSON.tsx
 const IO_FIELD_COLORS = {
   input: { light: "rgb(249, 252, 255)", dark: "rgb(15, 23, 42)" },
@@ -100,6 +101,7 @@ export function CommentList({
   pendingSelection?: SelectionData | null;
   onSelectionUsed?: () => void;
 }) {
+  const { t } = useTranslation();
   const session = useSession();
   const router = useRouter();
   const { resolvedTheme } = useTheme();
@@ -478,7 +480,7 @@ export function CommentList({
       >
         <LoaderCircle className="text-muted-foreground mr-1.5 h-4 w-4 animate-spin" />
         <span className="text-muted-foreground text-sm opacity-60">
-          Loading comments...
+          {t("Loading comments...")}
         </span>
       </div>
     );
@@ -493,20 +495,20 @@ export function CommentList({
     >
       {cardView && (
         <div className="shrink-0 border-b px-2 py-1 text-sm font-medium">
-          Comments ({comments.data?.length ?? 0})
+          {t("Comments ({{count}})", { count: comments.data?.length ?? 0 })}
         </div>
       )}
       <div className="flex min-h-0 flex-1 flex-col">
         {!cardView && (
           <div className="shrink-0 border-b">
             <div className="flex items-center justify-between gap-2 px-2 py-1.5">
-              <div className="text-sm font-medium">Comments</div>
+              <div className="text-sm font-medium">{t("Comments")}</div>
               <div className="relative max-w-xs flex-1">
                 <Search className="text-muted-foreground absolute top-1/2 left-2 h-3.5 w-3.5 -translate-y-1/2" />
                 <Input
                   ref={searchInputRef}
                   type="text"
-                  placeholder="Search comments..."
+                  placeholder={t("Search comments...")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="h-7 pr-7 pl-7 text-xs"
@@ -539,9 +541,14 @@ export function CommentList({
             <div className="text-muted-foreground px-2 pb-1 text-xs">
               {searchQuery.trim()
                 ? filteredComments && filteredComments.length > 0
-                  ? `Showing ${filteredComments.length} of ${comments.data?.length ?? 0} comments`
-                  : "No comments match your search"
-                : `${comments.data?.length ?? 0} comments`}
+                  ? t("Showing {{shown}} of {{total}} comments", {
+                      shown: filteredComments.length,
+                      total: comments.data?.length ?? 0,
+                    })
+                  : t("No comments match your search")
+                : t("{{count}} comments", {
+                    count: comments.data?.length ?? 0,
+                  })}
             </div>
           </div>
         )}
@@ -577,7 +584,9 @@ export function CommentList({
                   {/* Name + timestamp inline */}
                   <div className="mb-1.5 flex items-center gap-2 pt-1.5 text-xs leading-none">
                     <span className="text-foreground font-medium">
-                      {comment.authorUserName ?? comment.authorUserId ?? "User"}
+                      {comment.authorUserName ??
+                        comment.authorUserId ??
+                        t("User")}
                     </span>
                     <span className="text-muted-foreground/50">·</span>
                     <span className="text-muted-foreground/70">
@@ -621,7 +630,7 @@ export function CommentList({
                           align="start"
                           className="px-2 py-1 text-xs"
                         >
-                          The location of the text commented on
+                          {t("The location of the text commented on")}
                         </TooltipContent>
                       </Tooltip>
                     )}
@@ -668,7 +677,7 @@ export function CommentList({
                       type="button"
                       size="icon-xs"
                       variant="ghost"
-                      title="Delete comment"
+                      title={t("Delete comment")}
                       loading={deleteCommentMutation.isPending}
                       onClick={() => {
                         if (
@@ -696,9 +705,9 @@ export function CommentList({
         {hasWriteAccess && (
           <>
             <div className="text-muted-foreground relative mt-2 mr-4 ml-2.5 flex flex-row items-center justify-between text-xs">
-              <span className="sr-only">New comment</span>
+              <span className="sr-only">{t("New comment")}</span>
               <span></span>
-              <span>Markdown and @-mentions support</span>
+              <span>{t("Markdown and @-mentions support")}</span>
             </div>
             <div className="border-border/60 relative mt-0.5 mr-3 mb-2 ml-2 min-h-[70px] shrink-0 rounded-lg border pt-1">
               {/* Visually hidden header for accessibility */}
@@ -773,7 +782,7 @@ export function CommentList({
                           type="submit"
                           size="icon-xs"
                           variant="outline"
-                          title="Submit comment"
+                          title={t("Submit comment")}
                           loading={createCommentMutation.isPending}
                           onClick={() => {
                             form.handleSubmit(onSubmit)();
@@ -789,7 +798,7 @@ export function CommentList({
                         className="w-auto p-2"
                       >
                         <div className="flex items-center gap-2 text-sm">
-                          <span>Send comment</span>
+                          <span>{t("Send comment")}</span>
                           <kbd className="bg-muted text-muted-foreground pointer-events-none inline-flex h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium opacity-100 select-none">
                             <span className="text-xs">⌘</span>Enter
                           </kbd>
