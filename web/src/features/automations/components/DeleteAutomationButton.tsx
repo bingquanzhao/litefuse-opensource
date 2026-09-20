@@ -10,6 +10,7 @@ import {
 } from "@/src/components/ui/popover";
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
 
+import { useTranslation } from "react-i18next";
 interface DeleteAutomationButtonProps {
   projectId: string;
   automationId: string;
@@ -23,6 +24,7 @@ export const DeleteAutomationButton: React.FC<DeleteAutomationButtonProps> = ({
   onSuccess,
   variant = "icon",
 }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const utils = api.useUtils();
   const hasAccess = useHasProjectAccess({
@@ -34,8 +36,8 @@ export const DeleteAutomationButton: React.FC<DeleteAutomationButtonProps> = ({
     {
       onSuccess: () => {
         showSuccessToast({
-          title: "Automation deleted",
-          description: "The automation has been deleted successfully.",
+          title: t("Automation deleted"),
+          description: t("The automation has been deleted successfully."),
         });
 
         if (onSuccess) {
@@ -72,10 +74,11 @@ export const DeleteAutomationButton: React.FC<DeleteAutomationButtonProps> = ({
         )}
       </PopoverTrigger>
       <PopoverContent>
-        <h2 className="text-md mb-3 font-semibold">Please confirm</h2>
+        <h2 className="text-md mb-3 font-semibold">{t("Please confirm")}</h2>
         <p className="mb-3 text-sm">
-          This action permanently deletes this automation and execution history.
-          This cannot be undone.
+          {t(
+            "This action permanently deletes this automation and execution history. This cannot be undone.",
+          )}
         </p>
         <div className="flex justify-end space-x-4">
           <Button
@@ -90,7 +93,7 @@ export const DeleteAutomationButton: React.FC<DeleteAutomationButtonProps> = ({
               setIsOpen(false);
             }}
           >
-            Delete Automation
+            {t("Delete Automation")}
           </Button>
         </div>
       </PopoverContent>

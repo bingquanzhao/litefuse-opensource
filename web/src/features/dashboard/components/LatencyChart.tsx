@@ -26,6 +26,7 @@ import { Chart } from "@/src/features/widgets/chart-library/Chart";
 import { timeSeriesToDataPoints } from "@/src/features/dashboard/lib/chart-data-adapters";
 import { useScheduledDashboardExecuteQuery } from "@/src/hooks/useDashboardQueryScheduler";
 
+import { useTranslation } from "react-i18next";
 export const GenerationLatencyChart = ({
   className,
   projectId,
@@ -47,6 +48,7 @@ export const GenerationLatencyChart = ({
   metricsVersion?: ViewVersion;
   schedulerId?: string;
 }) => {
+  const { t } = useTranslation();
   const {
     allModels,
     selectedModels,
@@ -164,8 +166,8 @@ export const GenerationLatencyChart = ({
   return (
     <DashboardCard
       className={className}
-      title="Model latencies"
-      description="Latencies (seconds) per LLM generation"
+      title={t("Model latencies")}
+      description={t("Latencies (seconds) per LLM generation")}
       isLoading={
         isLoading || (latencies.isPending && selectedModels.length > 0)
       }

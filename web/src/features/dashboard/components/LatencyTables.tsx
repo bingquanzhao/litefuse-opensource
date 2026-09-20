@@ -17,6 +17,7 @@ import {
 } from "@/src/features/query";
 import { useScheduledDashboardExecuteQuery } from "@/src/hooks/useDashboardQueryScheduler";
 
+import { useTranslation } from "react-i18next";
 export const LatencyTables = ({
   projectId,
   globalFilterState,
@@ -34,6 +35,7 @@ export const LatencyTables = ({
   metricsVersion?: ViewVersion;
   schedulerId?: string;
 }) => {
+  const { t } = useTranslation();
   const generationsLatenciesQuery: QueryType = {
     view: "observations",
     dimensions: [{ field: "name" }],
@@ -206,7 +208,7 @@ export const LatencyTables = ({
     <>
       <DashboardCard
         className="col-span-1 xl:col-span-2"
-        title="Trace latency percentiles"
+        title={t("Trace latency percentiles")}
         isLoading={isLoading || tracesLatencies.isPending}
       >
         <DashboardTable
@@ -226,7 +228,7 @@ export const LatencyTables = ({
       </DashboardCard>
       <DashboardCard
         className="col-span-1 xl:col-span-2"
-        title="Generation latency percentiles"
+        title={t("Generation latency percentiles")}
         isLoading={isLoading || generationsLatencies.isPending}
       >
         <DashboardTable
@@ -246,7 +248,7 @@ export const LatencyTables = ({
       </DashboardCard>
       <DashboardCard
         className="col-span-1 xl:col-span-2"
-        title="Observation latency percentiles"
+        title={t("Observation latency percentiles")}
         isLoading={isLoading || observationsLatencies.isPending}
       >
         <DashboardTable

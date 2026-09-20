@@ -30,6 +30,7 @@ import { type Prisma } from "@langfuse/shared";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { getFormattedPayload } from "@/src/features/experiments/utils/format";
 
+import { useTranslation } from "react-i18next";
 const RemoteExperimentSetupSchema = z.object({
   url: z.url(),
   defaultPayload: z.string(),
@@ -51,6 +52,7 @@ export const RemoteExperimentUpsertForm = ({
   } | null;
   setShowRemoteExperimentUpsertForm: (show: boolean) => void;
 }) => {
+  const { t } = useTranslation();
   const hasDatasetAccess = useHasProjectAccess({
     projectId,
     scope: "datasets:CUD",
@@ -74,8 +76,8 @@ export const RemoteExperimentUpsertForm = ({
     api.datasets.upsertRemoteExperiment.useMutation({
       onSuccess: () => {
         showSuccessToast({
-          title: "Setup successfully",
-          description: "Your changes have been saved.",
+          title: t("Setup successfully"),
+          description: t("Your changes have been saved."),
         });
         setShowRemoteExperimentUpsertForm(false);
         utils.datasets.getRemoteExperiment.invalidate({
@@ -95,9 +97,10 @@ export const RemoteExperimentUpsertForm = ({
     api.datasets.deleteRemoteExperiment.useMutation({
       onSuccess: () => {
         showSuccessToast({
-          title: "Deleted successfully",
-          description:
+          title: t("Deleted successfully"),
+          description: t(
             "The remote dataset run trigger has been removed from this dataset.",
+          ),
         });
         setShowRemoteExperimentUpsertForm(false);
       },
@@ -115,7 +118,7 @@ export const RemoteExperimentUpsertForm = ({
         JSON.parse(data.defaultPayload);
       } catch {
         form.setError("defaultPayload", {
-          message: "Invalid JSON format",
+          message: t("Invalid JSON format"),
         });
         return;
       }
@@ -158,15 +161,15 @@ export const RemoteExperimentUpsertForm = ({
           onClick={() => setShowRemoteExperimentUpsertForm(false)}
           className="inline-block self-start"
         >
-          ← Back
+          {t("← Back")}
         </Button>
         <DialogTitle>
           {existingRemoteExperiment
-            ? "Edit remote dataset run trigger"
-            : "Set up remote dataset run trigger in UI"}
+            ? t("Edit remote dataset run trigger")
+            : t("Set up remote dataset run trigger in UI")}
         </DialogTitle>
         <DialogDescription>
-          Enable your team to run custom dataset runs on dataset{" "}
+          {t("Enable your team to run custom dataset runs on dataset")}{" "}
           <strong>
             {dataset.isSuccess ? (
               <>&quot;{dataset.data?.name}&quot;</>
@@ -174,9 +177,9 @@ export const RemoteExperimentUpsertForm = ({
               <Loader2 className="inline h-4 w-4 animate-spin" />
             )}
           </strong>
-          . Configure a webhook URL to trigger remote custom dataset runs from
-          UI. We will send dataset info (name, id) and config to your service,
-          which can run against the dataset and post results to Litefuse.
+          {t(
+            ". Configure a webhook URL to trigger remote custom dataset runs from UI. We will send dataset info (name, id) and config to your service, which can run against the dataset and post results to Litefuse.",
+          )}
         </DialogDescription>
       </DialogHeader>
 
@@ -251,7 +254,7 @@ export const RemoteExperimentUpsertForm = ({
                 {upsertRemoteExperimentMutation.isPending ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}
-                {existingRemoteExperiment ? "Update" : "Set up"}
+                {existingRemoteExperiment ? t("Update") : t("Set up")}
               </Button>
             </div>
           </DialogFooter>

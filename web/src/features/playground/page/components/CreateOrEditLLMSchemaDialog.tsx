@@ -33,6 +33,7 @@ import { JSONSchemaFormSchema, type LlmSchema } from "@langfuse/shared";
 import { CodeMirrorEditor } from "@/src/components/editor";
 import { showErrorToast } from "@/src/features/notifications/showErrorToast";
 
+import { useTranslation } from "react-i18next";
 const formSchema = z.object({
   name: LLMSchemaNameSchema,
   description: z.string().min(1, "Description is required"),
@@ -57,6 +58,7 @@ type CreateOrEditLLMSchemaDialog = {
 export const CreateOrEditLLMSchemaDialog: React.FC<
   CreateOrEditLLMSchemaDialog
 > = (props) => {
+  const { t } = useTranslation();
   const { children, projectId, onSave, existingLlmSchema } = props;
 
   const utils = api.useUtils();
@@ -155,10 +157,10 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
       <DialogContent className="flex flex-col sm:min-w-128 md:min-w-160">
         <DialogHeader>
           <DialogTitle>
-            {existingLlmSchema ? "Edit LLM Schema" : "Create LLM Schema"}
+            {existingLlmSchema ? t("Edit LLM Schema") : t("Create LLM Schema")}
           </DialogTitle>
           <DialogDescription>
-            Define a JSON Schema for structured outputs
+            {t("Define a JSON Schema for structured outputs")}
           </DialogDescription>
         </DialogHeader>
 
@@ -261,8 +263,9 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
             <DialogFooter className="bg-background sticky bottom-0 mt-4 flex flex-col gap-2 border-t pt-4">
               <div className="flex w-full flex-col gap-2">
                 <p className="text-muted-foreground text-xs">
-                  Note: Changes to schemas are reflected to all members of this
-                  project.
+                  {t(
+                    "Note: Changes to schemas are reflected to all members of this project.",
+                  )}
                 </p>
                 <div className="flex items-center justify-between gap-2">
                   {existingLlmSchema && (
@@ -280,9 +283,9 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
                     variant="outline"
                     onClick={() => setOpen(false)}
                   >
-                    Cancel
+                    {t("Cancel")}
                   </Button>
-                  <Button type="submit">Save</Button>
+                  <Button type="submit">{t("Save")}</Button>
                 </div>
               </div>
             </DialogFooter>

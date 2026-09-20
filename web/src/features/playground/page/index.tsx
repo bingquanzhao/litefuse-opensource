@@ -15,6 +15,7 @@ import {
 } from "@/src/components/ChatMessages/MessageSearch";
 import useProjectIdFromURL from "@/src/hooks/useProjectIdFromURL";
 
+import { useTranslation } from "react-i18next";
 /**
  * PlaygroundPage Component
  *
@@ -37,6 +38,7 @@ import useProjectIdFromURL from "@/src/hooks/useProjectIdFromURL";
  * - Clean single-header design
  */
 export default function PlaygroundPage() {
+  const { t } = useTranslation();
   const projectId = useProjectIdFromURL();
   const { windowIds, isLoaded, addWindowWithCopy, removeWindowId } =
     usePersistedWindowIds();
@@ -99,10 +101,11 @@ export default function PlaygroundPage() {
       <Page
         withPadding={false}
         headerProps={{
-          title: "Playground",
+          title: t("Playground"),
           help: {
-            description:
+            description: t(
               "A sandbox to test and iterate your prompts across multiple windows",
+            ),
             href: "https://litefuse.ai/docs/prompt-management/features/playground",
           },
         }}
@@ -135,10 +138,11 @@ export default function PlaygroundPage() {
         scrollable={false}
         withPadding={false}
         headerProps={{
-          title: "Playground",
+          title: t("Playground"),
           help: {
-            description:
+            description: t(
               "A sandbox to test and iterate your prompts across multiple windows",
+            ),
             href: "https://litefuse.ai/docs/prompt-management/features/playground",
           },
           actionButtonsRight: (

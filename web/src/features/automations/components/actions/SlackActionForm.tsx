@@ -19,6 +19,7 @@ import { SlackTestMessageButton } from "@/src/features/slack/components/SlackTes
 import { useState } from "react";
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
 
+import { useTranslation } from "react-i18next";
 interface SlackActionFormProps {
   form: UseFormReturn<any>;
   disabled: boolean;
@@ -31,6 +32,7 @@ export const SlackActionForm: React.FC<SlackActionFormProps> = ({
   disabled,
   projectId,
 }) => {
+  const { t } = useTranslation();
   const [selectedChannel, setSelectedChannel] = useState<SlackChannel | null>(
     null,
   );
@@ -122,7 +124,7 @@ export const SlackActionForm: React.FC<SlackActionFormProps> = ({
                 buttonText="Test Channel"
               />
               <p className="text-muted-foreground text-sm">
-                Test this channel to verify the bot can send messages.
+                {t("Test this channel to verify the bot can send messages.")}
               </p>
             </div>
           )}
