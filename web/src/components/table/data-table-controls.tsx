@@ -37,6 +37,8 @@ import type {
 import { KeyValueFilterBuilder } from "@/src/components/table/key-value-filter-builder";
 import { type FilterState } from "@langfuse/shared";
 
+import { Trans, useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 interface ControlsContextType {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -99,6 +101,7 @@ interface DataTableControlsProps {
 }
 
 export function DataTableControls({ queryFilter }: DataTableControlsProps) {
+  const { t } = useTranslation();
   return (
     <div
       className={cn(
@@ -107,7 +110,7 @@ export function DataTableControls({ queryFilter }: DataTableControlsProps) {
       )}
     >
       <div className="bg-background sticky top-0 z-20 mb-1 flex h-10 shrink-0 items-center justify-between border-b px-3">
-        <span className="text-sm font-medium">Filters</span>
+        <span className="text-sm font-medium">{t("Filters")}</span>
         <div className="flex items-center gap-1">
           {queryFilter.isFiltered && (
             <Tooltip>
@@ -118,10 +121,10 @@ export function DataTableControls({ queryFilter }: DataTableControlsProps) {
                   onClick={() => queryFilter.clearAll()}
                   className="h-7 px-2 text-xs"
                 >
-                  Clear all
+                  {t("Clear all")}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Clear all filters</TooltipContent>
+              <TooltipContent>{t("Clear all filters")}</TooltipContent>
             </Tooltip>
           )}
         </div>
@@ -409,8 +412,8 @@ interface FilterAccordionItemProps {
 }
 
 export function FilterAccordionItem({
-  label,
-  tooltip,
+  label: labelKey,
+  tooltip: tooltipKey,
   filterKey,
   filterKeyShort,
   children,
@@ -419,6 +422,11 @@ export function FilterAccordionItem({
   disabledReason,
   onReset,
 }: FilterAccordionItemProps) {
+  const { t } = useTranslation();
+  // Labels and tooltips arrive from the static filter configs, which mark them
+  // with i18nKey(), so they are translated here at the single render point.
+  const label = t(labelKey);
+  const tooltip = tooltipKey ? t(tooltipKey) : undefined;
   return (
     <FilterAccordionItemPrimitive value={filterKey} className="border-none">
       <FilterAccordionTrigger
@@ -488,9 +496,9 @@ export function FilterAccordionItem({
                 }
               }}
               className="bg-background hover:bg-accent hover:text-accent-foreground inline-flex h-5 cursor-pointer items-center gap-1 rounded-full border px-2 text-xs"
-              aria-label={`Clear ${label} filter`}
+              aria-label={t("Clear {{label}} filter", { label })}
             >
-              <span>Clear</span>
+              <span>{t("Clear")}</span>
               <IconX className="h-3 w-3" />
             </div>
           )}
@@ -534,6 +542,7 @@ export function CategoricalFacet({
   onTextFilterAdd,
   onTextFilterRemove,
 }: CategoricalFacetProps) {
+  const { t } = useTranslation();
   const [showAll, setShowAll] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   // Track which filter mode is active (select checkboxes vs text filters)
@@ -616,7 +625,7 @@ export function CategoricalFacet({
             {onOperatorChange && value.length > 0 && (
               <div className="mb-1.5 flex items-center gap-1.5 px-2">
                 <span className="text-muted-foreground/80 text-[10px]">
-                  Match:
+                  {t("Match:")}
                 </span>
                 <div className="border-input/50 bg-background inline-flex rounded border text-[10px]">
                   <button
@@ -664,7 +673,7 @@ export function CategoricalFacet({
             ) : options.length === 0 ? (
               <div className="text-muted-foreground py-1 text-xs">
                 {filterKey === "sessionId" ? (
-                  <span>
+                  <Trans>
                     Sessions group traces together, which is useful for tracing
                     multi-step workflows.{" "}
                     <a
@@ -676,11 +685,13 @@ export function CategoricalFacet({
                       See docs
                     </a>{" "}
                     to learn how to add sessions to your traces.
-                  </span>
+                  </Trans>
                 ) : filterKey === "name" ? (
-                  <span>No trace names found in the given time range.</span>
-                ) : filterKey === "tags" ? (
                   <span>
+                    {t("No trace names found in the given time range.")}
+                  </span>
+                ) : filterKey === "tags" ? (
+                  <Trans>
                     Tags let you filter traces according to custom categories
                     (e.g. feature flags).{" "}
                     <a
@@ -692,9 +703,9 @@ export function CategoricalFacet({
                       See docs
                     </a>{" "}
                     to learn how to add tags to your traces.
-                  </span>
+                  </Trans>
                 ) : (
-                  "No options found"
+                  t("No options found")
                 )}
               </div>
             ) : (
@@ -705,7 +716,7 @@ export function CategoricalFacet({
                     <div className="relative">
                       <Search className="text-muted-foreground absolute top-1/2 left-2 h-3.5 w-3.5 -translate-y-1/2" />
                       <Input
-                        placeholder="Filter values"
+                        placeholder={t("Filter values")}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="h-8 pl-7 text-xs"
@@ -717,7 +728,7 @@ export function CategoricalFacet({
                 {/* Checkbox list */}
                 {filteredOptions.length === 0 ? (
                   <div className="text-muted-foreground py-1 text-center text-sm">
-                    No matches found
+                    {t("No matches found")}
                   </div>
                 ) : (
                   <>
@@ -749,7 +760,7 @@ export function CategoricalFacet({
                           onClick={() => setShowAll(true)}
                           className="text-normal mt-1 h-auto w-full justify-start py-1 pl-7 text-xs"
                         >
-                          Show more values
+                          {t("Show more values")}
                         </Button>
                       </div>
                     )}
@@ -759,17 +770,19 @@ export function CategoricalFacet({
                 options.length === 1 &&
                 options[0]?.toLowerCase() === "default" ? (
                   <div className="text-muted-foreground mt-2 px-2 text-xs">
-                    Environments help you separate traces from different
-                    contexts (e.g. production, staging).{" "}
-                    <a
-                      href="https://litefuse.ai/docs/observability/features/environments"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-foreground underline"
-                    >
-                      See docs
-                    </a>{" "}
-                    on how to add environments to your traces.
+                    <Trans>
+                      Environments help you separate traces from different
+                      contexts (e.g. production, staging).{" "}
+                      <a
+                        href="https://litefuse.ai/docs/observability/features/environments"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-foreground underline"
+                      >
+                        See docs
+                      </a>{" "}
+                      on how to add environments to your traces.
+                    </Trans>
                   </div>
                 ) : null}
               </>
@@ -809,6 +822,7 @@ export function NumericFacet({
   disabledReason,
   onReset,
 }: NumericFacetProps) {
+  const { t } = useTranslation();
   const [localValue, setLocalValue] = useState<[number, number]>(value);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -887,7 +901,7 @@ export function NumericFacet({
     >
       <div className="px-4 py-2">
         {loading ? (
-          <div className="text-muted-foreground text-sm">Loading...</div>
+          <div className="text-muted-foreground text-sm">{t("Loading...")}</div>
         ) : (
           <div className="grid gap-4">
             <div className="flex items-center gap-4">
@@ -896,7 +910,7 @@ export function NumericFacet({
                   htmlFor={`min-${filterKey}`}
                   className="text-muted-foreground text-xs"
                 >
-                  Min.
+                  {t("Min.")}
                 </Label>
                 <div className="flex items-center gap-1">
                   <Input
@@ -921,7 +935,7 @@ export function NumericFacet({
                   htmlFor={`max-${filterKey}`}
                   className="text-muted-foreground text-xs"
                 >
-                  Max.
+                  {t("Max.")}
                 </Label>
                 <div className="flex items-center gap-1">
                   <Input
@@ -970,6 +984,7 @@ export function StringFacet({
   disabledReason,
   onReset,
 }: StringFacetProps) {
+  const { t } = useTranslation();
   const [localValue, setLocalValue] = useState<string>(value);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -1017,13 +1032,13 @@ export function StringFacet({
     >
       <div className="px-4">
         {loading ? (
-          <div className="text-muted-foreground text-sm">Loading...</div>
+          <div className="text-muted-foreground text-sm">{t("Loading...")}</div>
         ) : (
           <Input
             type="text"
             id={`string-${filterKey}`}
             value={localValue}
-            placeholder="Search"
+            placeholder={t("Search")}
             onChange={handleInputChange}
             className="h-8"
           />
@@ -1050,6 +1065,7 @@ export function KeyValueFacet({
   onReset,
   keyPlaceholder,
 }: KeyValueFacetProps) {
+  const { t } = useTranslation();
   return (
     <FilterAccordionItem
       label={label}
@@ -1063,7 +1079,7 @@ export function KeyValueFacet({
     >
       {loading ? (
         <div className="text-muted-foreground px-4 py-2 text-sm">
-          Loading...
+          {t("Loading...")}
         </div>
       ) : (
         <KeyValueFilterBuilder
@@ -1095,6 +1111,7 @@ export function NumericKeyValueFacet({
   onReset,
   keyPlaceholder,
 }: NumericKeyValueFacetProps) {
+  const { t } = useTranslation();
   return (
     <FilterAccordionItem
       label={label}
@@ -1108,7 +1125,7 @@ export function NumericKeyValueFacet({
     >
       {loading ? (
         <div className="text-muted-foreground px-4 py-2 text-sm">
-          Loading...
+          {t("Loading...")}
         </div>
       ) : (
         <KeyValueFilterBuilder
@@ -1139,6 +1156,7 @@ export function StringKeyValueFacet({
   onReset,
   keyPlaceholder,
 }: StringKeyValueFacetProps) {
+  const { t } = useTranslation();
   return (
     <FilterAccordionItem
       label={label}
@@ -1152,7 +1170,7 @@ export function StringKeyValueFacet({
     >
       {loading ? (
         <div className="text-muted-foreground px-4 py-2 text-sm">
-          Loading...
+          {t("Loading...")}
         </div>
       ) : (
         <KeyValueFilterBuilder
@@ -1179,9 +1197,9 @@ const POSITION_MODES: {
   label: string;
 }[] = [
   { key: "root", label: "1st" },
-  { key: "last", label: "Last" },
-  { key: "nthFromStart", label: "Nth from start" },
-  { key: "nthFromEnd", label: "Nth from end" },
+  { key: "last", label: i18nKey("Last") },
+  { key: "nthFromStart", label: i18nKey("Nth from start") },
+  { key: "nthFromEnd", label: i18nKey("Nth from end") },
 ];
 
 function PositionInTraceFacetComponent({
@@ -1200,6 +1218,7 @@ function PositionInTraceFacetComponent({
   disabledReason,
   onReset,
 }: PositionInTraceFacetProps) {
+  const { t } = useTranslation();
   const showNthInput = mode === "nthFromStart" || mode === "nthFromEnd";
 
   return (
@@ -1215,7 +1234,7 @@ function PositionInTraceFacetComponent({
     >
       <div className="px-4 py-1">
         {loading ? (
-          <div className="text-muted-foreground text-sm">Loading...</div>
+          <div className="text-muted-foreground text-sm">{t("Loading...")}</div>
         ) : (
           <div className="space-y-2">
             <div className="flex flex-wrap gap-1">
@@ -1230,7 +1249,7 @@ function PositionInTraceFacetComponent({
                       : "border-input bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                   )}
                 >
-                  {modeLabel}
+                  {t(modeLabel)}
                 </button>
               ))}
             </div>
@@ -1240,7 +1259,7 @@ function PositionInTraceFacetComponent({
                   htmlFor={`nth-${filterKey}`}
                   className="text-muted-foreground text-xs"
                 >
-                  Position:
+                  {t("Position:")}
                 </Label>
                 <Input
                   id={`nth-${filterKey}`}
@@ -1270,9 +1289,10 @@ interface FilterModeTabsProps {
 }
 
 function FilterModeTabs({ mode, onModeChange }: FilterModeTabsProps) {
+  const { t } = useTranslation();
   return (
     <div className="@container mb-2 flex flex-wrap items-center gap-1.5 px-4">
-      <span className="text-muted-foreground/80 text-[10px]">Mode:</span>
+      <span className="text-muted-foreground/80 text-[10px]">{t("Mode:")}</span>
       <div className="border-input/50 bg-background flex flex-1 flex-col rounded border text-[10px] @[7.5rem]:min-w-[140px] @[7.5rem]:flex-row">
         <button
           onClick={() => onModeChange("select")}
@@ -1313,6 +1333,7 @@ function TextFilterSection({
   onAdd?: (op: "contains" | "does not contain", val: string) => void;
   onRemove?: (op: "contains" | "does not contain", val: string) => void;
 }) {
+  const { t } = useTranslation();
   const [inputValue, setInputValue] = useState("");
   const [selectedOperator, setSelectedOperator] = useState<
     "contains" | "does not contain"
@@ -1340,7 +1361,7 @@ function TextFilterSection({
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
-            contains
+            {t("contains")}
           </button>
           <div className="bg-border/50 w-px" />
           <button
@@ -1352,7 +1373,7 @@ function TextFilterSection({
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
-            does not contain
+            {t("does not contain")}
           </button>
         </div>
       </div>
@@ -1368,7 +1389,7 @@ function TextFilterSection({
               handleAdd();
             }
           }}
-          placeholder="Enter value..."
+          placeholder={t("Enter value...")}
           className="h-7 flex-1 text-xs"
         />
         <Button
@@ -1378,7 +1399,7 @@ function TextFilterSection({
           disabled={inputValue.length === 0}
           className="h-7 shrink-0 px-2 text-xs"
         >
-          Add
+          {t("Add")}
         </Button>
       </div>
 
@@ -1391,7 +1412,9 @@ function TextFilterSection({
               className="group/textfilter border-border/40 bg-muted/30 flex items-center gap-2 rounded border px-2 py-1 text-xs"
             >
               <span className="text-muted-foreground shrink-0 text-[10px] font-medium">
-                {f.operator === "contains" ? "contains" : "does not contain"}
+                {f.operator === "contains"
+                  ? t("contains")
+                  : t("does not contain")}
               </span>
               <span
                 className="min-w-0 flex-1 truncate font-medium"

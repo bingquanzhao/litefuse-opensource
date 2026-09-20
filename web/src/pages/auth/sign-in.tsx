@@ -46,10 +46,11 @@ import { useLangfuseCloudRegion } from "@/src/features/organizations/hooks";
 import { getSafeRedirectPath } from "@/src/utils/redirect";
 import { hasSsoConfig } from "@/src/features/enterprise/sso/ssoProviders";
 
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 const credentialAuthForm = z.object({
   email: z.string().email(),
   password: z.string().min(8, {
-    message: "Password must be at least 8 characters long",
+    message: i18nKey("Password must be at least 8 characters long"),
   }),
 });
 
@@ -206,6 +207,7 @@ export function SSOButtons({
   lastUsedMethod?: NextAuthProvider | null;
   onProviderSelect?: (provider: NextAuthProvider) => void;
 }) {
+  const { t } = useTranslation();
   const capture = usePostHogClientCapture();
   const [providerSigningIn, setProviderSigningIn] =
     useState<NextAuthProvider | null>(null);
@@ -247,7 +249,7 @@ export function SSOButtons({
             <div className="border-border my-6 border-t"></div>
           ) : (
             <div className="text-muted-foreground my-6 text-center text-xs">
-              or {action} with
+              {t("or {{action}} with", { action })}
             </div>
           )
         ) : null}
@@ -255,7 +257,7 @@ export function SSOButtons({
           {authProviders.sso && (
             <AuthProviderButton
               icon={<Key className="mr-3" size={18} />}
-              label="Enterprise SSO"
+              label={t("Enterprise SSO")}
               onClick={() => {
                 capture("sign_in:button_click", { provider: "sso" });
                 window.location.href = `${env.NEXT_PUBLIC_BASE_PATH ?? ""}/auth/enterprise-sso-required`;
@@ -265,7 +267,7 @@ export function SSOButtons({
           {authProviders.google && (
             <AuthProviderButton
               icon={<SiGoogle className="mr-3" size={18} />}
-              label="Google"
+              label={t("Google")}
               onClick={() => handleSignIn("google")}
               loading={providerSigningIn === "google"}
               showLastUsedBadge={
@@ -276,7 +278,7 @@ export function SSOButtons({
           {authProviders.github && (
             <AuthProviderButton
               icon={<SiGithub className="mr-3" size={18} />}
-              label="GitHub"
+              label={t("GitHub")}
               onClick={() => handleSignIn("github")}
               loading={providerSigningIn === "github"}
               showLastUsedBadge={
@@ -287,7 +289,7 @@ export function SSOButtons({
           {authProviders.githubEnterprise && (
             <AuthProviderButton
               icon={<SiGithub className="mr-3" size={18} />}
-              label="GitHub Enterprise"
+              label={t("GitHub Enterprise")}
               onClick={() => handleSignIn("github-enterprise")}
               loading={providerSigningIn === "github-enterprise"}
               showLastUsedBadge={
@@ -298,7 +300,7 @@ export function SSOButtons({
           {authProviders.gitlab && (
             <AuthProviderButton
               icon={<SiGitlab className="mr-3" size={18} />}
-              label="Gitlab"
+              label={t("Gitlab")}
               onClick={() => handleSignIn("gitlab")}
               loading={providerSigningIn === "gitlab"}
               showLastUsedBadge={
@@ -309,7 +311,7 @@ export function SSOButtons({
           {authProviders.azureAd && (
             <AuthProviderButton
               icon={<TbBrandAzure className="mr-3" size={18} />}
-              label="Azure AD"
+              label={t("Azure AD")}
               onClick={() => handleSignIn("azure-ad")}
               loading={providerSigningIn === "azure-ad"}
               showLastUsedBadge={
@@ -320,7 +322,7 @@ export function SSOButtons({
           {authProviders.okta && (
             <AuthProviderButton
               icon={<SiOkta className="mr-3" size={18} />}
-              label="Okta"
+              label={t("Okta")}
               onClick={() => handleSignIn("okta")}
               loading={providerSigningIn === "okta"}
               showLastUsedBadge={
@@ -331,7 +333,7 @@ export function SSOButtons({
           {authProviders.authentik && (
             <AuthProviderButton
               icon={<SiAuthentik className="mr-3" size={18} />}
-              label="Authentik"
+              label={t("Authentik")}
               onClick={() => handleSignIn("authentik")}
               loading={providerSigningIn === "authentik"}
               showLastUsedBadge={
@@ -342,7 +344,7 @@ export function SSOButtons({
           {authProviders.onelogin && (
             <AuthProviderButton
               icon={<Key className="mr-3" size={18} />}
-              label="OneLogin"
+              label={t("OneLogin")}
               onClick={() => handleSignIn("onelogin")}
               loading={providerSigningIn === "onelogin"}
               showLastUsedBadge={
@@ -353,7 +355,7 @@ export function SSOButtons({
           {authProviders.auth0 && (
             <AuthProviderButton
               icon={<SiAuth0 className="mr-3" size={18} />}
-              label="Auth0"
+              label={t("Auth0")}
               onClick={() => handleSignIn("auth0")}
               loading={providerSigningIn === "auth0"}
               showLastUsedBadge={
@@ -364,7 +366,7 @@ export function SSOButtons({
           {authProviders.dorisCloud && (
             <AuthProviderButton
               icon={<SiClickhouse className="mr-3" size={18} />}
-              label="Doris Cloud"
+              label={t("Doris Cloud")}
               onClick={() => handleSignIn("doris-cloud")}
               loading={providerSigningIn === "doris-cloud"}
               showLastUsedBadge={
@@ -375,7 +377,7 @@ export function SSOButtons({
           {authProviders.cognito && (
             <AuthProviderButton
               icon={<SiAmazoncognito className="mr-3" size={18} />}
-              label="Cognito"
+              label={t("Cognito")}
               onClick={() => handleSignIn("cognito")}
               loading={providerSigningIn === "cognito"}
               showLastUsedBadge={
@@ -389,7 +391,7 @@ export function SSOButtons({
               label={
                 typeof authProviders.keycloak === "object"
                   ? authProviders.keycloak.name
-                  : "Keycloak"
+                  : t("Keycloak")
               }
               onClick={() => {
                 capture("sign_in:button_click", { provider: "keycloak" });
@@ -406,7 +408,7 @@ export function SSOButtons({
             "connectionId" in authProviders.workos && (
               <AuthProviderButton
                 icon={<Code className="mr-3" size={18} />}
-                label="WorkOS"
+                label={t("WorkOS")}
                 onClick={() => {
                   capture("sign_in:button_click", { provider: "workos" });
                   onProviderSelect?.("workos");
@@ -426,7 +428,7 @@ export function SSOButtons({
             "organizationId" in authProviders.workos && (
               <AuthProviderButton
                 icon={<Code className="mr-3" size={18} />}
-                label="WorkOS"
+                label={t("WorkOS")}
                 onClick={() => {
                   capture("sign_in:button_click", { provider: "workos" });
                   onProviderSelect?.("workos");
@@ -446,7 +448,7 @@ export function SSOButtons({
             <>
               <AuthProviderButton
                 icon={<Code className="mr-3" size={18} />}
-                label="WorkOS (organization)"
+                label={t("WorkOS (organization)")}
                 onClick={() => {
                   const organization = window.prompt(
                     "Please enter your organization ID",
@@ -466,7 +468,7 @@ export function SSOButtons({
               />
               <AuthProviderButton
                 icon={<Code className="mr-3" size={18} />}
-                label="WorkOS (connection)"
+                label={t("WorkOS (connection)")}
                 onClick={() => {
                   const connection = window.prompt(
                     "Please enter your connection ID",
@@ -489,7 +491,7 @@ export function SSOButtons({
           {authProviders.wordpress && (
             <AuthProviderButton
               icon={<SiWordpress className="mr-3" size={18} />}
-              label="WordPress"
+              label={t("WordPress")}
               onClick={() => handleSignIn("wordpress")}
               loading={providerSigningIn === "wordpress"}
               showLastUsedBadge={
@@ -544,8 +546,9 @@ export function useHuggingFaceRedirect(runningOnHuggingFaceSpaces: boolean) {
 const signInErrors = [
   {
     code: "OAuthAccountNotLinked",
-    description:
+    description: i18nKey(
       "Please sign in with the same provider (e.g. Google, GitHub, Azure AD, etc.) that you used to create this account.",
+    ),
   },
 ];
 
@@ -692,7 +695,7 @@ export default function SignIn({
   return (
     <>
       <Head>
-        <title>Sign in | Litefuse</title>
+        <title>{t("Sign in | Litefuse")}</title>
       </Head>
       <div className="flex flex-1 flex-col py-6 sm:min-h-full sm:justify-center sm:px-6 sm:py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -704,13 +707,14 @@ export default function SignIn({
 
         {isLangfuseCloud && (
           <div className="bg-card mt-4 -mb-4 rounded-lg p-3 text-center text-sm sm:mx-auto sm:w-full sm:max-w-[480px] sm:rounded-lg sm:px-6">
-            If you are experiencing issues signing in, please force refresh this
-            page (CMD + SHIFT + R) or clear your browser cache.{" "}
+            {t(
+              "If you are experiencing issues signing in, please force refresh this page (CMD + SHIFT + R) or clear your browser cache.",
+            )}{" "}
             <a
               href="mailto:support@litefuse.ai"
               className="text-primary-accent hover:text-hover-primary-accent cursor-pointer text-xs font-medium whitespace-nowrap"
             >
-              (contact us)
+              {t("(contact us)")}
             </a>
           </div>
         )}
@@ -799,7 +803,7 @@ export default function SignIn({
                           activeCredentialsAction === "demo"
                         }
                       >
-                        Sign as Demo
+                        {t("Sign as Demo")}
                       </Button>
                     ) : null}
                   </form>
@@ -821,9 +825,9 @@ export default function SignIn({
               <div className="text-destructive text-center text-sm font-medium">
                 {credentialsFormError}
                 <br />
-                Contact support if this error is unexpected.{" "}
+                {t("Contact support if this error is unexpected.")}{" "}
                 {isLangfuseCloud &&
-                  "Make sure you are using the correct cloud data region."}
+                  t("Make sure you are using the correct cloud data region.")}
               </div>
             ) : null}
             <SSOButtons

@@ -45,6 +45,8 @@ import { Paperclip, Loader2, Trash2 } from "lucide-react";
 import { showErrorToast } from "@/src/features/notifications/showErrorToast";
 import { PLAIN_MAX_FILE_SIZE_BYTES } from "./plain/plainConstants";
 
+import { useTranslation } from "react-i18next";
+import { type TFunction } from "i18next";
 /** Make RHF generics match the resolver (Zod defaults => input can be undefined) */
 type SupportFormInput = z.input<typeof SupportFormSchema>;
 type SupportFormValues = z.output<typeof SupportFormSchema>;
@@ -63,7 +65,10 @@ const FILE_UPLOAD_CONSTRAINTS = {
  * Validates files against upload constraints
  * @returns {isValid: boolean, error?: string}
  */
-function validateFiles(files: File[] | undefined): {
+function validateFiles(
+  files: File[] | undefined,
+  t: TFunction,
+): {
   isValid: boolean;
   error?: string;
 } {
@@ -78,7 +83,7 @@ function validateFiles(files: File[] | undefined): {
   if (files.length > maxFiles) {
     return {
       isValid: false,
-      error: `Please upload at most ${maxFiles} files.`,
+      error: t("Please upload at most {{count}} files.", { count: maxFiles }),
     };
   }
 
@@ -88,7 +93,10 @@ function validateFiles(files: File[] | undefined): {
     const maxMB = (maxFileSizeBytes / (1024 * 1024)).toFixed(0);
     return {
       isValid: false,
-      error: `File "${oversizedFile.name}" is too large. Maximum file size is ${maxMB}MB per file.`,
+      error: t(
+        'File "{{name}}" is too large. Maximum file size is {{max}}MB per file.',
+        { name: oversizedFile.name, max: maxMB },
+      ),
     };
   }
 
@@ -99,7 +107,10 @@ function validateFiles(files: File[] | undefined): {
     const maxMB = (maxCombinedBytes / (1024 * 1024)).toFixed(0);
     return {
       isValid: false,
-      error: `Total attachment size (${totalMB}MB) exceeds the limit of ${maxMB}MB.`,
+      error: t(
+        "Total attachment size ({{total}}MB) exceeds the limit of {{max}}MB.",
+        { total: totalMB, max: maxMB },
+      ),
     };
   }
 
@@ -109,7 +120,7 @@ function validateFiles(files: File[] | undefined): {
 /**
  * Converts technical file error messages to user-friendly ones
  */
-function formatFileError(error: Error): string {
+function formatFileError(error: Error, t: TFunction): string {
   const msg = error.message.toLowerCase();
   const { maxFiles, maxFileSizeBytes, maxCombinedBytes } =
     FILE_UPLOAD_CONSTRAINTS;
@@ -123,7 +134,9 @@ function formatFileError(error: Error): string {
     msg.includes("10mb") ||
     msg.includes("too large")
   ) {
-    return `File is too large. Maximum file size is ${maxMB}MB per file.`;
+    return t("File is too large. Maximum file size is {{max}}MB per file.", {
+      max: maxMB,
+    });
   }
 
   // File count errors
@@ -132,12 +145,17 @@ function formatFileError(error: Error): string {
     msg.includes("maxfiles") ||
     msg.includes("5 files")
   ) {
-    return `Too many files. Maximum ${maxFiles} files allowed.`;
+    return t("Too many files. Maximum {{count}} files allowed.", {
+      count: maxFiles,
+    });
   }
 
   // Combined size errors
   if (msg.includes("total") && (msg.includes("50mb") || msg.includes("size"))) {
-    return `Total attachment size exceeds limit. Maximum combined size is ${maxCombinedMB}MB.`;
+    return t(
+      "Total attachment size exceeds limit. Maximum combined size is {{max}}MB.",
+      { max: maxCombinedMB },
+    );
   }
 
   // File type errors
@@ -155,6 +173,7 @@ export function SupportFormSection({
   onCancel: () => void;
   onSuccess: () => void;
 }) {
+  const { t } = useTranslation();
   const { organization, project } = useQueryProjectOrOrganization();
 
   // Tracks whether we've already warned about a short message
@@ -243,7 +262,7 @@ export function SupportFormSection({
       setIsSubmittingLocal(true);
 
       // Validate files using centralized validation function
-      const validation = validateFiles(files);
+      const validation = validateFiles(files, t);
       if (!validation.isValid) {
         throw new Error(validation.error);
       }
@@ -318,11 +337,12 @@ export function SupportFormSection({
   return (
     <div className="mt-1 flex flex-col gap-3">
       <div className="flex items-center gap-2 text-base font-semibold">
-        E-Mail a Support Engineer
+        {t("E-Mail a Support Engineer")}
       </div>
       <p className="text-muted-foreground text-sm">
-        Details speed things up. The clearer your request, the quicker you get
-        the answer you need.
+        {t(
+          "Details speed things up. The clearer your request, the quicker you get the answer you need.",
+        )}
       </p>
 
       <Form {...form}>
@@ -509,7 +529,7 @@ export function SupportFormSection({
                   maxSize={FILE_UPLOAD_CONSTRAINTS.maxFileSizeBytes}
                   onDrop={(accepted) => setFiles(accepted)}
                   onError={(error) => {
-                    const userMessage = formatFileError(error);
+                    const userMessage = formatFileError(error, t);
                     showErrorToast("File Upload Error", userMessage, "WARNING");
                   }}
                   src={files}
@@ -577,7 +597,7 @@ export function SupportFormSection({
               }}
               className="w-full"
             >
-              Cancel
+              {t("Cancel")}
             </Button>
 
             <Button
@@ -588,20 +608,21 @@ export function SupportFormSection({
               {isSubmittingLocal ? (
                 <span className="inline-flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Submitting…
+                  {t("Submitting…")}
                 </span>
               ) : messageIsShortAfterWarning ? (
-                "Submit Anyways"
+                t("Submit Anyways")
               ) : (
-                "Submit"
+                t("Submit")
               )}
             </Button>
           </div>
 
           {isSubmittingLocal && (
             <div className="text-muted-foreground text-xs">
-              This can take a few seconds — hang tight while we submit your
-              request.
+              {t(
+                "This can take a few seconds — hang tight while we submit your request.",
+              )}
             </div>
           )}
         </form>

@@ -17,6 +17,7 @@ import { barListToDataPoints } from "@/src/features/dashboard/lib/chart-data-ada
 import { traceViewQuery } from "@/src/features/dashboard/lib/dashboard-utils";
 import { useScheduledDashboardExecuteQuery } from "@/src/hooks/useDashboardQueryScheduler";
 
+import { useTranslation } from "react-i18next";
 type BarChartDataPoint = {
   name: string;
   value: number;
@@ -41,6 +42,7 @@ export const UserChart = ({
   metricsVersion?: ViewVersion;
   schedulerId?: string;
 }) => {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const maxNumberOfEntries = { collapsed: 5, expanded: 20 } as const;
 
@@ -193,7 +195,7 @@ export const UserChart = ({
   return (
     <DashboardCard
       className={className}
-      title="User consumption"
+      title={t("User consumption")}
       isLoading={isLoading || user.isPending}
     >
       <TabComponent
@@ -252,7 +254,7 @@ export const UserChart = ({
         maxLength={maxNumberOfEntries.collapsed}
         expandText={
           transformedCost.length > maxNumberOfEntries.expanded
-            ? `Show top ${maxNumberOfEntries.expanded}`
+            ? t("Show top {{count}}", { count: maxNumberOfEntries.expanded })
             : "Show all"
         }
       />

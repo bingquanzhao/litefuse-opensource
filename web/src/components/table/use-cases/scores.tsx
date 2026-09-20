@@ -54,6 +54,7 @@ import { usePaginationState } from "@/src/hooks/usePaginationState";
 import { useV4Beta } from "@/src/features/events/hooks/useV4Beta";
 import { Skeleton } from "@/src/components/ui/skeleton";
 
+import { useTranslation } from "react-i18next";
 export type ScoresTableRow = {
   id: string;
   traceId?: string;
@@ -113,6 +114,7 @@ export default function ScoresTable({
   localStorageSuffix?: string;
   disableUrlPersistence?: boolean;
 }) {
+  const { t } = useTranslation();
   const { isBetaEnabled } = useV4Beta();
   // In v4beta, scores must exclusively use events-backed endpoints (no traces-table route).
   const useEventsBackedScores = isBetaEnabled;
@@ -183,9 +185,10 @@ export default function ScoresTable({
   const scoreDeleteMutation = api.scores.deleteMany.useMutation({
     onSuccess: () => {
       showSuccessToast({
-        title: "Scores deleted",
-        description:
+        title: t("Scores deleted"),
+        description: t(
           "Selected scores will be deleted. Scores are removed asynchronously and may continue to be visible for up to 15 minutes.",
+        ),
       });
     },
     onSettled: () => {
@@ -391,7 +394,7 @@ export default function ScoresTable({
       accessorKey: "id",
       id: "id",
       enableColumnFilter: false,
-      header: "Score ID",
+      header: t("Score ID"),
       size: 100,
       enableSorting: false,
       defaultHidden: true,
@@ -405,7 +408,7 @@ export default function ScoresTable({
     },
     {
       accessorKey: "traceName",
-      header: "Trace Name",
+      header: t("Trace Name"),
       id: "traceName",
       enableHiding: true,
       enableSorting: true,
@@ -429,7 +432,7 @@ export default function ScoresTable({
       accessorKey: "traceId",
       id: "traceId",
       enableColumnFilter: true,
-      header: "Trace",
+      header: t("Trace"),
       enableSorting: true,
       size: 100,
       cell: ({ row }) => {
@@ -447,7 +450,7 @@ export default function ScoresTable({
     {
       accessorKey: "executionTraceId",
       id: "executionTraceId",
-      header: "Execution Trace",
+      header: t("Execution Trace"),
       enableSorting: false,
       enableHiding: true,
       defaultHidden: true,
@@ -465,7 +468,7 @@ export default function ScoresTable({
     {
       accessorKey: "observationId",
       id: "observationId",
-      header: "Observation",
+      header: t("Observation"),
       enableSorting: true,
       size: 100,
       cell: ({ row }) => {
@@ -483,7 +486,7 @@ export default function ScoresTable({
     },
     {
       accessorKey: "sessionId",
-      header: "Session",
+      header: t("Session"),
       id: "sessionId",
       enableHiding: true,
       enableSorting: true,
@@ -500,7 +503,7 @@ export default function ScoresTable({
     },
     {
       accessorKey: "environment",
-      header: "Environment",
+      header: t("Environment"),
       id: "environment",
       size: 150,
       enableHiding: true,
@@ -518,10 +521,10 @@ export default function ScoresTable({
     },
     {
       accessorKey: "userId",
-      header: "User",
+      header: t("User"),
       id: "userId",
       headerTooltip: {
-        description: "The user ID associated with the trace.",
+        description: t("The user ID associated with the trace."),
         href: "https://litefuse.ai/docs/observability/features/users",
       },
       enableHiding: true,
@@ -543,7 +546,7 @@ export default function ScoresTable({
     },
     {
       accessorKey: "timestamp",
-      header: "Timestamp",
+      header: t("Timestamp"),
       id: "timestamp",
       enableHiding: true,
       enableSorting: true,
@@ -555,7 +558,7 @@ export default function ScoresTable({
     },
     {
       accessorKey: "source",
-      header: "Source",
+      header: t("Source"),
       id: "source",
       enableHiding: true,
       enableSorting: true,
@@ -563,7 +566,7 @@ export default function ScoresTable({
     },
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("Name"),
       id: "name",
       enableHiding: true,
       enableSorting: true,
@@ -571,7 +574,7 @@ export default function ScoresTable({
     },
     {
       accessorKey: "dataType",
-      header: "Data Type",
+      header: t("Data Type"),
       id: "dataType",
       enableHiding: true,
       enableSorting: true,
@@ -579,7 +582,7 @@ export default function ScoresTable({
     },
     {
       accessorKey: "value",
-      header: "Value",
+      header: t("Value"),
       id: "value",
       enableHiding: true,
       enableSorting: true,
@@ -587,11 +590,13 @@ export default function ScoresTable({
     },
     {
       accessorKey: "metadata",
-      header: "Metadata",
+      header: t("Metadata"),
       id: "metadata",
       size: 400,
       headerTooltip: {
-        description: "Add metadata to scores to track additional information.",
+        description: t(
+          "Add metadata to scores to track additional information.",
+        ),
         // TODO: docs for metadata on scores
         href: "https://litefuse.ai/docs/observability/features/metadata",
       },
@@ -609,7 +614,7 @@ export default function ScoresTable({
     },
     {
       accessorKey: "comment",
-      header: "Comment",
+      header: t("Comment"),
       id: "comment",
       enableHiding: true,
       size: 400,
@@ -623,7 +628,7 @@ export default function ScoresTable({
     {
       accessorKey: "author",
       id: "author",
-      header: "Author",
+      header: t("Author"),
       enableHiding: true,
       size: 150,
       cell: ({ row }) => {
@@ -635,7 +640,7 @@ export default function ScoresTable({
             <Avatar className="h-7 w-7">
               <AvatarImage
                 src={image ?? undefined}
-                alt={name ?? "User Avatar"}
+                alt={name ?? t("User Avatar")}
               />
             </Avatar>
             <span>{name ?? userId}</span>
@@ -645,10 +650,10 @@ export default function ScoresTable({
     },
     {
       accessorKey: "jobConfigurationId",
-      header: "Eval Configuration ID",
+      header: t("Eval Configuration ID"),
       id: "jobConfigurationId",
       headerTooltip: {
-        description: "The Job Configuration ID associated with the trace.",
+        description: t("The Job Configuration ID associated with the trace."),
         href: "https://litefuse.ai/docs/evaluation/evaluation-methods/llm-as-a-judge",
       },
       enableHiding: true,
@@ -669,7 +674,7 @@ export default function ScoresTable({
     {
       accessorKey: "traceTags",
       id: "traceTags",
-      header: "Trace Tags",
+      header: t("Trace Tags"),
       size: 250,
       enableHiding: true,
       defaultHidden: true,
@@ -699,9 +704,10 @@ export default function ScoresTable({
           {
             id: "score-delete",
             type: BatchActionType.Delete,
-            label: "Delete Scores",
-            description:
+            label: t("Delete Scores"),
+            description: t(
               "This action permanently deletes scores and cannot be undone. Score deletion happens asynchronously and may take up to 15 minutes.",
+            ),
             accessCheck: {
               scope: "traces:delete",
               entitlement: "trace-deletion",

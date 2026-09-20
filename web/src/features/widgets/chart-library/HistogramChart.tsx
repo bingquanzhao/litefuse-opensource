@@ -8,6 +8,7 @@ import {
 } from "@/src/components/ui/chart";
 import { compactSmallNumberFormatter } from "@/src/utils/numbers";
 
+import { useTranslation } from "react-i18next";
 interface HistogramDataPoint {
   binLabel: string;
   count: number;
@@ -23,6 +24,7 @@ const HistogramChart = ({
   data: DataPoint[];
   subtleFill?: boolean;
 }) => {
+  const { t } = useTranslation();
   const transformHistogramData = (data: DataPoint[]): HistogramDataPoint[] => {
     if (!data.length) return [];
 
@@ -99,7 +101,7 @@ const HistogramChart = ({
   // Chart configuration
   const config = {
     count: {
-      label: "Count",
+      label: t("Count"),
       color: "hsl(var(--chart-1))",
     },
   };
@@ -107,7 +109,7 @@ const HistogramChart = ({
   if (!histogramData.length) {
     return (
       <div className="text-muted-foreground flex h-full items-center justify-center">
-        No data available
+        {t("No data available")}
       </div>
     );
   }

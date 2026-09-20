@@ -20,7 +20,9 @@ import {
 import { SubHeaderLabel } from "@/src/components/layouts/header";
 import { getScoreDataTypeIcon } from "@/src/features/scores/lib/scoreColumns";
 
+import { useTranslation } from "react-i18next";
 export default function QueueItems() {
+  const { t } = useTranslation();
   const router = useRouter();
   const projectId = router.query.projectId as string;
   const queueId = router.query.queueId as string;
@@ -79,7 +81,7 @@ export default function QueueItems() {
         >
           <SidePanelHeader>
             <SidePanelTitle>
-              {queue.data?.name ?? "Queue details"}
+              {queue.data?.name ?? t("Queue details")}
             </SidePanelTitle>
             <CreateOrEditAnnotationQueueButton
               projectId={projectId}
@@ -97,7 +99,7 @@ export default function QueueItems() {
                   </CardDescription>
                 )}
                 <div className="flex flex-col gap-2">
-                  <SubHeaderLabel title="Score Configs" />
+                  <SubHeaderLabel title={t("Score Configs")} />
                   <div className="flex flex-wrap gap-2">
                     {queue.data?.scoreConfigs.map((scoreConfig) => (
                       <Badge key={scoreConfig.id} variant="outline">

@@ -31,6 +31,7 @@ import { FolderBreadcrumb } from "@/src/features/folders/components/FolderBreadc
 import { buildFullPath } from "@/src/features/folders/utils";
 import { FolderBreadcrumbLink } from "@/src/features/folders/components/FolderBreadcrumbLink";
 
+import { useTranslation } from "react-i18next";
 type DatasetTableRow = {
   key: {
     id: string;
@@ -72,6 +73,7 @@ function createRow(
 }
 
 export function DatasetsTable(props: { projectId: string }) {
+  const { t } = useTranslation();
   const { setDetailPageList } = useDetailPageLists();
   const [rowHeight, setRowHeight] = useRowHeightLocalStorage("datasets", "s");
 
@@ -125,7 +127,7 @@ export function DatasetsTable(props: { projectId: string }) {
   const columns: LangfuseColumnDef<DatasetTableRow>[] = [
     {
       accessorKey: "key",
-      header: "Name",
+      header: t("Name"),
       id: "key",
       size: 150,
       isFixedPosition: true,
@@ -152,7 +154,7 @@ export function DatasetsTable(props: { projectId: string }) {
     },
     {
       accessorKey: "description",
-      header: "Description",
+      header: t("Description"),
       id: "description",
       enableHiding: true,
       size: 200,
@@ -164,21 +166,21 @@ export function DatasetsTable(props: { projectId: string }) {
     },
     {
       accessorKey: "countItems",
-      header: "Items",
+      header: t("Items"),
       id: "countItems",
       enableHiding: true,
       size: 60,
     },
     {
       accessorKey: "countRuns",
-      header: "Runs",
+      header: t("Runs"),
       id: "countRuns",
       enableHiding: true,
       size: 60,
     },
     {
       accessorKey: "createdAt",
-      header: "Created",
+      header: t("Created"),
       id: "createdAt",
       enableHiding: true,
       size: 150,
@@ -189,7 +191,7 @@ export function DatasetsTable(props: { projectId: string }) {
     },
     {
       accessorKey: "lastRunAt",
-      header: "Last Run",
+      header: t("Last Run"),
       id: "lastRunAt",
       enableHiding: true,
       size: 150,
@@ -200,7 +202,7 @@ export function DatasetsTable(props: { projectId: string }) {
     },
     {
       accessorKey: "inputSchema",
-      header: "Input Schema",
+      header: t("Input Schema"),
       id: "inputSchema",
       enableHiding: true,
       size: 80,
@@ -217,7 +219,7 @@ export function DatasetsTable(props: { projectId: string }) {
     },
     {
       accessorKey: "expectedOutputSchema",
-      header: "Expected Output Schema",
+      header: t("Expected Output Schema"),
       id: "expectedOutputSchema",
       enableHiding: true,
       size: 90,
@@ -237,7 +239,7 @@ export function DatasetsTable(props: { projectId: string }) {
     },
     {
       accessorKey: "metadata",
-      header: "Metadata",
+      header: t("Metadata"),
       id: "metadata",
       enableHiding: true,
       size: 300,
@@ -251,7 +253,7 @@ export function DatasetsTable(props: { projectId: string }) {
     {
       id: "actions",
       accessorKey: "actions",
-      header: "Actions",
+      header: t("Actions"),
       size: 70,
       cell: ({ row }) => {
         const key: DatasetTableRow["key"] = row.getValue("key");
@@ -264,7 +266,7 @@ export function DatasetsTable(props: { projectId: string }) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
+                <span className="sr-only">{t("Open menu")}</span>
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -272,7 +274,7 @@ export function DatasetsTable(props: { projectId: string }) {
               align="end"
               className="flex flex-col *:w-full *:justify-start"
             >
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>{t("Actions")}</DropdownMenuLabel>
               <DropdownMenuItem asChild>
                 <DatasetActionButton
                   mode="update"

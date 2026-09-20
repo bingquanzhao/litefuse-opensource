@@ -5,6 +5,7 @@ import type { DatasetSchema } from "../utils/datasetItemUtils";
 import type { Control, FieldPath } from "react-hook-form";
 import { FormField } from "@/src/components/ui/form";
 
+import { useTranslation } from "react-i18next";
 type DatasetItemFieldsProps = {
   inputValue: string;
   expectedOutputValue: string;
@@ -37,6 +38,7 @@ export const DatasetItemFields = ({
   onExpectedOutputChange,
   onMetadataChange,
 }: DatasetItemFieldsProps) => {
+  const { t } = useTranslation();
   // Create dataset array for validation hook
   const datasets = useMemo(() => {
     if (!dataset) return [];
@@ -88,7 +90,7 @@ export const DatasetItemFields = ({
           />
         ) : (
           <DatasetItemField
-            label="Input"
+            label={t("Input")}
             value={inputValue}
             schema={dataset?.inputSchema}
             schemaType="input"
@@ -123,7 +125,7 @@ export const DatasetItemFields = ({
           />
         ) : (
           <DatasetItemField
-            label="Expected output"
+            label={t("Expected output")}
             value={expectedOutputValue}
             schema={dataset?.expectedOutputSchema}
             schemaType="expectedOutput"
@@ -154,7 +156,7 @@ export const DatasetItemFields = ({
         />
       ) : (
         <DatasetItemField
-          label="Metadata"
+          label={t("Metadata")}
           value={metadataValue}
           editable={false}
         />

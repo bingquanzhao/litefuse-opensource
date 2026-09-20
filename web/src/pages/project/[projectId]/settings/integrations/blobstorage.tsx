@@ -56,7 +56,9 @@ import { useLangfuseCloudRegion } from "@/src/features/organizations/hooks";
 import { useV4Beta } from "@/src/features/events/hooks/useV4Beta";
 import { Info, ExternalLink } from "lucide-react";
 
+import { useTranslation } from "react-i18next";
 export default function BlobStorageIntegrationSettings() {
+  const { t } = useTranslation();
   const router = useRouter();
   const projectId = router.query.projectId as string;
   const hasAccess = useHasProjectAccess({
@@ -99,7 +101,7 @@ export default function BlobStorageIntegrationSettings() {
   return (
     <ContainerPage
       headerProps={{
-        title: "Blob Storage Integration",
+        title: t("Blob Storage Integration"),
         breadcrumb: [
           { name: "Settings", href: `/project/${projectId}/settings` },
         ],
@@ -121,25 +123,23 @@ export default function BlobStorageIntegrationSettings() {
       }}
     >
       <p className="text-primary mb-4 text-sm">
-        Configure scheduled exports of your trace data to AWS S3, S3-compatible
-        storages, or Azure Blob Storage. Set up a hourly, daily, or weekly
-        export to your own storage for data analysis or backup purposes. Use the
-        &quot;Validate&quot; button to test your configuration by uploading a
-        small test file, and the &quot;Run Now&quot; button to trigger an
-        immediate export.
+        {t(
+          'Configure scheduled exports of your trace data to AWS S3, S3-compatible storages, or Azure Blob Storage. Set up a hourly, daily, or weekly export to your own storage for data analysis or backup purposes. Use the "Validate" button to test your configuration by uploading a small test file, and the "Run Now" button to trigger an immediate export.',
+        )}
       </p>
       {!hasAccess && (
         <p className="text-sm">
-          Your current role does not grant you access to these settings, please
-          reach out to your project admin or owner.
+          {t(
+            "Your current role does not grant you access to these settings, please reach out to your project admin or owner.",
+          )}
         </p>
       )}
       {state.data && (
         <>
-          <Header title="Status" />
+          <Header title={t("Status")} />
           {state.data.lastError && (
             <Alert variant="destructive" className="mb-4">
-              <AlertTitle>Last export failed</AlertTitle>
+              <AlertTitle>{t("Last export failed")}</AlertTitle>
               <AlertDescription>
                 {state.data.lastError}
                 {state.data.lastErrorAt && (
@@ -155,32 +155,34 @@ export default function BlobStorageIntegrationSettings() {
           )}
           <Card className="p-3">
             <div className="grid grid-cols-[auto,1fr] gap-x-4 gap-y-1 text-sm">
-              <span className="text-muted-foreground">Data exported up to</span>
+              <span className="text-muted-foreground">
+                {t("Data exported up to")}
+              </span>
               <span>
                 {state.data.lastSyncAt
                   ? new Date(state.data.lastSyncAt).toLocaleString()
-                  : "Never (pending)"}
+                  : t("Never (pending)")}
               </span>
               {state.data.nextSyncAt && (
                 <>
                   <span className="text-muted-foreground">
-                    Next export scheduled
+                    {t("Next export scheduled")}
                   </span>
                   <span>
                     {new Date(state.data.nextSyncAt).toLocaleString()}
                   </span>
                 </>
               )}
-              <span className="text-muted-foreground">Export mode</span>
+              <span className="text-muted-foreground">{t("Export mode")}</span>
               <span>
                 {state.data.exportMode === BlobStorageExportMode.FULL_HISTORY
-                  ? "Full history"
+                  ? t("Full history")
                   : state.data.exportMode === BlobStorageExportMode.FROM_TODAY
-                    ? "From setup date"
+                    ? t("From setup date")
                     : state.data.exportMode ===
                         BlobStorageExportMode.FROM_CUSTOM_DATE
-                      ? "From custom date"
-                      : "Unknown"}
+                      ? t("From custom date")
+                      : t("Unknown")}
               </span>
               {(state.data.exportMode ===
                 BlobStorageExportMode.FROM_CUSTOM_DATE ||
@@ -188,7 +190,7 @@ export default function BlobStorageIntegrationSettings() {
                 state.data.exportStartDate && (
                   <>
                     <span className="text-muted-foreground">
-                      Export start date
+                      {t("Export start date")}
                     </span>
                     <span>
                       {new Date(
@@ -203,7 +205,7 @@ export default function BlobStorageIntegrationSettings() {
       )}
       {hasAccess && (
         <>
-          <Header title="Configuration" className="mt-8" />
+          <Header title={t("Configuration")} className="mt-8" />
           <Card className="p-3">
             <BlobStorageIntegrationSettingsForm
               state={state.data || undefined}
@@ -226,6 +228,7 @@ const BlobStorageIntegrationSettingsForm = ({
   projectId: string;
   isLoading: boolean;
 }) => {
+  const { t } = useTranslation();
   const capture = usePostHogClientCapture();
   const { isLangfuseCloud } = useLangfuseCloudRegion();
   const { isBetaEnabled } = useV4Beta();
@@ -311,7 +314,7 @@ const BlobStorageIntegrationSettingsForm = ({
     onSuccess: (data) => {
       showSuccessToast({
         title: data.message,
-        description: `Test file: ${data.testFileName}`,
+        description: t("Test file: {{name}}", { name: data.testFileName }),
       });
     },
     onError: (error) => {
@@ -774,24 +777,28 @@ const BlobStorageIntegrationSettingsForm = ({
           onClick={blobStorageForm.handleSubmit(onSubmit)}
           disabled={isLoading}
         >
-          Save
+          {t("Save")}
         </Button>
         <Button
           variant="secondary"
           loading={mutValidate.isPending}
           disabled={isLoading || !state}
-          title="Test your saved configuration by uploading a small test file to your storage"
+          title={t(
+            "Test your saved configuration by uploading a small test file to your storage",
+          )}
           onClick={() => {
             mutValidate.mutate({ projectId });
           }}
         >
-          Validate
+          {t("Validate")}
         </Button>
         <Button
           variant="secondary"
           loading={mutRunNow.isPending}
           disabled={isLoading || !state?.enabled}
-          title="Trigger an immediate export of all data since the last sync"
+          title={t(
+            "Trigger an immediate export of all data since the last sync",
+          )}
           onClick={() => {
             if (
               confirm(
@@ -801,7 +808,7 @@ const BlobStorageIntegrationSettingsForm = ({
               mutRunNow.mutate({ projectId });
           }}
         >
-          Run Now
+          {t("Run Now")}
         </Button>
         <Button
           variant="ghost"
@@ -816,7 +823,7 @@ const BlobStorageIntegrationSettingsForm = ({
               mutDelete.mutate({ projectId });
           }}
         >
-          Reset
+          {t("Reset")}
         </Button>
       </div>
     </Form>

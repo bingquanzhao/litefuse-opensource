@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react";
 import { useScoreAnalytics } from "../ScoreAnalyticsProvider";
 import { MetricCard } from "../charts/MetricCard";
 import { SamplingDetailsHoverCard } from "../SamplingDetailsHoverCard";
+import { useTranslation } from "react-i18next";
 import {
   calculateCohensKappa,
   calculateWeightedF1Score,
@@ -37,6 +38,7 @@ import {
  * - Numeric vs categorical data types
  */
 export function StatisticsCard() {
+  const { t } = useTranslation();
   const { data, isLoading, params } = useScoreAnalytics();
 
   // Loading state
@@ -44,8 +46,8 @@ export function StatisticsCard() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Statistics</CardTitle>
-          <CardDescription>Loading statistics...</CardDescription>
+          <CardTitle>{t("Statistics")}</CardTitle>
+          <CardDescription>{t("Loading statistics...")}</CardDescription>
         </CardHeader>
         <CardContent className="flex items-center justify-center py-12">
           <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
@@ -59,11 +61,11 @@ export function StatisticsCard() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Statistics</CardTitle>
-          <CardDescription>No data available</CardDescription>
+          <CardTitle>{t("Statistics")}</CardTitle>
+          <CardDescription>{t("No data available")}</CardDescription>
         </CardHeader>
         <CardContent className="text-muted-foreground py-12 text-center text-sm">
-          Select a score to view statistics
+          {t("Select a score to view statistics")}
         </CardContent>
       </Card>
     );
@@ -109,7 +111,7 @@ export function StatisticsCard() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          Statistics
+          {t("Statistics")}
           {data.samplingMetadata.isSampled && (
             <SamplingDetailsHoverCard
               samplingMetadata={data.samplingMetadata}
@@ -133,18 +135,20 @@ export function StatisticsCard() {
           {dataType === "NUMERIC" ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <MetricCard
-                label="Total"
+                label={t("Total")}
                 value={
                   showScore1Data
                     ? statistics.score1.total.toLocaleString()
                     : "--"
                 }
-                helpText={`Total number of ${score1.name} scores`}
+                helpText={t("Total number of {{name}} scores", {
+                  name: score1.name,
+                })}
                 isPlaceholder={!showScore1Data}
                 isContext
               />
               <MetricCard
-                label="Mean"
+                label={t("Mean")}
                 value={
                   showScore1Data && statistics.score1.mean !== null
                     ? statistics.score1.mean.toFixed(2)
@@ -152,12 +156,14 @@ export function StatisticsCard() {
                       ? "--"
                       : "N/A"
                 }
-                helpText={`Average value for ${score1.name}`}
+                helpText={t("Average value for {{name}}", {
+                  name: score1.name,
+                })}
                 isPlaceholder={!showScore1Data}
                 isContext
               />
               <MetricCard
-                label="Std Dev"
+                label={t("Std Dev")}
                 value={
                   showScore1Data && statistics.score1.std !== null
                     ? statistics.score1.std.toFixed(2)
@@ -165,7 +171,9 @@ export function StatisticsCard() {
                       ? "--"
                       : "N/A"
                 }
-                helpText={`Standard deviation for ${score1.name}`}
+                helpText={t("Standard deviation for {{name}}", {
+                  name: score1.name,
+                })}
                 isPlaceholder={!showScore1Data}
                 isContext
               />
@@ -173,18 +181,20 @@ export function StatisticsCard() {
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <MetricCard
-                label="Total"
+                label={t("Total")}
                 value={
                   showScore1Data
                     ? statistics.score1.total.toLocaleString()
                     : "--"
                 }
-                helpText={`Total number of ${score1.name} scores`}
+                helpText={t("Total number of {{name}} scores", {
+                  name: score1.name,
+                })}
                 isPlaceholder={!showScore1Data}
                 isContext
               />
               <MetricCard
-                label="Mode"
+                label={t("Mode")}
                 value={
                   showScore1Data && statistics.score1.mode
                     ? `${statistics.score1.mode.category} (${statistics.score1.mode.count.toLocaleString()})`
@@ -197,7 +207,7 @@ export function StatisticsCard() {
                 isContext
               />
               <MetricCard
-                label="Mode %"
+                label={t("Mode %")}
                 value={
                   showScore1Data && statistics.score1.modePercentage !== null
                     ? `${statistics.score1.modePercentage.toFixed(1)}%`
@@ -217,24 +227,26 @@ export function StatisticsCard() {
         {showScore2Section && (
           <div>
             <h4 className="mb-2 text-xs font-semibold">
-              {score2?.name ?? "Score 2"}
+              {score2?.name ?? t("Score 2")}
               {score2?.source ? ` (${score2.source})` : ""}
             </h4>
             {dataType === "NUMERIC" ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <MetricCard
-                  label="Total"
+                  label={t("Total")}
                   value={
                     showScore2Data && statistics.score2
                       ? statistics.score2.total.toLocaleString()
                       : "--"
                   }
-                  helpText={`Total number of ${score2?.name ?? "Score 2"} scores`}
+                  helpText={t("Total number of {{name}} scores", {
+                    name: score2?.name ?? t("Score 2"),
+                  })}
                   isPlaceholder={!showScore2Data}
                   isContext
                 />
                 <MetricCard
-                  label="Mean"
+                  label={t("Mean")}
                   value={
                     showScore2Data &&
                     statistics.score2 &&
@@ -244,12 +256,14 @@ export function StatisticsCard() {
                         ? "--"
                         : "N/A"
                   }
-                  helpText={`Average value for ${score2?.name ?? "Score 2"}`}
+                  helpText={t("Average value for {{name}}", {
+                    name: score2?.name ?? t("Score 2"),
+                  })}
                   isPlaceholder={!showScore2Data}
                   isContext
                 />
                 <MetricCard
-                  label="Std Dev"
+                  label={t("Std Dev")}
                   value={
                     showScore2Data &&
                     statistics.score2 &&
@@ -259,7 +273,9 @@ export function StatisticsCard() {
                         ? "--"
                         : "N/A"
                   }
-                  helpText={`Standard deviation for ${score2?.name ?? "Score 2"}`}
+                  helpText={t("Standard deviation for {{name}}", {
+                    name: score2?.name ?? t("Score 2"),
+                  })}
                   isPlaceholder={!showScore2Data}
                   isContext
                 />
@@ -267,18 +283,20 @@ export function StatisticsCard() {
             ) : (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <MetricCard
-                  label="Total"
+                  label={t("Total")}
                   value={
                     showScore2Data && statistics.score2
                       ? statistics.score2.total.toLocaleString()
                       : "--"
                   }
-                  helpText={`Total number of ${score2?.name ?? "Score 2"} scores`}
+                  helpText={t("Total number of {{name}} scores", {
+                    name: score2?.name ?? t("Score 2"),
+                  })}
                   isPlaceholder={!showScore2Data}
                   isContext
                 />
                 <MetricCard
-                  label="Mode"
+                  label={t("Mode")}
                   value={
                     showScore2Data && statistics.score2?.mode
                       ? `${statistics.score2.mode.category} (${statistics.score2.mode.count.toLocaleString()})`
@@ -291,7 +309,7 @@ export function StatisticsCard() {
                   isContext
                 />
                 <MetricCard
-                  label="Mode %"
+                  label={t("Mode %")}
                   value={
                     showScore2Data &&
                     statistics.score2 &&
@@ -313,13 +331,13 @@ export function StatisticsCard() {
         {/* Section 3: Comparison Metrics - Always show to set expectations */}
         {showComparisonSection && (
           <div>
-            <h4 className="mb-2 text-xs font-semibold">Comparison</h4>
+            <h4 className="mb-2 text-xs font-semibold">{t("Comparison")}</h4>
             {dataType === "NUMERIC" ? (
               <div className="space-y-4">
                 {/* First row: Matched, Pearson, Spearman */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <MetricCard
-                    label="Matched"
+                    label={t("Matched")}
                     value={
                       showComparisonMetrics && statistics.comparison
                         ? statistics.comparison.matchedCount.toLocaleString()
@@ -357,7 +375,7 @@ export function StatisticsCard() {
                     isPlaceholder={!showComparisonMetrics}
                   />
                   <MetricCard
-                    label="Pearson r"
+                    label={t("Pearson r")}
                     value={
                       showComparisonMetrics &&
                       statistics.comparison &&
@@ -380,7 +398,7 @@ export function StatisticsCard() {
                     isPlaceholder={!showComparisonMetrics}
                   />
                   <MetricCard
-                    label="Spearman ρ"
+                    label={t("Spearman ρ")}
                     value={
                       showComparisonMetrics &&
                       statistics.comparison &&
@@ -455,7 +473,7 @@ export function StatisticsCard() {
                 {/* First row: Matched, Agreement */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <MetricCard
-                    label="Matched"
+                    label={t("Matched")}
                     value={
                       showComparisonMetrics && statistics.comparison
                         ? statistics.comparison.matchedCount.toLocaleString()
@@ -493,7 +511,7 @@ export function StatisticsCard() {
                     isPlaceholder={!showComparisonMetrics}
                   />
                   <MetricCard
-                    label="Agreement"
+                    label={t("Agreement")}
                     value={
                       showComparisonMetrics && overallAgreement !== null
                         ? `${(overallAgreement * 100).toFixed(1)}%`
@@ -514,7 +532,7 @@ export function StatisticsCard() {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <div />
                   <MetricCard
-                    label="Cohen's κ"
+                    label={t("Cohen's κ")}
                     value={
                       showComparisonMetrics && cohensKappa !== null
                         ? cohensKappa.toFixed(3)
@@ -531,7 +549,7 @@ export function StatisticsCard() {
                     isPlaceholder={!showComparisonMetrics}
                   />
                   <MetricCard
-                    label="F1 Score"
+                    label={t("F1 Score")}
                     value={
                       showComparisonMetrics && f1Score !== null
                         ? f1Score.toFixed(3)

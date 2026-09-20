@@ -47,6 +47,7 @@ import { DetailPageNav } from "@/src/features/navigate-detail-pages/DetailPageNa
 import { useEvalConfigMappingData } from "@/src/features/evals/hooks/useEvalConfigMappingData";
 import { useEffect, useState } from "react";
 
+import { useTranslation } from "react-i18next";
 export const VariableMappingCard = ({
   projectId,
   availableVariables,
@@ -68,6 +69,7 @@ export const VariableMappingCard = ({
   shouldWrapVariables?: boolean;
   hideAdvancedSettings?: boolean;
 }) => {
+  const { t } = useTranslation();
   const [showPreview, setShowPreview] = useState(false);
 
   const { fields } = useFieldArray({
@@ -95,7 +97,7 @@ export const VariableMappingCard = ({
     <div className="flex items-center gap-2">
       {isTraceOrEventTarget(form.watch("target")) && !disabled && (
         <>
-          <span className="text-muted-foreground text-xs">Preview</span>
+          <span className="text-muted-foreground text-xs">{t("Preview")}</span>
           <Switch
             checked={showPreview}
             onCheckedChange={setShowPreview}
@@ -142,12 +144,13 @@ export const VariableMappingCard = ({
   return (
     <Card className="max-w-full min-w-0 p-4">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-lg font-medium">Variable mapping</span>
+        <span className="text-lg font-medium">{t("Variable mapping")}</span>
       </div>
       {isTraceTarget(form.watch("target")) && !disabled && (
         <FormDescription>
-          Preview of the evaluation prompt with the variables replaced with the
-          first matched trace data subject to the filters.
+          {t(
+            "Preview of the evaluation prompt with the variables replaced with the first matched trace data subject to the filters.",
+          )}
         </FormDescription>
       )}
       <div className="flex max-w-full flex-col gap-4">

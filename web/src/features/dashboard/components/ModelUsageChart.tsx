@@ -28,6 +28,7 @@ import { Chart } from "@/src/features/widgets/chart-library/Chart";
 import { timeSeriesToDataPoints } from "@/src/features/dashboard/lib/chart-data-adapters";
 import { useScheduledDashboardExecuteQuery } from "@/src/hooks/useDashboardQueryScheduler";
 
+import { useTranslation } from "react-i18next";
 export const ModelUsageChart = ({
   className,
   projectId,
@@ -51,6 +52,7 @@ export const ModelUsageChart = ({
   metricsVersion?: ViewVersion;
   schedulerId?: string;
 }) => {
+  const { t } = useTranslation();
   const {
     allModels,
     selectedModels,
@@ -355,7 +357,7 @@ export const ModelUsageChart = ({
   return (
     <DashboardCard
       className={className}
-      title="Model Usage"
+      title={t("Model Usage")}
       isLoading={
         isLoading || (queryResult.isPending && selectedModels.length > 0)
       }

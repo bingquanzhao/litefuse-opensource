@@ -30,6 +30,7 @@ import { buildFullPath } from "@/src/features/folders/utils";
 import { FolderBreadcrumb } from "@/src/features/folders/components/FolderBreadcrumb";
 import { FolderBreadcrumbLink } from "@/src/features/folders/components/FolderBreadcrumbLink";
 
+import { useTranslation } from "react-i18next";
 type PromptTableRow = {
   id: string;
   name: string;
@@ -61,6 +62,7 @@ function createRow(
 }
 
 export function PromptTable() {
+  const { t } = useTranslation();
   const projectId = useProjectIdFromURL();
   const { setDetailPageList } = useDetailPageLists();
 
@@ -249,7 +251,7 @@ export function PromptTable() {
   const columnHelper = createColumnHelper<PromptTableRow>();
   const promptColumns = [
     columnHelper.accessor("name", {
-      header: "Name",
+      header: t("Name"),
       id: "name",
       enableSorting: true,
       size: 250,
@@ -276,7 +278,7 @@ export function PromptTable() {
       },
     }),
     columnHelper.accessor("version", {
-      header: "Versions",
+      header: t("Versions"),
       id: "version",
       enableSorting: true,
       size: 70,
@@ -286,7 +288,7 @@ export function PromptTable() {
       },
     }),
     columnHelper.accessor("type", {
-      header: "Type",
+      header: t("Type"),
       id: "type",
       enableSorting: true,
       size: 60,
@@ -295,7 +297,7 @@ export function PromptTable() {
       },
     }),
     columnHelper.accessor("createdAt", {
-      header: "Latest Version Created At",
+      header: t("Latest Version Created At"),
       id: "createdAt",
       enableSorting: true,
       size: 200,
@@ -306,7 +308,7 @@ export function PromptTable() {
       },
     }),
     columnHelper.accessor("numberOfObservations", {
-      header: "Number of Observations",
+      header: t("Number of Observations"),
       size: 170,
       cell: (row) => {
         if (row.row.original.type === "folder") return null;
@@ -328,7 +330,7 @@ export function PromptTable() {
       },
     }),
     columnHelper.accessor("tags", {
-      header: "Tags",
+      header: t("Tags"),
       id: "tags",
       enableSorting: true,
       size: 120,
@@ -358,7 +360,7 @@ export function PromptTable() {
     }),
     columnHelper.display({
       id: "actions",
-      header: "Actions",
+      header: t("Actions"),
       size: 70,
       cell: (row) => {
         const rowData = row.row.original;

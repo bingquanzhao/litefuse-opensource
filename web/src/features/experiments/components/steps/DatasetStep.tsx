@@ -41,12 +41,14 @@ import { StepHeader } from "@/src/features/experiments/components/shared/StepHea
 import { api } from "@/src/utils/api";
 import { format } from "date-fns";
 
+import { useTranslation } from "react-i18next";
 export const DatasetStep: React.FC<DatasetStepProps> = ({
   projectId,
   formState,
   datasetState,
   promptInfo,
 }) => {
+  const { t } = useTranslation();
   const { form } = formState;
   const {
     datasets,
@@ -71,8 +73,10 @@ export const DatasetStep: React.FC<DatasetStepProps> = ({
   return (
     <div className="space-y-6">
       <StepHeader
-        title="Dataset Selection"
-        description="Choose the dataset to run your experiment on. The dataset structure must match the prompt template variables."
+        title={t("Dataset Selection")}
+        description={t(
+          "Choose the dataset to run your experiment on. The dataset structure must match the prompt template variables.",
+        )}
       />
 
       <FormField
@@ -231,7 +235,7 @@ export const DatasetStep: React.FC<DatasetStepProps> = ({
             <Card className="border-dark-yellow bg-light-yellow relative overflow-hidden rounded-md shadow-none group-data-[collapsible=icon]:hidden">
               <CardHeader className="p-2">
                 <CardTitle className="text-dark-yellow flex items-center justify-between text-sm">
-                  <span>Invalid configuration</span>
+                  <span>{t("Invalid configuration")}</span>
                   <Info className="h-4 w-4" />
                 </CardTitle>
                 <CardDescription className="text-foreground">
@@ -244,12 +248,13 @@ export const DatasetStep: React.FC<DatasetStepProps> = ({
             <Card className="border-dark-green bg-light-green relative overflow-hidden rounded-md shadow-none group-data-[collapsible=icon]:hidden">
               <CardHeader className="p-2">
                 <CardTitle className="text-dark-green flex items-center justify-between text-sm">
-                  <span>Valid configuration</span>
+                  <span>{t("Valid configuration")}</span>
                   <CircleCheck className="h-4 w-4" />
                 </CardTitle>
                 <div className="text-sm">
-                  Matches between dataset items and prompt
-                  variables/placeholders
+                  {t(
+                    "Matches between dataset items and prompt variables/placeholders",
+                  )}
                   <ul className="my-2 ml-2 list-inside list-disc">
                     {Object.entries(validationResult.variablesMap ?? {}).map(
                       ([variable, count]) => (
@@ -257,13 +262,14 @@ export const DatasetStep: React.FC<DatasetStepProps> = ({
                           <strong>{variable}:</strong> {count} /{" "}
                           {validationResult?.isValid
                             ? validationResult.totalItems
-                            : "unknown"}
+                            : t("unknown")}
                         </li>
                       ),
                     )}
                   </ul>
-                  Items missing all required variables and placeholders will be
-                  excluded from the dataset run.
+                  {t(
+                    "Items missing all required variables and placeholders will be excluded from the dataset run.",
+                  )}
                 </div>
               </CardHeader>
             </Card>

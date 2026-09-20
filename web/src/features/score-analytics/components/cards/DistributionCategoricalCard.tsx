@@ -13,6 +13,7 @@ import { ScoreDistributionCategoricalChart } from "../charts/ScoreDistributionCa
 import { getScoreCategoryColors } from "../../lib/color-scales";
 import { SamplingDetailsHoverCard } from "../SamplingDetailsHoverCard";
 
+import { useTranslation } from "react-i18next";
 type DistributionTab = "score1" | "score2" | "all" | "matched";
 
 /**
@@ -108,6 +109,7 @@ function calculateUnmatchedScore2Distribution(
  * - all tab shows both distributions side by side
  */
 export function DistributionCategoricalCard() {
+  const { t } = useTranslation();
   const { data, isLoading, params, colorMappings } = useScoreAnalytics();
 
   const [activeTab, setActiveTab] = useState<DistributionTab>("all");
@@ -213,8 +215,8 @@ export function DistributionCategoricalCard() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Distribution</CardTitle>
-          <CardDescription>Loading chart...</CardDescription>
+          <CardTitle>{t("Distribution")}</CardTitle>
+          <CardDescription>{t("Loading chart...")}</CardDescription>
         </CardHeader>
         <CardContent className="flex h-[340px] flex-col items-center justify-center pl-0">
           <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
@@ -228,11 +230,11 @@ export function DistributionCategoricalCard() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Distribution</CardTitle>
-          <CardDescription>No data available</CardDescription>
+          <CardTitle>{t("Distribution")}</CardTitle>
+          <CardDescription>{t("No data available")}</CardDescription>
         </CardHeader>
         <CardContent className="text-muted-foreground flex h-[340px] flex-col items-center justify-center pl-0 text-sm">
-          Select a score to view distribution
+          {t("Select a score to view distribution")}
         </CardContent>
       </Card>
     );
@@ -272,7 +274,7 @@ export function DistributionCategoricalCard() {
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <CardTitle className="flex items-center gap-2">
-                Distribution
+                {t("Distribution")}
                 {data.samplingMetadata.isSampled && (
                   <SamplingDetailsHoverCard
                     samplingMetadata={data.samplingMetadata}
@@ -304,10 +306,10 @@ export function DistributionCategoricalCard() {
                   {truncateLabel(score2FullLabel)}
                 </TabsTrigger>
                 <TabsTrigger value="all" className="h-5 px-2 text-xs">
-                  all
+                  {t("all")}
                 </TabsTrigger>
                 <TabsTrigger value="matched" className="h-5 px-2 text-xs">
-                  matched
+                  {t("matched")}
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -344,7 +346,7 @@ export function DistributionCategoricalCard() {
           />
         ) : (
           <div className="text-muted-foreground flex h-full items-center justify-center text-sm">
-            No distribution data available for the selected time range
+            {t("No distribution data available for the selected time range")}
           </div>
         )}
       </CardContent>

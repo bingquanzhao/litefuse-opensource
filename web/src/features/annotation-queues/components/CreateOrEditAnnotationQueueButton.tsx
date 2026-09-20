@@ -48,6 +48,7 @@ import { UserAssignmentSection } from "@/src/features/annotation-queues/componen
 import { showErrorToast } from "@/src/features/notifications/showErrorToast";
 import { getScoreDataTypeIcon } from "@/src/features/scores/lib/scoreColumns";
 
+import { useTranslation } from "react-i18next";
 export const CreateOrEditAnnotationQueueButton = ({
   projectId,
   queueId,
@@ -59,6 +60,7 @@ export const CreateOrEditAnnotationQueueButton = ({
   variant?: ButtonProps["variant"];
   size?: ButtonProps["size"];
 }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const hasQueueAccess = useHasProjectAccess({
@@ -203,7 +205,7 @@ export const CreateOrEditAnnotationQueueButton = ({
     if (values.length === 0) {
       form.setError("scoreConfigIds", {
         type: "manual",
-        message: "At least 1 score config must be selected",
+        message: t("At least 1 score config must be selected"),
       });
     } else {
       form.clearErrors("scoreConfigIds");
@@ -230,7 +232,7 @@ export const CreateOrEditAnnotationQueueButton = ({
           size={size}
         >
           <span className="ml-1 text-sm font-normal">
-            {queueId ? "Edit" : "New queue"}
+            {queueId ? t("Edit") : t("New queue")}
           </span>
         </ActionButton>
       </DialogTrigger>
@@ -238,11 +240,12 @@ export const CreateOrEditAnnotationQueueButton = ({
         <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {queueId ? "Edit" : "New"} annotation queue
+              {queueId ? t("Edit annotation queue") : t("New annotation queue")}
             </DialogTitle>
             <DialogDescription>
-              {queueId ? "Edit" : "Create a new"} queue to manage your
-              annotation workflows.
+              {queueId
+                ? t("Edit queue to manage your annotation workflows.")
+                : t("Create a new queue to manage your annotation workflows.")}
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
@@ -413,8 +416,10 @@ export const CreateOrEditAnnotationQueueButton = ({
                   {createQueueMutation.isPending ||
                   editQueueMutation.isPending ||
                   createQueueAssignmentsMutation.isPending
-                    ? "Processing..."
-                    : `${queueId ? "Save" : "Create"} queue`}
+                    ? t("Processing...")
+                    : queueId
+                      ? t("Save queue")
+                      : t("Create queue")}
                 </Button>
               </DialogFooter>
             </form>

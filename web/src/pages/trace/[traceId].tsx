@@ -7,6 +7,7 @@ import { getTracesByIdsForAnyProject } from "@langfuse/shared/src/server";
 import { type GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 
+import { useTranslation } from "react-i18next";
 export const getServerSideProps: GetServerSideProps = async (context) => {
   if (!context.params) {
     return {
@@ -51,18 +52,19 @@ const TraceRedirectPage = ({
   notFound?: boolean;
   duplicatesFound?: boolean;
 }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   if (router.isFallback) {
-    return <div className="p-3">Loading...</div>;
+    return <div className="p-3">{t("Loading...")}</div>;
   }
 
   if (notFound) {
     return (
       <ErrorPage
-        title="Trace not found"
+        title={t("Trace not found")}
         message="The trace is either still being processed or has been deleted."
         additionalButton={{
-          label: "Retry",
+          label: t("Retry"),
           onClick: () => void window.location.reload(),
         }}
       />
@@ -72,7 +74,7 @@ const TraceRedirectPage = ({
   if (duplicatesFound) {
     return (
       <ErrorPage
-        title="Trace not found"
+        title={t("Trace not found")}
         message="Please upgrade the SDK as the URL schema has changed."
       />
     );

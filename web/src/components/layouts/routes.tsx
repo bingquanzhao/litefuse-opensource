@@ -28,6 +28,7 @@ import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePos
 import { CloudStatusMenu } from "@/src/features/cloud-status-notification/components/CloudStatusMenu";
 import { env } from "@/src/env.mjs";
 import { i18nKey } from "@/src/features/i18n/i18nKey";
+import { useTranslation } from "react-i18next";
 
 // Product module identifier (inlined from the former EE customization schema).
 // Used to optionally show/hide top-level product groups via UI customization,
@@ -218,7 +219,12 @@ export const ROUTES: Route[] = [
   },
 ];
 
+// Key caps are printed on the physical keyboard, so they are never translated.
+const MAC_COMMAND_KEY = "⌘";
+const CONTROL_KEY = "Ctrl";
+
 function CommandMenuTrigger() {
+  const { t } = useTranslation();
   const { setOpen } = useCommandMenu();
   const capture = usePostHogClientCapture();
 
@@ -233,12 +239,12 @@ function CommandMenuTrigger() {
       className="whitespace-nowrap"
     >
       <Search className="h-4 w-4" />
-      Go to...
+      {t("Go to...")}
       <kbd className="pointer-events-none ml-auto inline-flex h-5 items-center gap-1 rounded-md border px-1.5 font-mono text-[10px] select-none">
         {navigator.userAgent.includes("Mac") ? (
-          <span className="text-[12px]">⌘</span>
+          <span className="text-[12px]">{MAC_COMMAND_KEY}</span>
         ) : (
-          <span>Ctrl</span>
+          <span>{CONTROL_KEY}</span>
         )}
         <span>K</span>
       </kbd>

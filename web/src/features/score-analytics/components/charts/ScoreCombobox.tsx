@@ -6,6 +6,7 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { X } from "lucide-react";
 
+import { useTranslation } from "react-i18next";
 export interface ScoreOption {
   value: string; // "name-dataType-source"
   name: string;
@@ -32,6 +33,7 @@ export function ScoreCombobox({
   disabled = false,
   className,
 }: ScoreComboboxProps) {
+  const { t } = useTranslation();
   // 1. Filter options by dataType
   const filteredOptions = useMemo(() => {
     if (!filterByDataType) return options;
@@ -100,7 +102,7 @@ export function ScoreCombobox({
           variant="ghost"
           size="icon"
           onClick={handleClear}
-          title="Clear selection"
+          title={t("Clear selection")}
           className="h-6 w-6 shrink-0"
         >
           <X className="h-3 w-3" />

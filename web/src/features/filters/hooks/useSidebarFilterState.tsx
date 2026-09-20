@@ -31,6 +31,7 @@ import useSessionStorage from "@/src/components/useSessionStorage";
 import type { FilterConfig } from "../lib/filter-config";
 import { usePeekTableState } from "@/src/components/table/peek/contexts/PeekTableStateContext";
 
+import { useTranslation } from "react-i18next";
 /**
  * Decodes filters from URL query string and normalizes display names to column IDs.
  * This prevents duplicates when old URLs use display names and new filters use column IDs.
@@ -414,6 +415,7 @@ export function useSidebarFilterState(
   >,
   hookOptions: UseSidebarFilterStateOptions = {},
 ) {
+  const { t } = useTranslation();
   const {
     loading,
     disableUrlPersistence,
@@ -1032,7 +1034,10 @@ export function useSidebarFilterState(
               activeColumn;
             return {
               isDisabled: true,
-              reason: `Disabled because "${facet.label}" cannot be used with "${blockingLabel}".`,
+              reason: t(
+                'Disabled because "{{facet}}" cannot be used with "{{blocking}}".',
+                { facet: facet.label, blocking: blockingLabel },
+              ),
             };
           }
         }

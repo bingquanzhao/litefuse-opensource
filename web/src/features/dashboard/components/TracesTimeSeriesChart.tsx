@@ -18,6 +18,7 @@ import { Chart } from "@/src/features/widgets/chart-library/Chart";
 import { timeSeriesToDataPoints } from "@/src/features/dashboard/lib/chart-data-adapters";
 import { useScheduledDashboardExecuteQuery } from "@/src/hooks/useDashboardQueryScheduler";
 
+import { useTranslation } from "react-i18next";
 export const TracesAndObservationsTimeSeriesChart = ({
   className,
   projectId,
@@ -39,6 +40,7 @@ export const TracesAndObservationsTimeSeriesChart = ({
   metricsVersion?: ViewVersion;
   schedulerId?: string;
 }) => {
+  const { t } = useTranslation();
   const isV2 = metricsVersion === "v2";
 
   const tracesQuery: QueryType = {
@@ -78,7 +80,7 @@ export const TracesAndObservationsTimeSeriesChart = ({
           ts: new Date(item.time_dimension as any).getTime(),
           values: [
             {
-              label: "Traces",
+              label: t("Traces"),
               value: Number(item.count_count),
             },
           ],
@@ -180,7 +182,7 @@ export const TracesAndObservationsTimeSeriesChart = ({
   return (
     <DashboardCard
       className={className}
-      title={isV2 ? "Observations by time" : "Traces by time"}
+      title={isV2 ? t("Observations by time") : t("Traces by time")}
       isLoading={
         isLoading || observations.isPending || (!isV2 && traces.isPending)
       }

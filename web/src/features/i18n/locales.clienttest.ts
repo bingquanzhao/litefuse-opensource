@@ -27,7 +27,7 @@ const ALLOWED_IDENTIFIER_LIKE_KEYS = new Set<string>([
 const IDENTIFIER_LIKE_PATTERNS: Array<{ name: string; regex: RegExp }> = [
   { name: "snake_case or CONSTANT_CASE", regex: /_/ },
   { name: "camelCase identifier", regex: /^[a-z][A-Za-z0-9]*[A-Z]/ },
-  { name: "dotted path", regex: /\.[a-z]/ },
+  { name: "dotted path", regex: /[A-Za-z0-9]\.[a-z]/ },
   { name: "bare acronym", regex: /^[A-Z0-9]{3,}$/ },
   { name: "URL", regex: /^https?:\/\// },
   { name: "media type", regex: /^[a-z]+\/[a-z]+/ },
@@ -38,18 +38,30 @@ const zhEntries = Object.entries(zhCN as Record<string, string>);
 
 describe("locale files", () => {
   it("uses the English source text as the key", () => {
+    // i18next appends a plural category to the key it looks up, so the stored
+    // key carries a suffix the source text does not.
+    const withoutPluralSuffix = (key: string) =>
+      key.replace(/_(zero|one|two|few|many|other)$/, "");
+
     const mismatched = Object.entries(en as Record<string, string>)
-      .filter(([key, value]) => key !== value)
+      .filter(([key, value]) => withoutPluralSuffix(key) !== value)
       .map(([key]) => key);
 
     expect(mismatched).toEqual([]);
   });
 
   it("covers exactly the same keys in every locale", () => {
-    const zhKeys = zhEntries.map(([key]) => key);
+    const zhKeys = new Set(zhEntries.map(([key]) => key));
 
-    expect(zhKeys.filter((key) => !enKeys.includes(key))).toEqual([]);
-    expect(enKeys.filter((key) => !zhKeys.includes(key))).toEqual([]);
+    // Chinese has a single plural category, so i18next only ever looks up the
+    // "_other" form; an English "_one" variant needs no zh-CN counterpart.
+    const needsTranslation = (key: string) =>
+      !key.endsWith("_one") || !zhKeys.has(`${key.slice(0, -4)}_other`);
+
+    expect([...zhKeys].filter((key) => !enKeys.includes(key))).toEqual([]);
+    expect(
+      enKeys.filter((key) => !zhKeys.has(key) && needsTranslation(key)),
+    ).toEqual([]);
   });
 
   it("has no empty zh-CN translation", () => {

@@ -44,6 +44,7 @@ import { useRouter } from "next/router";
 import { showSuccessToast } from "@/src/features/notifications/showSuccessToast";
 import { PricingSection } from "./pricing-tiers/PricingSection";
 
+import { useTranslation } from "react-i18next";
 type UpsertModelDialogProps =
   | {
       action: "create";
@@ -67,6 +68,7 @@ export const UpsertModelFormDialog = (({
   children,
   ...props
 }: UpsertModelDialogProps) => {
+  const { t } = useTranslation();
   const capture = usePostHogClientCapture();
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);
@@ -204,8 +206,18 @@ export const UpsertModelFormDialog = (({
       form.reset();
       setOpen(false);
       showSuccessToast({
-        title: `Model ${props.action === "edit" ? "updated" : "created"}`,
-        description: `The model '${upsertedModel.modelName}' has been successfully ${props.action === "edit" ? "updated" : "created"}. New generations will use these model prices.`,
+        title:
+          props.action === "edit" ? t("Model updated") : t("Model created"),
+        description:
+          props.action === "edit"
+            ? t(
+                "The model '{{name}}' has been successfully updated. New generations will use these model prices.",
+                { name: upsertedModel.modelName },
+              )
+            : t(
+                "The model '{{name}}' has been successfully created. New generations will use these model prices.",
+                { name: upsertedModel.modelName },
+              ),
       });
       router.push(
         `/project/${props.projectId}/settings/models/${upsertedModel.id}`,
@@ -252,7 +264,7 @@ export const UpsertModelFormDialog = (({
     if (!defaultTier) return;
 
     append({
-      name: `Custom Tier ${fields.length}`,
+      name: t("Custom Tier {{index}}", { index: fields.length }),
       isDefault: false,
       priority: fields.length,
       conditions: [
@@ -284,8 +296,8 @@ export const UpsertModelFormDialog = (({
         className={props.className}
         title={
           props.action === "create"
-            ? "Create model definition"
-            : "Edit model definition"
+            ? t("Create model definition")
+            : t("Edit model definition")
         }
       >
         {children}
@@ -294,17 +306,17 @@ export const UpsertModelFormDialog = (({
         <DialogHeader>
           <DialogTitle>
             {props.action === "create"
-              ? "Create Model"
+              ? t("Create Model")
               : props.action === "clone"
-                ? "Clone Model"
-                : "Edit Model"}
+                ? t("Clone Model")
+                : t("Edit Model")}
           </DialogTitle>
           {props.action === "edit" && (
             <DialogDescription>{props.modelData.modelName}</DialogDescription>
           )}
           {props.action === "create" && (
             <DialogDescription>
-              Create a new model configuration to track generation costs.
+              {t("Create a new model configuration to track generation costs.")}
             </DialogDescription>
           )}
         </DialogHeader>
@@ -444,17 +456,17 @@ export const UpsertModelFormDialog = (({
                 variant="outline"
                 onClick={() => setOpen(false)}
               >
-                Cancel
+                {t("Cancel")}
               </Button>
 
               <Button type="submit" loading={upsertModelMutation.isPending}>
-                Submit
+                {t("Submit")}
               </Button>
             </DialogFooter>
           </form>
           {formError ? (
             <p className="text-destructive my-2 text-center text-sm font-medium">
-              <span className="font-semibold">Error:</span> {formError}
+              <span className="font-semibold">{t("Error:")}</span> {formError}
             </p>
           ) : null}
         </Form>

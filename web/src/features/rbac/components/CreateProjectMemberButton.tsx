@@ -41,6 +41,7 @@ import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAcces
 import { RoleSelectItem } from "@/src/features/rbac/components/RoleSelectItem";
 import { ActionButton } from "@/src/components/ActionButton";
 
+import { useTranslation } from "react-i18next";
 const formSchema = z.object({
   email: z.string().trim().email(),
   orgRole: z.enum(Role),
@@ -51,6 +52,7 @@ export function CreateProjectMemberButton(props: {
   orgId: string;
   project?: { id: string; name: string };
 }) {
+  const { t } = useTranslation();
   const capture = usePostHogClientCapture();
   const [open, setOpen] = useState(false);
   const hasOrgAccess = useHasOrganizationAccess({
@@ -147,15 +149,16 @@ export function CreateProjectMemberButton(props: {
             icon={<PlusIcon className="h-5 w-5" aria-hidden="true" />}
           >
             {hasOnlySingleProjectAccess
-              ? "Add project member"
-              : "Add new member"}
+              ? t("Add project member")
+              : t("Add new member")}
           </ActionButton>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              Add new member to the{" "}
-              {hasOnlySingleProjectAccess ? "project" : "organization"}
+              {hasOnlySingleProjectAccess
+                ? t("Add new member to the project")
+                : t("Add new member to the organization")}
             </DialogTitle>
           </DialogHeader>
           <Form {...form}>
@@ -259,7 +262,7 @@ export function CreateProjectMemberButton(props: {
                   className="w-full"
                   loading={form.formState.isSubmitting}
                 >
-                  Grant access
+                  {t("Grant access")}
                 </Button>
                 <FormMessage />
               </DialogFooter>

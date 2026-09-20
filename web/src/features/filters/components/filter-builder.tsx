@@ -62,6 +62,7 @@ import {
 import { useQueryProject } from "@/src/features/projects/hooks";
 import { useLangfuseCloudRegion } from "@/src/features/organizations/hooks";
 
+import { useTranslation } from "react-i18next";
 /**
  * Extended ColumnDefinition with optional alert for UI display.
  * Alerts are added dynamically in the web layer based on feature availability.
@@ -94,6 +95,7 @@ export function PopoverFilterBuilder({
   filterWithAI?: boolean;
   buttonType?: "default" | "icon";
 }) {
+  const { t } = useTranslation();
   const capture = usePostHogClientCapture();
   const [wipFilterState, _setWipFilterState] =
     useState<WipFilterState>(filterState);
@@ -169,7 +171,7 @@ export function PopoverFilterBuilder({
         <PopoverTrigger asChild>
           {buttonType === "default" ? (
             <Button variant="outline" type="button">
-              <span>Filters</span>
+              <span>{t("Filters")}</span>
               {filterState.length > 0 && filterState.length < 3 ? (
                 <InlineFilterState
                   filterState={filterState}
@@ -237,7 +239,7 @@ export function PopoverFilterBuilder({
                 <X className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Clear all filters</TooltipContent>
+            <TooltipContent>{t("Clear all filters")}</TooltipContent>
           </Tooltip>
         ) : (
           <Tooltip>
@@ -252,7 +254,7 @@ export function PopoverFilterBuilder({
                 <X className="h-3 w-3" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Clear all filters</TooltipContent>
+            <TooltipContent>{t("Clear all filters")}</TooltipContent>
           </Tooltip>
         )
       ) : null}
@@ -267,6 +269,7 @@ export function InlineFilterState({
   filterState: FilterState;
   className?: string;
 }) {
+  const { t } = useTranslation();
   return filterState.map((filter, i) => {
     return (
       <span
@@ -283,12 +286,12 @@ export function InlineFilterState({
         {filter.operator}{" "}
         {filter.type === "positionInTrace"
           ? (() => {
-              const mode = filter.key ?? "last";
+              const mode = filter.key ?? t("last");
               const label =
                 mode === "root"
-                  ? "root"
+                  ? t("root")
                   : mode === "last"
-                    ? "last"
+                    ? t("last")
                     : mode === "nthFromStart"
                       ? `nth from start ${filter.value ?? ""}`.trim()
                       : `nth from end ${filter.value ?? ""}`.trim();
@@ -425,6 +428,7 @@ function FilterBuilderForm({
   columnsWithCustomSelect?: string[];
   filterWithAI?: boolean;
 }) {
+  const { t } = useTranslation();
   const { isLangfuseCloud } = useLangfuseCloudRegion();
   const [showAiFilter, setShowAiFilter] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
@@ -517,7 +521,9 @@ function FilterBuilderForm({
             disabled={false}
             title={
               !organization?.aiFeaturesEnabled
-                ? "AI features are disabled for your organization. Click to enable them in organization settings."
+                ? t(
+                    "AI features are disabled for your organization. Click to enable them in organization settings.",
+                  )
                 : undefined
             }
             className="text-muted-foreground w-full justify-start"
@@ -525,13 +531,13 @@ function FilterBuilderForm({
             <WandSparkles className="mr-2 h-4 w-4" />
             {!organization?.aiFeaturesEnabled ? (
               <>
-                AI Filters: Enable in Organization Settings (Admin Only)
+                {t("AI Filters: Enable in Organization Settings (Admin Only)")}
                 <ExternalLink className="ml-2 h-4 w-4" />
               </>
             ) : showAiFilter ? (
-              "Cancel"
+              t("Cancel")
             ) : (
-              "Create Filter with AI"
+              t("Create Filter with AI")
             )}
           </Button>
           {showAiFilter && (
@@ -542,7 +548,7 @@ function FilterBuilderForm({
                   setAiPrompt(e.target.value);
                   if (aiError) setAiError(null); // Clear error when user starts typing
                 }}
-                placeholder="Describe the filters you want to apply..."
+                placeholder={t("Describe the filters you want to apply...")}
                 className="min-h-[80px] min-w-112 resize-none"
                 disabled={createFilterMutation.isPending}
                 onKeyDown={(e) => {
@@ -564,8 +570,8 @@ function FilterBuilderForm({
                   disabled={createFilterMutation.isPending || !aiPrompt.trim()}
                 >
                   {createFilterMutation.isPending
-                    ? "Loading..."
-                    : "Generate filters"}
+                    ? t("Loading...")
+                    : t("Generate filters")}
                 </Button>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -573,8 +579,9 @@ function FilterBuilderForm({
                   </TooltipTrigger>
                   <TooltipContent>
                     <p className="text-xs">
-                      We convert natural language into deterministic filters
-                      which you can adjust afterwards
+                      {t(
+                        "We convert natural language into deterministic filters which you can adjust afterwards",
+                      )}
                     </p>
                   </TooltipContent>
                 </Tooltip>
@@ -600,7 +607,9 @@ function FilterBuilderForm({
                 );
                 return (
                   <tr key={i}>
-                    <td className="p-1 text-sm">{i === 0 ? "Where" : "And"}</td>
+                    <td className="p-1 text-sm">
+                      {i === 0 ? t("Where") : t("And")}
+                    </td>
                     <td className="flex gap-2 p-1">
                       {/* selector of the column to be filtered */}
                       <Popover>
@@ -613,7 +622,7 @@ function FilterBuilderForm({
                             className="flex w-full min-w-32 items-center justify-between gap-2"
                           >
                             <span className="truncate">
-                              {column ? column.name : "Column"}
+                              {column ? t(column.name) : t("Column")}
                             </span>
                             <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -629,17 +638,18 @@ function FilterBuilderForm({
                         >
                           <InputCommand>
                             <InputCommandInput
-                              placeholder="Search for column"
+                              placeholder={t("Search for column")}
                               variant="bottom"
                             />
                             <InputCommandList>
                               <InputCommandEmpty>
-                                No options found.
+                                {t("No options found.")}
                               </InputCommandEmpty>
                               <InputCommandGroup>
                                 {columns.map((option) => {
                                   const hasAlert = !!option.alert;
                                   const severity =
+                                    // eslint-disable-next-line i18next/no-literal-string -- style variant, not text
                                     option.alert?.severity ?? "warning";
                                   const alertStyles = getAlertStyles(severity);
 
@@ -745,7 +755,7 @@ function FilterBuilderForm({
                           // Case 2: object without keyOptions - text input
                           <Input
                             value={filter.key ?? ""}
-                            placeholder="key"
+                            placeholder={t("key")}
                             disabled={disabled}
                             onChange={(e) =>
                               handleFilterChange(
@@ -804,13 +814,13 @@ function FilterBuilderForm({
                             <SelectValue placeholder="" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="root">1st</SelectItem>
-                            <SelectItem value="last">last</SelectItem>
+                            <SelectItem value="root">{t("1st")}</SelectItem>
+                            <SelectItem value="last">{t("last")}</SelectItem>
                             <SelectItem value="nthFromStart">
-                              nth from start
+                              {t("nth from start")}
                             </SelectItem>
                             <SelectItem value="nthFromEnd">
-                              nth from end
+                              {t("nth from end")}
                             </SelectItem>
                           </SelectContent>
                         </Select>
@@ -857,7 +867,7 @@ function FilterBuilderForm({
                         <Input
                           disabled={disabled}
                           value={filter.value ?? ""}
-                          placeholder="string"
+                          placeholder={t("string")}
                           onChange={(e) =>
                             handleFilterChange(
                               { ...filter, value: e.target.value },
@@ -906,7 +916,7 @@ function FilterBuilderForm({
                       ) : filter.type === "stringOptions" ||
                         filter.type === "arrayOptions" ? (
                         <MultiSelect
-                          title="Value"
+                          title={t("Value")}
                           className="min-w-[100px]"
                           options={
                             column?.type === filter.type ? column.options : []
@@ -926,7 +936,7 @@ function FilterBuilderForm({
                       ) : filter.type === "categoryOptions" &&
                         column?.type === "categoryOptions" ? (
                         <MultiSelect
-                          title="Value"
+                          title={t("Value")}
                           className="min-w-[100px]"
                           options={
                             column?.options
@@ -964,6 +974,7 @@ function FilterBuilderForm({
                             <SelectValue placeholder="" />
                           </SelectTrigger>
                           <SelectContent>
+                            {/* eslint-disable-next-line i18next/no-literal-string -- boolean filter values */}
                             {["true", "false"].map((option) => (
                               <SelectItem key={option} value={option}>
                                 {option}
@@ -1024,7 +1035,7 @@ function FilterBuilderForm({
               size="sm"
             >
               <Plus className="mr-2 h-4 w-4" />
-              Add filter
+              {t("Add filter")}
             </Button>
           ) : null}
         </>

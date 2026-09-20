@@ -39,6 +39,7 @@ import { useV4Beta } from "@/src/features/events/hooks/useV4Beta";
 import { type ViewVersion } from "@/src/features/query";
 import { useEnvironmentFilterOptionsCache } from "@/src/hooks/use-environment-filter-options-cache";
 import { NoDataOrLoading } from "@/src/components/NoDataOrLoading";
+import { useTranslation } from "react-i18next";
 import {
   DashboardQuerySchedulerProvider,
   getDashboardQuerySchedulerMaxConcurrent,
@@ -59,6 +60,7 @@ const HOME_DASHBOARD_CARD_IDS = {
 } as const;
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const router = useRouter();
   const projectId = router.query.projectId as string;
   const { timeRange, setTimeRange } = useDashboardDateRange();
@@ -201,7 +203,7 @@ export default function Dashboard() {
         withPadding
         scrollable
         headerProps={{
-          title: "Home",
+          title: t("Home"),
           actionButtonsLeft: (
             <>
               <TimeRangePicker

@@ -33,6 +33,7 @@ import {
   SelectValue,
 } from "@/src/components/ui/select";
 import { useOptionalPlaygroundContext } from "@/src/features/playground/page/context";
+import { useTranslation } from "react-i18next";
 import {
   useOptionalMessageSearchActions,
   useOptionalMessageSearchPageId,
@@ -95,6 +96,7 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
   index: _index,
   toolCallIds,
 }) => {
+  const { t } = useTranslation();
   const [roleIndex, setRoleIndex] = useState(1);
   const playgroundContext = useOptionalPlaygroundContext();
   const searchPageId = useOptionalMessageSearchPageId();
@@ -280,7 +282,7 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
           <div className="bg-background sticky top-0 bottom-0 z-10 flex w-16 shrink-0 flex-col gap-1">
             {isPlaceholder ? (
               <span className="bg-accent text-muted-foreground inline-flex h-6 w-full items-center justify-center rounded-md px-4 font-mono text-[9px]">
-                placeholder
+                {t("placeholder")}
               </span>
             ) : (
               <Button
@@ -308,10 +310,10 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
                   }
                 >
                   <SelectTrigger
-                    title="Select Tool Call ID"
+                    title={t("Select Tool Call ID")}
                     className="bg-muted h-[25px] w-[96px] border-0 text-[9px]"
                   >
-                    <SelectValue placeholder="Select Call ID" />
+                    <SelectValue placeholder={t("Select Call ID")} />
                   </SelectTrigger>
                   <SelectContent>
                     {toolCallIds?.map((id) => (
@@ -352,7 +354,7 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
             size="icon"
             onClick={() => deleteMessage(message.id)}
             className="h-5 w-5 shrink-0 rounded-full p-0 opacity-60 transition-all hover:opacity-100"
-            aria-label="Delete message"
+            aria-label={t("Delete message")}
           >
             <MinusCircleIcon size={14} />
           </Button>

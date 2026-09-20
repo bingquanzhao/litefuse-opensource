@@ -25,7 +25,9 @@ import {
 import { SidePanel, SidePanelContent } from "@/src/components/ui/side-panel";
 import { AnnotationPanel } from "@/src/features/datasets/components/AnnotationPanel";
 
+import { useTranslation } from "react-i18next";
 function DatasetCompareInternal() {
+  const { t } = useTranslation();
   const router = useRouter();
   const capture = usePostHogClientCapture();
   const projectId = router.query.projectId as string;
@@ -82,13 +84,15 @@ function DatasetCompareInternal() {
   };
 
   if (!runsData.data || runs.length === 0) {
-    return <span>Loading...</span>;
+    return <span>{t("Loading...")}</span>;
   }
 
   return (
     <Page
       headerProps={{
-        title: `Compare runs: ${dataset.data?.name ?? datasetId}`,
+        title: t("Compare runs: {{name}}", {
+          name: dataset.data?.name ?? datasetId,
+        }),
         breadcrumb: [
           {
             name: "Datasets",
@@ -100,7 +104,7 @@ function DatasetCompareInternal() {
           },
         ],
         help: {
-          description: "Compare your dataset runs side by side",
+          description: t("Compare your dataset runs side by side"),
         },
         tabsProps: {
           tabs: getDatasetRunCompareTabs(projectId, datasetId),
@@ -211,7 +215,7 @@ function DatasetCompareInternal() {
             ) : (
               <div className="flex items-center justify-center p-4">
                 <span className="text-muted-foreground text-sm">
-                  Loading annotation data...
+                  {t("Loading annotation data...")}
                 </span>
               </div>
             )}

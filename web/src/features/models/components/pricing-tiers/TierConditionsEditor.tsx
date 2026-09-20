@@ -21,6 +21,7 @@ import {
 import type { UseFormReturn } from "react-hook-form";
 import type { FormUpsertModel } from "../../validation";
 
+import { useTranslation } from "react-i18next";
 type TierConditionsEditorProps = {
   tierIndex: number;
   form: UseFormReturn<FormUpsertModel>;
@@ -32,6 +33,7 @@ export function TierConditionsEditor({
   tierIndex,
   form,
 }: TierConditionsEditorProps) {
+  const { t } = useTranslation();
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: `pricingTiers.${tierIndex}.conditions`,
@@ -40,7 +42,7 @@ export function TierConditionsEditor({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <FormLabel>Conditions</FormLabel>
+        <FormLabel>{t("Conditions")}</FormLabel>
         <Button
           type="button"
           variant="ghost"
@@ -55,14 +57,16 @@ export function TierConditionsEditor({
           }
         >
           <PlusCircle className="mr-1 h-4 w-4" />
-          Add Condition
+          {t("Add Condition")}
         </Button>
       </div>
 
       {fields.length === 0 && (
         <div className="bg-destructive/10 text-destructive rounded-md p-3 text-sm">
-          <strong>Warning:</strong> Non-default tiers require at least one
-          condition. This tier will fail validation.
+          <strong>{t("Warning:")}</strong>{" "}
+          {t(
+            "Non-default tiers require at least one condition. This tier will fail validation.",
+          )}
         </div>
       )}
 
@@ -70,7 +74,7 @@ export function TierConditionsEditor({
         <div key={condition.id} className="space-y-3 rounded-lg border p-3">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">
-              Condition {conditionIndex + 1}
+              {t("Condition {{index}}", { index: conditionIndex + 1 })}
             </span>
             <Button
               type="button"

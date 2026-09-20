@@ -14,6 +14,7 @@ import { Toggle } from "@/src/components/ui/toggle";
 import { useRouter } from "next/router";
 import { cn } from "@/src/utils/tailwind";
 
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 function DatasetAggregateCellWithBaselineDetection({
   value,
   runData,
@@ -231,7 +232,7 @@ export const constructDatasetRunAggregateColumns = ({
 
 export const getDatasetRunAggregateColumnProps = (isLoading: boolean) => ({
   accessorKey: "runs",
-  header: "Runs",
+  header: i18nKey("Runs"),
   id: "runs",
   isFixedPosition: true,
   cell: () => {

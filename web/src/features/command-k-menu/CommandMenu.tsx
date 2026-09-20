@@ -21,6 +21,7 @@ import { useQueryProjectOrOrganization } from "@/src/features/projects/hooks";
 import { api } from "@/src/utils/api";
 import { type NavigationItem } from "@/src/components/layouts/utilities/routes";
 
+import { useTranslation } from "react-i18next";
 function MainNavigationGroup({
   navItems,
   onNavigate,
@@ -279,6 +280,7 @@ function CommandMenuComponent({
 }: {
   mainNavigation: NavigationItem[];
 }) {
+  const { t } = useTranslation();
   const { open, setOpen } = useCommandMenu();
   const capture = usePostHogClientCapture();
 
@@ -346,12 +348,12 @@ function CommandMenuComponent({
       }}
     >
       <CommandInput
-        placeholder="Type a command or search..."
+        placeholder={t("Type a command or search...")}
         className="border-none focus:border-none focus:ring-0 focus:ring-transparent focus:outline-hidden"
         onValueChange={debouncedSearchChange}
       />
       <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
+        <CommandEmpty>{t("No results found.")}</CommandEmpty>
         <MainNavigationGroup navItems={navItems} onNavigate={handleNavigate} />
         <ProjectsGroup onNavigate={handleNavigate} />
         <DashboardsGroup onNavigate={handleNavigate} />

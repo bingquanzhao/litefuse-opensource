@@ -14,9 +14,11 @@ import Page from "@/src/components/layouts/page";
 import { useV4Beta } from "@/src/features/events/hooks/useV4Beta";
 import { ObservationsEventsTable } from "@/src/features/events/components";
 
+import { useTranslation } from "react-i18next";
 const tabs = ["Traces", "Sessions", "Scores"] as const;
 
 export default function UserPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const userId = router.query.userId as string;
   const projectId = router.query.projectId as string;
@@ -96,27 +98,34 @@ export default function UserPage() {
         {user.data && (
           <div className="flex flex-wrap gap-2 px-4 py-4">
             <Badge variant="outline">
-              Observations:{" "}
-              {compactNumberFormatter(user.data.totalObservations)}
+              {t("Observations: {{count}}", {
+                count: compactNumberFormatter(user.data.totalObservations),
+              })}
             </Badge>
             <Badge variant="outline">
-              Traces: {compactNumberFormatter(user.data.totalTraces)}
+              {t("Traces: {{count}}", {
+                count: compactNumberFormatter(user.data.totalTraces),
+              })}
             </Badge>
             <Badge variant="outline">
-              Total Tokens: {compactNumberFormatter(user.data.totalTokens)}
+              {t("Total Tokens: {{count}}", {
+                count: compactNumberFormatter(user.data.totalTokens),
+              })}
             </Badge>
             <Badge variant="outline">
               <span className="flex items-center gap-1">
-                Total Cost: {usdFormatter(user.data.sumCalculatedTotalCost)}
+                {t("Total Cost: {{amount}}", {
+                  amount: usdFormatter(user.data.sumCalculatedTotalCost),
+                })}
               </span>
             </Badge>
             <Badge variant="outline">
-              Active:{" "}
+              {t("Active:")}{" "}
               {user.data.firstTrace
                 ? `${user.data.firstTrace.toLocaleString()} - ${user.data.lastTrace?.toLocaleString()}`
                 : isBetaEnabled
-                  ? "No activity yet"
-                  : "No traces yet"}
+                  ? t("No activity yet")
+                  : t("No traces yet")}
             </Badge>
           </div>
         )}
@@ -126,7 +135,7 @@ export default function UserPage() {
         <div>
           <div className="sm:hidden">
             <label htmlFor="tabs" className="sr-only">
-              Select a tab
+              {t("Select a tab")}
             </label>
             <select
               id="tabs"
@@ -142,7 +151,7 @@ export default function UserPage() {
           </div>
           <div className="hidden sm:block">
             <div className="border-border border-b">
-              <nav className="-mb-px flex" aria-label="Tabs">
+              <nav className="-mb-px flex" aria-label={t("Tabs")}>
                 {tabs.map((tab) => (
                   <button
                     key={tab}

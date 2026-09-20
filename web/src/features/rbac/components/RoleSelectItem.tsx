@@ -16,6 +16,8 @@ import {
 } from "@/src/features/rbac/constants/projectAccessRights";
 import { orderedRoles } from "@/src/features/rbac/constants/orderedRoles";
 
+import { useTranslation } from "react-i18next";
+import { type TFunction } from "i18next";
 export const RoleSelectItem = ({
   role,
   isProjectRole,
@@ -23,10 +25,19 @@ export const RoleSelectItem = ({
   role: Role;
   isProjectRole?: boolean;
 }) => {
+  const { t } = useTranslation();
   const isProjectNoneRole = role === Role.NONE && isProjectRole;
   const isOrgNoneRole = role === Role.NONE && !isProjectRole;
-  const orgScopes = reduceScopesToListItems(organizationRoleAccessRights, role);
-  const projectScopes = reduceScopesToListItems(projectRoleAccessRights, role);
+  const orgScopes = reduceScopesToListItems(
+    organizationRoleAccessRights,
+    role,
+    t,
+  );
+  const projectScopes = reduceScopesToListItems(
+    projectRoleAccessRights,
+    role,
+    t,
+  );
 
   return (
     <HoverCard openDelay={0} closeDelay={0}>
@@ -34,7 +45,7 @@ export const RoleSelectItem = ({
         <SelectItem value={role} className="max-w-56">
           <span>
             {formatRole(role)}
-            {isProjectNoneRole ? " (keep default role)" : ""}
+            {isProjectNoneRole ? t(" (keep default role)") : ""}
           </span>
         </SelectItem>
       </HoverCardTrigger>
@@ -46,15 +57,23 @@ export const RoleSelectItem = ({
             <div className="text-xs">{orgNoneRoleComment}</div>
           ) : (
             <>
-              <div className="font-bold">Role: {formatRole(role)}</div>
-              <p className="mt-2 text-xs font-semibold">Organization Scopes</p>
+              <div className="font-bold">
+                {t("Role: {{role}}", { role: formatRole(role) })}
+              </div>
+              <p className="mt-2 text-xs font-semibold">
+                {t("Organization Scopes")}
+              </p>
               <ul className="list-inside list-disc text-xs">{orgScopes}</ul>
-              <p className="mt-2 text-xs font-semibold">Project Scopes</p>
+              <p className="mt-2 text-xs font-semibold">
+                {t("Project Scopes")}
+              </p>
               <ul className="list-inside list-disc text-xs">{projectScopes}</ul>
               <p className="mt-2 border-t pt-2 text-xs">
-                Note:{" "}
-                <span className="text-muted-foreground">Muted scopes</span> are
-                inherited from lower role.
+                {t("Note:")}{" "}
+                <span className="text-muted-foreground">
+                  {t("Muted scopes")}
+                </span>{" "}
+                {t("are inherited from lower role.")}
               </p>
             </>
           )}
@@ -67,6 +86,7 @@ export const RoleSelectItem = ({
 const reduceScopesToListItems = (
   accessRights: Record<string, string[]>,
   role: Role,
+  t: TFunction,
 ) => {
   const currentRoleLevel = orderedRoles[role];
   const lowerRole = Object.entries(orderedRoles).find(
@@ -111,7 +131,7 @@ const reduceScopesToListItems = (
       })}
     </>
   ) : (
-    <li>None</li>
+    <li>{t("None")}</li>
   );
 };
 

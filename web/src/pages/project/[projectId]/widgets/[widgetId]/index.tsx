@@ -9,7 +9,9 @@ import { type views, type metricAggregations } from "@/src/features/query";
 import { type z } from "zod/v4";
 import { type WidgetChartConfig } from "@/src/features/widgets/utils";
 
+import { useTranslation } from "react-i18next";
 export default function EditWidget() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { projectId, widgetId, dashboardId } = router.query as {
     projectId: string;
@@ -37,8 +39,8 @@ export default function EditWidget() {
     },
     onSuccess: () => {
       showSuccessToast({
-        title: "Widget updated successfully",
-        description: "Your widget has been updated.",
+        title: t("Widget updated successfully"),
+        description: t("Your widget has been updated."),
       });
       // Navigate back to dashboard if provided else widgets list
       if (dashboardId) {
@@ -92,9 +94,9 @@ export default function EditWidget() {
     <Page
       withPadding
       headerProps={{
-        title: "Edit Widget",
+        title: t("Edit Widget"),
         help: {
-          description: "Edit an existing widget",
+          description: t("Edit an existing widget"),
         },
       }}
     >
@@ -126,7 +128,7 @@ export default function EditWidget() {
         />
       ) : (
         <div className="flex h-[300px] items-center justify-center">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t("Loading...")}</p>
         </div>
       )}
     </Page>

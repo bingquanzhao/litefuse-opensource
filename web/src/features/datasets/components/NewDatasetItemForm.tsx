@@ -37,6 +37,8 @@ import { Badge } from "@/src/components/ui/badge";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { DialogBody, DialogFooter } from "@/src/components/ui/dialog";
 
+import { useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 const formSchema = z.object({
   datasetIds: z.array(z.string()).min(1, "Select at least one dataset"),
   input: z.string().refine(
@@ -50,8 +52,9 @@ const formSchema = z.object({
       }
     },
     {
-      message:
+      message: i18nKey(
         "Invalid input. Please provide a JSON object or double-quoted string.",
+      ),
     },
   ),
   expectedOutput: z.string().refine(
@@ -65,8 +68,9 @@ const formSchema = z.object({
       }
     },
     {
-      message:
+      message: i18nKey(
         "Invalid input. Please provide a JSON object or double-quoted string.",
+      ),
     },
   ),
   metadata: z.string().refine(
@@ -80,8 +84,9 @@ const formSchema = z.object({
       }
     },
     {
-      message:
+      message: i18nKey(
         "Invalid input. Please provide a JSON object or double-quoted string.",
+      ),
     },
   ),
 });
@@ -114,6 +119,7 @@ export const NewDatasetItemForm = (props: {
   onFormSuccess?: () => void;
   currentDatasetId?: string;
 }) => {
+  const { t } = useTranslation();
   const [formError, setFormError] = useState<string | null>(null);
   const capture = usePostHogClientCapture();
   const form = useForm({
@@ -255,7 +261,9 @@ export const NewDatasetItemForm = (props: {
         }
 
         setFormError(
-          `Item does not match dataset schema. Errors: ${JSON.stringify(result.validationErrors, null, 2)}`,
+          t("Item does not match dataset schema. Errors: {{errors}}", {
+            errors: JSON.stringify(result.validationErrors, null, 2),
+          }),
         );
         console.error(result.validationErrors);
       })
@@ -485,14 +493,15 @@ export const NewDatasetItemForm = (props: {
                 (validation.hasSchemas && !validation.isValid)
               }
             >
-              Add
               {selectedDatasetCount > 1
-                ? ` to ${selectedDatasetCount} datasets`
-                : " to dataset"}
+                ? t("Add to {{count}} datasets", {
+                    count: selectedDatasetCount,
+                  })
+                : t("Add to dataset")}
             </Button>
             {formError ? (
               <p className="text-red mt-2 text-center">
-                <span className="font-bold">Error:</span> {formError}
+                <span className="font-bold">{t("Error:")}</span> {formError}
               </p>
             ) : null}
           </div>

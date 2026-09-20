@@ -31,6 +31,7 @@ import { type PromptModelStepProps } from "@/src/features/experiments/types/step
 import { StepHeader } from "@/src/features/experiments/components/shared/StepHeader";
 import { TruncatedLabels } from "@/src/components/TruncatedLabels";
 
+import { useTranslation } from "react-i18next";
 export const PromptModelStep: React.FC<PromptModelStepProps> = ({
   projectId,
   formState,
@@ -38,6 +39,7 @@ export const PromptModelStep: React.FC<PromptModelStepProps> = ({
   modelState,
   structuredOutputState,
 }) => {
+  const { t } = useTranslation();
   const { form } = formState;
   const {
     promptsByName,
@@ -99,8 +101,10 @@ export const PromptModelStep: React.FC<PromptModelStepProps> = ({
   return (
     <div className="space-y-6">
       <StepHeader
-        title="Prompt & Model Configuration"
-        description="Select the prompt version and configure the model parameters for your experiment."
+        title={t("Prompt & Model Configuration")}
+        description={t(
+          "Select the prompt version and configure the model parameters for your experiment.",
+        )}
       />
 
       <FormField

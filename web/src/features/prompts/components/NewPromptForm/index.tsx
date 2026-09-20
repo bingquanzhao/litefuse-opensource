@@ -51,12 +51,17 @@ import { useQueryParam } from "use-query-params";
 import { usePromptNameValidation } from "@/src/features/prompts/hooks/usePromptNameValidation";
 import { useFormPersistence } from "@/src/hooks/useFormPersistence";
 
+import { useTranslation } from "react-i18next";
+
+/** Prompt template syntax, not translatable text. */
+const PROMPT_VARIABLE_SYNTAX = "{{variable}}";
 type NewPromptFormProps = {
   initialPrompt?: Prompt | null;
   onFormSuccess?: () => void;
 };
 
 export const NewPromptForm: React.FC<NewPromptFormProps> = (props) => {
+  const { t } = useTranslation();
   const { onFormSuccess, initialPrompt } = props;
   const projectId = useProjectIdFromURL();
   const [shouldLoadPlaygroundCache] = useQueryParam("loadPlaygroundCache");
@@ -283,14 +288,15 @@ export const NewPromptForm: React.FC<NewPromptFormProps> = (props) => {
         {/* Prompt content field - text vs. chat */}
         <>
           <FormItem>
-            <FormLabel>Prompt</FormLabel>
+            <FormLabel>{t("Prompt")}</FormLabel>
             <FormDescription>
-              Define your prompt template. You can use{" "}
-              <code className="text-xs">{"{{variable}}"}</code> to insert
-              variables into your prompt.
-              <b className="font-semibold"> Note:</b> Variables must be
-              alphabetical characters or underscores. You can also link other
-              text prompts using the plus button.
+              {t("Define your prompt template. You can use")}{" "}
+              <code className="text-xs">{PROMPT_VARIABLE_SYNTAX}</code>{" "}
+              {t("to insert variables into your prompt.")}
+              <b className="font-semibold"> {t("Note:")}</b>{" "}
+              {t(
+                "Variables must be alphabetical characters or underscores. You can also link other text prompts using the plus button.",
+              )}
             </FormDescription>
             <Tabs
               value={form.watch("type")}
@@ -326,7 +332,7 @@ export const NewPromptForm: React.FC<NewPromptFormProps> = (props) => {
                 <p
                   className={`text-muted-foreground mb-1 text-right text-xs ${initialPrompt ? "-mt-2" : "mt-1"}`}
                 >
-                  Draft restored.{" "}
+                  {t("Draft restored.")}{" "}
                   <button
                     type="button"
                     className="hover:text-foreground underline"
@@ -340,7 +346,7 @@ export const NewPromptForm: React.FC<NewPromptFormProps> = (props) => {
                       );
                     }}
                   >
-                    Discard
+                    {t("Discard")}
                   </button>
                 </p>
               )}
@@ -464,7 +470,7 @@ export const NewPromptForm: React.FC<NewPromptFormProps> = (props) => {
                 variant="secondary"
                 className="w-full"
               >
-                Review changes
+                {t("Review changes")}
               </Button>
             </ReviewPromptDialog>
 
@@ -474,7 +480,7 @@ export const NewPromptForm: React.FC<NewPromptFormProps> = (props) => {
               className="w-full"
               disabled={!form.formState.isValid}
             >
-              Save new prompt version
+              {t("Save new prompt version")}
             </Button>
           </div>
         ) : (
@@ -486,13 +492,13 @@ export const NewPromptForm: React.FC<NewPromptFormProps> = (props) => {
               !initialPrompt && form.formState.errors.name?.message,
             )} // Disable button if prompt name already exists. Check is dynamic and not part of zod schema
           >
-            Create prompt
+            {t("Create prompt")}
           </Button>
         )}
       </form>
       {formError && (
         <p className="text-red text-center">
-          <span className="font-bold">Error:</span> {formError}
+          <span className="font-bold">{t("Error:")}</span> {formError}
         </p>
       )}
     </Form>

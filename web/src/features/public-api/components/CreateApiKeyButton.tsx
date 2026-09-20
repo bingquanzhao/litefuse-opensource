@@ -21,12 +21,14 @@ import { Label } from "@/src/components/ui/label";
 import { cn } from "@/src/utils/tailwind";
 import { SubHeader } from "@/src/components/layouts/header";
 
+import { useTranslation } from "react-i18next";
 type ApiKeyScope = "project" | "organization";
 
 export function CreateApiKeyButton(props: {
   entityId: string;
   scope: ApiKeyScope;
 }) {
+  const { t } = useTranslation();
   const utils = api.useUtils();
   const capture = usePostHogClientCapture();
 
@@ -108,13 +110,13 @@ export function CreateApiKeyButton(props: {
       <DialogTrigger asChild>
         <Button variant="secondary">
           <PlusIcon className="mr-1.5 -ml-0.5 h-5 w-5" aria-hidden="true" />
-          Create new API keys
+          {t("Create new API keys")}
         </Button>
       </DialogTrigger>
       <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>
-            {generatedKeys ? "API Keys" : "Create API Keys"}
+            {generatedKeys ? t("API Keys") : t("Create API Keys")}
           </DialogTitle>
         </DialogHeader>
         <DialogBody>
@@ -123,10 +125,10 @@ export function CreateApiKeyButton(props: {
           ) : (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="note">Note (optional)</Label>
+                <Label htmlFor="note">{t("Note (optional)")}</Label>
                 <Input
                   id="note"
-                  placeholder="Production key"
+                  placeholder={t("Production key")}
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   onKeyDown={(e) => {
@@ -148,7 +150,7 @@ export function CreateApiKeyButton(props: {
                 mutCreateProjectApiKey.isPending || mutCreateOrgApiKey.isPending
               }
             >
-              Create API keys
+              {t("Create API keys")}
             </Button>
           </DialogFooter>
         )}
@@ -166,15 +168,18 @@ export const ApiKeyRender = ({
   generatedKeys?: { secretKey: string; publicKey: string };
   className?: string;
 }) => {
+  const { t } = useTranslation();
   const envCode = useLangfuseEnvCode(generatedKeys);
 
   return (
     <div className={cn("space-y-6", className)}>
       <div>
-        <SubHeader title="Secret Key" />
+        <SubHeader title={t("Secret Key")} />
         <div className="text-muted-foreground text-sm">
-          This key can only be viewed once. You can always create new keys in
-          the {scope} settings.
+          {t(
+            "This key can only be viewed once. You can always create new keys in the {{scope}} settings.",
+            { scope },
+          )}
         </div>
         <CodeView
           content={generatedKeys?.secretKey ?? "Loading ..."}
@@ -182,14 +187,14 @@ export const ApiKeyRender = ({
         />
       </div>
       <div>
-        <SubHeader title="Public Key" />
+        <SubHeader title={t("Public Key")} />
         <CodeView
           content={generatedKeys?.publicKey ?? "Loading ..."}
           className="mt-2"
         />
       </div>
       <div>
-        <SubHeader title=".env" />
+        <SubHeader title={t(".env")} />
         <CodeView content={envCode} className="mt-2" />
       </div>
     </div>

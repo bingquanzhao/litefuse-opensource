@@ -46,6 +46,7 @@ import { ActionHandlerRegistry } from "./actions";
 import { webhookSchema } from "./actions/WebhookActionForm";
 import { MultiSelect } from "@/src/features/filters/components/multi-select";
 
+import { useTranslation } from "react-i18next";
 // Define Slack action schema
 const slackSchema = z.object({
   channelId: z.string().min(1, "Channel is required"),
@@ -113,6 +114,7 @@ export const AutomationForm = ({
   automation,
   isEditing = false,
 }: AutomationFormProps) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<string>("webhook");
   const hasAccess = useHasProjectAccess({
@@ -244,12 +246,13 @@ export const AutomationForm = ({
 
     // Use action handler to validate and build config
     const handler = ActionHandlerRegistry.getHandler(data.actionType);
-    const validation = handler.validateFormData(data);
+    const validation = handler.validateFormData(data, t);
 
     if (!validation.isValid) {
       showErrorToast(
-        "Validation Error",
-        validation.errors?.join(", ") || "Please fill in all required fields",
+        t("Validation Error"),
+        validation.errors?.join(", ") ||
+          t("Please fill in all required fields"),
       );
       return;
     }
@@ -271,8 +274,10 @@ export const AutomationForm = ({
       });
 
       showSuccessToast({
-        title: "Automation Updated",
-        description: `Successfully updated automation "${data.name}".`,
+        title: t("Automation Updated"),
+        description: t('Successfully updated automation "{{name}}".', {
+          name: data.name,
+        }),
       });
 
       onSuccess?.(automation.id);
@@ -290,8 +295,10 @@ export const AutomationForm = ({
       });
 
       showSuccessToast({
-        title: "Automation Created",
-        description: `Successfully created automation "${data.name}".`,
+        title: t("Automation Created"),
+        description: t('Successfully created automation "{{name}}".', {
+          name: data.name,
+        }),
       });
 
       onSuccess?.(
@@ -403,9 +410,9 @@ export const AutomationForm = ({
 
         <Card>
           <CardHeader>
-            <CardTitle>Trigger</CardTitle>
+            <CardTitle>{t("Trigger")}</CardTitle>
             <CardDescription>
-              Configure when this automation should run.
+              {t("Configure when this automation should run.")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -456,17 +463,21 @@ export const AutomationForm = ({
                       options={[
                         {
                           value: "created",
-                          description:
+                          description: t(
                             "Whenever a new prompt version is created",
+                          ),
                         },
                         {
                           value: "updated",
-                          description:
+                          description: t(
                             "Whenever tags or labels on a prompt version are updated",
+                          ),
                         },
                         {
                           value: "deleted",
-                          description: "Whenever a prompt version is deleted",
+                          description: t(
+                            "Whenever a prompt version is deleted",
+                          ),
                         },
                       ]}
                       className="my-0 w-auto overflow-hidden"
@@ -512,9 +523,9 @@ export const AutomationForm = ({
 
         <Card>
           <CardHeader>
-            <CardTitle>Action</CardTitle>
+            <CardTitle>{t("Action")}</CardTitle>
             <CardDescription>
-              Configure what happens when the trigger fires.
+              {t("Configure what happens when the trigger fires.")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -591,7 +602,7 @@ export const AutomationForm = ({
             <div className="grow"></div>
             <div className="flex gap-3">
               <Button type="button" variant="outline" onClick={handleCancel}>
-                Cancel
+                {t("Cancel")}
               </Button>
               <Button
                 type="submit"

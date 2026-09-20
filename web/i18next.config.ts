@@ -18,6 +18,9 @@ export default defineConfig({
       "src/**/*.servertest.*",
       "src/__tests__/**",
       "src/__e2e__/**",
+      // Deprecated vendored subtree, see README.
+      "src/features/discover/**",
+      "src/lib/discover-shims/**",
     ],
     output: "src/features/i18n/locales/{{language}}.json",
     defaultNS: false,
@@ -30,6 +33,6 @@ export default defineConfig({
     sort: true,
   },
   lint: {
-    ignore: ["src/features/discover/**"],
+    ignore: ["src/features/discover/**", "src/lib/discover-shims/**"],
   },
 });

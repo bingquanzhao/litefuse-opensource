@@ -48,6 +48,7 @@ import {
 import { validateScoreConfigUpsertFormInput } from "@/src/features/score-configs/lib/validateScoreConfigUpsertFormInput";
 import { ScoreConfigDataType } from "@langfuse/shared";
 
+import { useTranslation } from "react-i18next";
 export function UpsertScoreConfigDialog({
   projectId,
   id,
@@ -61,6 +62,7 @@ export function UpsertScoreConfigDialog({
   onOpenChange: (open: boolean) => void;
   defaultValues?: CreateConfig | UpdateConfig;
 }) {
+  const { t } = useTranslation();
   const [formError, setFormError] = useState<string | null>(null);
   const capture = usePostHogClientCapture();
 
@@ -152,13 +154,13 @@ export function UpsertScoreConfigDialog({
         <DialogTrigger asChild>
           <Button variant="secondary" loading={createScoreConfig.isPending}>
             <PlusIcon className="mr-1.5 -ml-0.5 h-4 w-4" aria-hidden="true" />
-            {id ? "Update score config" : "Add new score config"}
+            {id ? t("Update score config") : t("Add new score config")}
           </Button>
         </DialogTrigger>
         <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {id ? "Update score config" : "Add new score config"}
+              {id ? t("Update score config") : t("Add new score config")}
             </DialogTitle>
           </DialogHeader>
           <Form {...form}>
@@ -211,8 +213,8 @@ export function UpsertScoreConfigDialog({
                               isBooleanDataType(value as ScoreConfigDataType)
                             ) {
                               replace([
-                                { label: "True", value: 1 },
-                                { label: "False", value: 0 },
+                                { label: t("True"), value: 1 },
+                                { label: t("False"), value: 0 },
                               ]);
                             } else {
                               replace([{ label: "", value: 0 }]);
@@ -302,13 +304,17 @@ export function UpsertScoreConfigDialog({
                               <FormLabel className="grid grid-flow-col">
                                 Value
                                 <DocPopup
-                                  description={`This is how the ${
+                                  description={
                                     isCategoricalDataType(
                                       form.getValues("dataType"),
                                     )
-                                      ? "category"
-                                      : "boolean"
-                                  } label is mapped to an integer value internally.`}
+                                      ? t(
+                                          "This is how the category label is mapped to an integer value internally.",
+                                        )
+                                      : t(
+                                          "This is how the boolean label is mapped to an integer value internally.",
+                                        )
+                                  }
                                 />
                               </FormLabel>
                               <FormLabel>Label</FormLabel>
@@ -427,7 +433,8 @@ export function UpsertScoreConfigDialog({
                 <div className="flex w-full flex-col items-end gap-4">
                   {formError ? (
                     <p className="text-red w-full text-center">
-                      <span className="font-bold">Error:</span> {formError}
+                      <span className="font-bold">{t("Error:")}</span>{" "}
+                      {formError}
                     </p>
                   ) : null}
                   <Button
@@ -436,7 +443,7 @@ export function UpsertScoreConfigDialog({
                       createScoreConfig.isPending || updateScoreConfig.isPending
                     }
                   >
-                    Submit
+                    {t("Submit")}
                   </Button>
                 </div>
               </DialogFooter>

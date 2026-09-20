@@ -33,6 +33,7 @@ import { CodeMirrorEditor } from "@/src/components/editor";
 import { JSONSchemaFormSchema, type LlmTool } from "@langfuse/shared";
 import { showErrorToast } from "@/src/features/notifications/showErrorToast";
 
+import { useTranslation } from "react-i18next";
 const formSchema = z.object({
   name: LLMToolNameSchema,
   description: z.string().min(1, "Description is required"),
@@ -57,6 +58,7 @@ type CreateOrEditLLMToolDialog = {
 export const CreateOrEditLLMToolDialog: React.FC<CreateOrEditLLMToolDialog> = (
   props,
 ) => {
+  const { t } = useTranslation();
   const { children, projectId, onSave, existingLlmTool } = props;
 
   const utils = api.useUtils();
@@ -160,10 +162,10 @@ export const CreateOrEditLLMToolDialog: React.FC<CreateOrEditLLMToolDialog> = (
       >
         <DialogHeader>
           <DialogTitle>
-            {existingLlmTool ? "Edit LLM Tool" : "Create LLM Tool"}
+            {existingLlmTool ? t("Edit LLM Tool") : t("Create LLM Tool")}
           </DialogTitle>
           <DialogDescription>
-            Define a tool for LLM function calling
+            {t("Define a tool for LLM function calling")}
           </DialogDescription>
         </DialogHeader>
 
@@ -265,8 +267,9 @@ export const CreateOrEditLLMToolDialog: React.FC<CreateOrEditLLMToolDialog> = (
             <DialogFooter className="bg-background sticky bottom-0 mt-4 flex flex-col gap-2 border-t pt-4">
               <div className="flex w-full flex-col gap-2">
                 <p className="text-muted-foreground text-xs">
-                  Note: Changes to tools are reflected to all members of this
-                  project.
+                  {t(
+                    "Note: Changes to tools are reflected to all members of this project.",
+                  )}
                 </p>
                 <div className="flex items-center justify-between gap-2">
                   {existingLlmTool && (
@@ -284,9 +287,9 @@ export const CreateOrEditLLMToolDialog: React.FC<CreateOrEditLLMToolDialog> = (
                     variant="outline"
                     onClick={() => setOpen(false)}
                   >
-                    Cancel
+                    {t("Cancel")}
                   </Button>
-                  <Button type="submit">Save</Button>
+                  <Button type="submit">{t("Save")}</Button>
                 </div>
               </div>
             </DialogFooter>
