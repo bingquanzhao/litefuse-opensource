@@ -28,6 +28,8 @@ import { type PartialJSONTheme } from "@/src/components/ui/AdvancedJsonViewer/ty
 import { buildTreeFromJSON } from "@/src/components/ui/AdvancedJsonViewer/utils/treeStructure";
 import { searchInTree } from "@/src/components/ui/AdvancedJsonViewer/utils/searchJson";
 
+import { useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 export interface AdvancedJsonSectionProps {
   /** Section title */
   title: string;
@@ -101,7 +103,7 @@ export function AdvancedJsonSection({
   className,
   hideIfNull = false,
   enableSearch = true,
-  searchPlaceholder = "Search JSON...",
+  searchPlaceholder = i18nKey("Search JSON..."),
   showLineNumbers = true,
   enableCopy = true,
   truncateStringsAt = 100,
@@ -111,6 +113,7 @@ export function AdvancedJsonSection({
   commentedPaths,
   virtualized,
 }: AdvancedJsonSectionProps) {
+  const { t } = useTranslation();
   // String wrap mode state (persisted in localStorage)
   const { stringWrapMode, setStringWrapMode } = useJsonViewPreferences();
 
@@ -291,7 +294,9 @@ export function AdvancedJsonSection({
             <div className="flex items-center gap-2">
               <span>{title}</span>
               <span className="text-muted-foreground text-xs font-normal">
-                {totalRowCount} rows{isVirtualized ? " (virtualized)" : ""}
+                {isVirtualized
+                  ? t("{{count}} rows (virtualized)", { count: totalRowCount })
+                  : t("{{count}} rows", { count: totalRowCount })}
               </span>
             </div>
           }
@@ -426,7 +431,7 @@ export function AdvancedJsonSection({
         >
           {!hasData ? (
             <div className="text-muted-foreground flex h-full items-center justify-center p-4 text-sm">
-              {isLoading ? "Loading..." : "No data"}
+              {isLoading ? t("Loading...") : t("No data")}
             </div>
           ) : (
             <AdvancedJsonViewer

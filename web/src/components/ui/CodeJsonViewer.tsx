@@ -25,6 +25,7 @@ import {
 } from "@/src/components/ui/PromptReferences";
 import { copyTextToClipboard } from "@/src/utils/clipboard";
 
+import { useTranslation } from "react-i18next";
 export const IO_TABLE_CHAR_LIMIT = 10000;
 
 export function JSONView(props: {
@@ -43,6 +44,7 @@ export function JSONView(props: {
   externalJsonCollapsed?: boolean;
   onToggleCollapse?: () => void;
 }) {
+  const { t } = useTranslation();
   // some users ingest stringified json nested in json, parse it
   const parsedJson = useMemo(() => deepParseJson(props.json), [props.json]);
   const { resolvedTheme } = useTheme();
@@ -153,7 +155,7 @@ export function JSONView(props: {
       {props.media && props.media.length > 0 && (
         <>
           <div className="text-muted-foreground my-1 px-0 py-1 text-xs">
-            Media
+            {t("Media")}
           </div>
           <div className="flex flex-wrap gap-2 p-4 pt-1">
             {props.media.map((m) => (

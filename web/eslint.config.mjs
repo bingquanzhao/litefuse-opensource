@@ -10,6 +10,8 @@ const I18N_MIGRATED_FILES = [
   "src/components/nav/**/*.tsx",
   "src/components/layouts/**/*.tsx",
   "src/features/notifications/**/*.tsx",
+  "src/components/ui/**/*.tsx",
+  "src/components/table/**/*.tsx",
 ];
 
 export default [
@@ -26,6 +28,7 @@ export default [
   {
     name: "litefuse/web/i18n-no-literal-string",
     files: I18N_MIGRATED_FILES,
+    ignores: ["**/*.clienttest.tsx", "**/*.servertest.tsx"],
     plugins: { i18next },
     rules: {
       "i18next/no-literal-string": [
