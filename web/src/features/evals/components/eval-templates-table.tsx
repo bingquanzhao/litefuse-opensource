@@ -37,6 +37,7 @@ import { useEntitlementLimit } from "@/src/features/entitlements/hooks";
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
 
 import { useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 export type EvalsTemplateRow = {
   name: string;
   maintainer: string;
@@ -335,7 +336,7 @@ export default function EvalsTemplateTable({
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         searchConfig={{
-          metadataSearchFields: ["Name"],
+          metadataSearchFields: [i18nKey("Name")],
           updateQuery: setSearchQuery,
           currentQuery: searchQuery ?? undefined,
           tableAllowsFullTextSearch: false,

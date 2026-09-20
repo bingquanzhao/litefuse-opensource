@@ -61,6 +61,7 @@ import { Callout } from "@/src/components/ui/callout";
 import Link from "next/link";
 import { Badge } from "@/src/components/ui/badge";
 import { Trans, useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 import {
   Tooltip,
   TooltipContent,
@@ -484,7 +485,7 @@ export default function EvaluatorTable({ projectId }: { projectId: string }) {
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
           searchConfig={{
-            metadataSearchFields: ["Name"],
+            metadataSearchFields: [i18nKey("Name")],
             updateQuery: setSearchQuery,
             currentQuery: searchQuery ?? undefined,
             tableAllowsFullTextSearch: false,

@@ -80,6 +80,7 @@ import useSessionStorage from "@/src/components/useSessionStorage";
 import { buildTraceDetailPath } from "@/src/utils/navigation";
 import { getSafeRedirectPath } from "@/src/utils/redirect";
 import { useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 import {
   type RefreshInterval,
   REFRESH_INTERVALS,
@@ -1324,7 +1325,12 @@ export default function ObservationsTable({
             columns={columns}
             filterState={queryFilter.explicitFilterState}
             searchConfig={{
-              metadataSearchFields: ["ID", "Name", "Trace Name", "Model"],
+              metadataSearchFields: [
+                i18nKey("ID"),
+                i18nKey("Name"),
+                i18nKey("Trace Name"),
+                i18nKey("Model"),
+              ],
               updateQuery: setSearchQuery,
               currentQuery: searchQuery ?? undefined,
               searchType,

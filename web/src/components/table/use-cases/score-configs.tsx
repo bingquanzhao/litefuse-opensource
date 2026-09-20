@@ -32,6 +32,7 @@ import { ArchiveScoreConfigButton } from "@/src/features/score-configs/component
 import { UpsertScoreConfigDialog } from "@/src/features/score-configs/components/UpsertScoreConfigDialog";
 
 import { useTranslation } from "react-i18next";
+import { type TFunction } from "i18next";
 type ScoreConfigTableRow = {
   id: string;
   name: string;
@@ -49,13 +50,15 @@ type ScoreConfigTableRow = {
 
 function getConfigRange(
   originalRow: ScoreConfigTableRow,
+  t: TFunction,
 ): undefined | Prisma.JsonValue {
   const { range, dataType } = originalRow;
 
   if (isNumericDataType(dataType)) {
+    // Built for display only, so the keys are labels rather than data.
     return {
-      Minimum: range.minValue ?? "-∞",
-      Maximum: range.maxValue ?? "∞",
+      [t("Minimum")]: range.minValue ?? "-∞",
+      [t("Maximum")]: range.maxValue ?? "∞",
     };
   }
 
@@ -128,7 +131,7 @@ export function ScoreConfigsTable({ projectId }: { projectId: string }) {
       enableHiding: true,
       size: 300,
       cell: ({ row }) => {
-        const range = getConfigRange(row.original);
+        const range = getConfigRange(row.original, t);
 
         return !!range ? (
           <IOTableCell data={range} singleLine={rowHeight === "s"} />
@@ -170,7 +173,7 @@ export function ScoreConfigsTable({ projectId }: { projectId: string }) {
       enableHiding: true,
       cell: ({ row }) => {
         const { isArchived } = row.original;
-        return isArchived ? "Archived" : "Active";
+        return isArchived ? t("Archived") : t("Active");
       },
     },
     {

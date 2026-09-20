@@ -93,7 +93,6 @@ function UpdateDisplayName() {
             {t('Your display name is currently "{{name}}".', {
               name: session?.user?.name ?? "",
             })}
-            &quot;.
           </p>
         )}
         <Form {...form}>

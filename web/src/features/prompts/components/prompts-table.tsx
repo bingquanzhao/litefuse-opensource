@@ -31,6 +31,7 @@ import { FolderBreadcrumb } from "@/src/features/folders/components/FolderBreadc
 import { FolderBreadcrumbLink } from "@/src/features/folders/components/FolderBreadcrumbLink";
 
 import { useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 type PromptTableRow = {
   id: string;
   name: string;
@@ -392,7 +393,11 @@ export function PromptTable() {
           filterState={queryFilter.filterState}
           columnsWithCustomSelect={["labels", "tags"]}
           searchConfig={{
-            metadataSearchFields: ["Name", "Tags", "Content"],
+            metadataSearchFields: [
+              i18nKey("Name"),
+              i18nKey("Tags"),
+              i18nKey("Content"),
+            ],
             updateQuery: useDebounce(setSearchQuery, 300),
             currentQuery: searchQuery ?? undefined,
             tableAllowsFullTextSearch: true,

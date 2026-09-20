@@ -92,6 +92,7 @@ import TagList from "@/src/features/tag/components/TagList";
 
 import { useTranslation } from "react-i18next";
 import { Trans } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 export type TracesTableRow = {
   // Shown by default
   bookmarked: boolean;
@@ -1368,7 +1369,11 @@ export default function TracesTable({
               controllers: viewControllers,
             }}
             searchConfig={{
-              metadataSearchFields: ["ID", "Trace Name", "User ID"],
+              metadataSearchFields: [
+                i18nKey("ID"),
+                i18nKey("Trace Name"),
+                i18nKey("User ID"),
+              ],
               updateQuery: setSearchQuery,
               currentQuery: searchQuery ?? undefined,
               tableAllowsFullTextSearch: true,

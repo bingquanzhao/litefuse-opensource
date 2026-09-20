@@ -228,7 +228,9 @@ export function DataTableToolbar<TData, TValue>({
                   searchConfig.tableAllowsFullTextSearch
                     ? t("Search...")
                     : t("Search ({{fields}})", {
-                        fields: searchConfig.metadataSearchFields?.join(", "),
+                        fields: searchConfig.metadataSearchFields
+                          ?.map((field) => t(field))
+                          .join("、"),
                       })
                 }
                 value={searchString}

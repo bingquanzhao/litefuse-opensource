@@ -76,7 +76,6 @@ export default function RenameProject() {
             {t('Your Project is currently named "{{name}}".', {
               name: project?.name ?? "",
             })}
-            &quot;.
           </p>
         )}
         <Form {...form}>

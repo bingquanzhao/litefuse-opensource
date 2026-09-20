@@ -18,6 +18,7 @@ import { orderedRoles } from "@/src/features/rbac/constants/orderedRoles";
 
 import { useTranslation } from "react-i18next";
 import { type TFunction } from "i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 export const RoleSelectItem = ({
   role,
   isProjectRole,
@@ -44,7 +45,7 @@ export const RoleSelectItem = ({
       <HoverCardTrigger asChild>
         <SelectItem value={role} className="max-w-56">
           <span>
-            {formatRole(role)}
+            {formatRole(role, t)}
             {isProjectNoneRole ? t(" (keep default role)") : ""}
           </span>
         </SelectItem>
@@ -58,7 +59,7 @@ export const RoleSelectItem = ({
           ) : (
             <>
               <div className="font-bold">
-                {t("Role: {{role}}", { role: formatRole(role) })}
+                {t("Role: {{role}}", { role: formatRole(role, t) })}
               </div>
               <p className="mt-2 text-xs font-semibold">
                 {t("Organization Scopes")}
@@ -135,5 +136,17 @@ const reduceScopesToListItems = (
   );
 };
 
-const formatRole = (role: Role) =>
-  role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
+/** Role names are enum values, so the label has to be looked up. */
+const roleLabels: Record<Role, string> = {
+  [Role.OWNER]: i18nKey("Owner"),
+  [Role.ADMIN]: i18nKey("Admin"),
+  [Role.MEMBER]: i18nKey("Member"),
+  [Role.VIEWER]: i18nKey("Viewer"),
+  [Role.NONE]: i18nKey("None"),
+};
+
+const formatRole = (role: Role, t: TFunction) =>
+  t(
+    roleLabels[role] ??
+      role.charAt(0).toUpperCase() + role.slice(1).toLowerCase(),
+  );

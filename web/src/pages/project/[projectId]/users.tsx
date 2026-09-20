@@ -32,6 +32,7 @@ import {
 import { Badge } from "@/src/components/ui/badge";
 
 import { Trans, useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 type RowData = {
   userId: string;
   environment?: string;
@@ -420,7 +421,7 @@ const UsersTable = ({ isBetaEnabled }: { isBetaEnabled: boolean }) => {
         timeRange={timeRange}
         setTimeRange={setTimeRange}
         searchConfig={{
-          metadataSearchFields: ["User ID"],
+          metadataSearchFields: [i18nKey("User ID")],
           updateQuery: setSearchQuery,
           currentQuery: searchQuery ?? undefined,
           tableAllowsFullTextSearch: false,
