@@ -54,10 +54,17 @@ same keys, that no zh-CN value is empty, that keys are the English text, that
 interpolation placeholders survive translation, and that no key looks like a
 protocol identifier.
 
+## Not translated
+
+`src/features/discover/**` (and its shims) is deprecated and vendored, and may
+be re-synced wholesale, so it is excluded from both lint gates and from
+extraction. It stays English regardless of the selected language. Nothing else
+in `src/` is exempt.
+
 ## Rollout rule
 
-zh-CN is switched on for users only when `pnpm i18n:lint` is clean for all of
-`src/` and `I18N_MIGRATED_FILES` covers `src/**`. Until then production keeps
+zh-CN is switched on for users only when both lint gates are clean for all of
+`src/` and `I18N_MIGRATED_FILES` covers `src/**` (minus the exclusions above). Until then production keeps
 `LITEFUSE_I18N_LOCALES=en`; test environments may enable `en,zh-CN` to review
 progress. After each upstream merge run `pnpm i18n:extract`, translate the new
 keys, and `pnpm i18n:check` is green again.

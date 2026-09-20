@@ -5,6 +5,15 @@ import i18next from "eslint-plugin-i18next";
 // Directories already migrated to react-i18next. Hardcoded UI strings are an
 // error there so they cannot regress. Extend as directories are migrated; the
 // zh-CN rollout gate is this list covering all of src/.
+// Deprecated, and a vendored subtree that may be re-synced wholesale, so it is
+// never translated and never enters the gate.
+const I18N_EXCLUDED_FILES = [
+  "**/*.clienttest.tsx",
+  "**/*.servertest.tsx",
+  "src/features/discover/**",
+  "src/lib/discover-shims/**",
+];
+
 const I18N_MIGRATED_FILES = [
   "src/features/i18n/**/*.tsx",
   "src/components/nav/**/*.tsx",
@@ -28,7 +37,7 @@ export default [
   {
     name: "litefuse/web/i18n-no-literal-string",
     files: I18N_MIGRATED_FILES,
-    ignores: ["**/*.clienttest.tsx", "**/*.servertest.tsx"],
+    ignores: I18N_EXCLUDED_FILES,
     plugins: { i18next },
     rules: {
       // The JSX rule cannot see text that travels as data before it is
