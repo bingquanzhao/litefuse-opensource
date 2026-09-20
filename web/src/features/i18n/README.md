@@ -15,8 +15,14 @@ const { t } = useTranslation();
 - Static data (route tables, label maps) cannot call hooks: wrap the literal
   with `i18nKey("Tracing")` and let the rendering component call `t(value)`.
 - Never wrap identifiers the SDKs, OTel or the API read (attribute names,
-  enum values, column ids). Only text a person reads is a key.
+  enum values, column ids). Only text a person reads is a key. Translating one
+  breaks ingestion silently, so `locales.clienttest.ts` rejects any key that
+  reads like a machine identifier; do not add to its allowlist to get past it
+  without checking what reads the string.
 - Do not build sentences by concatenation; use one key with placeholders.
+- Translate against [GLOSSARY.md](./GLOSSARY.md) and add any new recurring
+  term to it in the same commit. Term drift across hundreds of files is the
+  main quality risk of this migration.
 
 ## Locale resolution
 
@@ -41,7 +47,12 @@ invisible until the dictionary is complete.
 
 `eslint.config.mjs` (`I18N_MIGRATED_FILES`) turns hardcoded JSX strings into
 lint failures for migrated directories. Add a directory to that list in the
-same PR that migrates it.
+same commit that migrates it.
+
+`locales.clienttest.ts` additionally checks that both locale files hold the
+same keys, that no zh-CN value is empty, that keys are the English text, that
+interpolation placeholders survive translation, and that no key looks like a
+protocol identifier.
 
 ## Rollout rule
 
