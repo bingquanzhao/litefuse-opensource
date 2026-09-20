@@ -446,6 +446,7 @@ function JsonPrettyTable({
   stickyTopLevelKey?: boolean;
   showObservationTypeBadge?: boolean;
 }) {
+  const { t } = useTranslation();
   const headerRef = useRef<HTMLTableRowElement>(null);
   const topLevelRowRef = useRef<HTMLTableRowElement>(null);
   const [stickyOffsets, setStickyOffsets] = useState({ header: 32, row: 32 });
@@ -471,7 +472,7 @@ function JsonPrettyTable({
   const columns: LangfuseColumnDef<JsonTableRow, unknown>[] = [
     {
       accessorKey: "key",
-      header: "Path",
+      header: t("Path"),
       size: 35,
       cell: ({ row }) => {
         // we need to calculate the indentation here for a good line break
@@ -563,7 +564,7 @@ function JsonPrettyTable({
     },
     {
       accessorKey: "value",
-      header: "Value",
+      header: t("Value"),
       size: 65,
       cell: ({ row }) => (
         <ValueCell

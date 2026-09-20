@@ -27,7 +27,7 @@ const ALLOWED_IDENTIFIER_LIKE_KEYS = new Set<string>([
 const IDENTIFIER_LIKE_PATTERNS: Array<{ name: string; regex: RegExp }> = [
   { name: "snake_case or CONSTANT_CASE", regex: /_/ },
   { name: "camelCase identifier", regex: /^[a-z][A-Za-z0-9]*[A-Z]/ },
-  { name: "dotted path", regex: /\.[a-z]/ },
+  { name: "dotted path", regex: /[A-Za-z0-9]\.[a-z]/ },
   { name: "bare acronym", regex: /^[A-Z0-9]{3,}$/ },
   { name: "URL", regex: /^https?:\/\// },
   { name: "media type", regex: /^[a-z]+\/[a-z]+/ },

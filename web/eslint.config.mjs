@@ -31,6 +31,18 @@ export default [
     ignores: ["**/*.clienttest.tsx", "**/*.servertest.tsx"],
     plugins: { i18next },
     rules: {
+      // The JSX rule cannot see text that travels as data before it is
+      // rendered: column headers, option labels, tooltip copy. Those live on a
+      // small set of property names, so guard them by name.
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "Property[key.name=/^(header|label|title|description|placeholder|tooltip|message|emptyMessage)$/] > Literal[value=/^[A-Za-z][A-Za-z0-9 ,.()-]*$/]",
+          message:
+            "User-facing text in a data property must be an i18n key: wrap it with i18nKey() and translate it where it is rendered.",
+        },
+      ],
       "i18next/no-literal-string": [
         "error",
         {
