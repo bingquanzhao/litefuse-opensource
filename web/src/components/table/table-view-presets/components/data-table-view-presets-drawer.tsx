@@ -835,8 +835,8 @@ export function TableViewPresetsDrawer({
                       })}
                     </li>
                     <li>
-                      {t("Sort order ({{count}} criteria)", {
-                        count: formatOrderBy(currentState.orderBy),
+                      {t("Sort order ({{order}})", {
+                        order: formatOrderBy(currentState.orderBy),
                       })}
                     </li>
                     {currentState.searchQuery && <li>{t("Search term")}</li>}

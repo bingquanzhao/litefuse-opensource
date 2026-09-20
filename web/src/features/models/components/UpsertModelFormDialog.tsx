@@ -264,7 +264,8 @@ export const UpsertModelFormDialog = (({
     if (!defaultTier) return;
 
     append({
-      name: t("Custom Tier {{index}}", { index: fields.length }),
+      // Stored on the model, so the default name stays locale-independent.
+      name: `Custom Tier ${fields.length}`,
       isDefault: false,
       priority: fields.length,
       conditions: [

@@ -274,8 +274,8 @@ export function BillingSettings({ orgId }: BillingSettingsProps) {
             <div className="mb-2 flex justify-between text-sm">
               <span>
                 {numberFormatter.format(usage?.currentUnits ?? 0)} /{" "}
-                {t("{{count}} units", {
-                  count: numberFormatter.format(
+                {t("{{amount}} units", {
+                  amount: numberFormatter.format(
                     usage?.includedUnits ?? 100_000,
                   ),
                 })}

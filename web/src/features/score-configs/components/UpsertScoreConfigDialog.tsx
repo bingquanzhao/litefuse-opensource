@@ -212,9 +212,12 @@ export function UpsertScoreConfigDialog({
                             if (
                               isBooleanDataType(value as ScoreConfigDataType)
                             ) {
+                              // Persisted as the score config's category
+                              // labels and matched by the SDK and the public
+                              // API, so these are never translated.
                               replace([
-                                { label: t("True"), value: 1 },
-                                { label: t("False"), value: 0 },
+                                { label: "True", value: 1 },
+                                { label: "False", value: 0 },
                               ]);
                             } else {
                               replace([{ label: "", value: 0 }]);

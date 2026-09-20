@@ -286,15 +286,21 @@ export function InlineFilterState({
         {filter.operator}{" "}
         {filter.type === "positionInTrace"
           ? (() => {
-              const mode = filter.key ?? t("last");
+              // "last" is the sentinel the branches match on, so the default
+              // stays untranslated; only the rendered label is translated.
+              const mode = filter.key ?? "last";
               const label =
                 mode === "root"
                   ? t("root")
                   : mode === "last"
                     ? t("last")
                     : mode === "nthFromStart"
-                      ? `nth from start ${filter.value ?? ""}`.trim()
-                      : `nth from end ${filter.value ?? ""}`.trim();
+                      ? t("nth from start {{n}}", {
+                          n: filter.value ?? "",
+                        }).trim()
+                      : t("nth from end {{n}}", {
+                          n: filter.value ?? "",
+                        }).trim();
               return label;
             })()
           : filter.type === "datetime"

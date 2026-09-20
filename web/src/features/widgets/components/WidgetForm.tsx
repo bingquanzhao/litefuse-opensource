@@ -424,7 +424,7 @@ export function WidgetForm({
       ]);
       setUserFilterState([]);
     }
-  }, [isBetaEnabled, isExistingWidget]);
+  }, [isBetaEnabled, isExistingWidget, t]);
 
   // Static sort state for pivot table preview (non-interactive)
   const previewSortState = useMemo(

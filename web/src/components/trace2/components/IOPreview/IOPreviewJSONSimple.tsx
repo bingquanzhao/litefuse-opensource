@@ -102,6 +102,7 @@ export function IOPreviewJSONSimple({
       {showInput && (
         <PrettyJsonView
           title={t("Input")}
+          titleKey="Input"
           json={input}
           parsedJson={effectiveInput}
           isLoading={isLoading}
@@ -120,6 +121,7 @@ export function IOPreviewJSONSimple({
       {showOutput && (
         <PrettyJsonView
           title={t("Output")}
+          titleKey="Output"
           json={output}
           parsedJson={effectiveOutput}
           isLoading={isLoading}

@@ -17,6 +17,7 @@
     "i18n:extract": "i18next-cli extract",
     "i18n:check": "i18next-cli extract --ci && i18next-cli status",
     "i18n:lint": "i18next-cli lint",
+    "i18n:gate": "eslint --config eslint.i18n.config.mjs --max-warnings 0 src",
     "clean": "rm -rf node_modules",
     "start": "dotenv -e ../.env -- sh -c 'NEXT_MANUAL_SIG_HANDLE=true next start'",
     "test": "cross-env NODE_OPTIONS='--no-experimental-require-module' dotenv -e ../.env.test -e ../.env -- jest --verbose --runInBand --selectProjects server",

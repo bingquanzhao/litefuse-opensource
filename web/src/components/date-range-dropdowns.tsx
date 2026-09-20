@@ -54,7 +54,7 @@ const BaseDateRangeDropdown = <T extends string>({
             <span className="bg-muted w-10 rounded px-1.5 py-0.5 text-center text-xs">
               {getAbbreviatedTimeRange(selectedOption)}
             </span>
-            <span>{getTimeRangeLabel(selectedOption)}</span>
+            <span>{t(getTimeRangeLabel(selectedOption))}</span>
           </div>
         </SelectValue>
       </SelectTrigger>
@@ -75,7 +75,7 @@ const BaseDateRangeDropdown = <T extends string>({
                 <span className="bg-muted w-10 rounded px-1.5 py-0.5 text-center text-xs">
                   {getAbbreviatedTimeRange(item)}
                 </span>
-                <span>{getTimeRangeLabel(item)}</span>
+                <span>{t(getTimeRangeLabel(item))}</span>
               </div>
             </SelectItem>
           );
