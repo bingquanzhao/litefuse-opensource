@@ -102,6 +102,7 @@ export function MarkdownJsonView({
   /** Content to render between header and main content (e.g., thinking blocks) */
   afterHeader?: React.ReactNode;
 }) {
+  const { t } = useTranslation();
   const validatedOpenAIContent = useMemo(
     () => OpenAIContentSchema.safeParse(content),
     [content],

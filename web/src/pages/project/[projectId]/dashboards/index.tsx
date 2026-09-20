@@ -43,7 +43,7 @@ export default function Dashboards() {
               capture("dashboard:new_dashboard_form_open");
             }}
           >
-            New dashboard
+            {t("New dashboard")}
           </ActionButton>
         ),
       }}

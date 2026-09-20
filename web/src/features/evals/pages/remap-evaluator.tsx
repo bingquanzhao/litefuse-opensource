@@ -150,7 +150,7 @@ export default function RemapEvaluatorPage() {
         title: t("Upgrade Evaluator"),
         breadcrumb: [
           {
-            name: "Running Evaluators",
+            name: t("Running Evaluators"),
             href: `/project/${projectId}/evals`,
           },
         ],
@@ -268,10 +268,10 @@ export default function RemapEvaluatorPage() {
                           className="mt-3 rounded-l-md rounded-r-none"
                         >
                           {legacyAction === "keep-active"
-                            ? "Save & keep legacy active"
+                            ? t("Save & keep legacy active")
                             : legacyAction === "mark-inactive"
-                              ? "Save & mark legacy inactive"
-                              : "Save & delete legacy"}
+                              ? t("Save & mark legacy inactive")
+                              : t("Save & delete legacy")}
                         </Button>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -288,26 +288,27 @@ export default function RemapEvaluatorPage() {
                               onClick={() => setLegacyAction("keep-active")}
                             >
                               {legacyAction === "keep-active" && "✓ "}
-                              Save & keep legacy active
+                              {t("Save & keep legacy active")}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setLegacyAction("mark-inactive")}
                             >
                               {legacyAction === "mark-inactive" && "✓ "}
-                              Save & mark legacy inactive
+                              {t("Save & mark legacy inactive")}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setLegacyAction("delete")}
                             >
                               {legacyAction === "delete" && "✓ "}
-                              Save & delete legacy
+                              {t("Save & delete legacy")}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
                       {formError ? (
                         <p className="text-red w-full text-center">
-                          <span className="font-bold">Error:</span> {formError}
+                          <span className="font-bold">{t("Error:")}</span>{" "}
+                          {formError}
                         </p>
                       ) : null}
                     </div>

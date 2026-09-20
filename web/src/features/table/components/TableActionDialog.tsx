@@ -126,7 +126,7 @@ export function TableActionDialog({
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select..." />
+                            <SelectValue placeholder={t("Select...")} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>

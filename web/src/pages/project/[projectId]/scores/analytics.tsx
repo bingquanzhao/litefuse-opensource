@@ -192,7 +192,9 @@ export default function ScoresAnalyticsV2Page() {
     <Page
       headerProps={{
         title: t("Scores"),
-        breadcrumb: [{ name: "Scores", href: `/project/${projectId}/scores` }],
+        breadcrumb: [
+          { name: t("Scores"), href: `/project/${projectId}/scores` },
+        ],
         help: {
           description: t(
             "A score is an evaluation of a trace or observation. It can be created from user feedback, model-based evaluations, or manual review. See docs to learn more.",

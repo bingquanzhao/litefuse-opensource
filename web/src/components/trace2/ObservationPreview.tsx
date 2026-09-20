@@ -186,8 +186,8 @@ export const ObservationPreview = ({
             </span>
             <CopyIdsPopover
               idItems={[
-                { id: preloadedObservation.traceId, name: "Trace ID" },
-                { id: preloadedObservation.id, name: "Observation ID" },
+                { id: preloadedObservation.traceId, name: t("Trace ID") },
+                { id: preloadedObservation.id, name: t("Observation ID") },
               ]}
             />
           </div>

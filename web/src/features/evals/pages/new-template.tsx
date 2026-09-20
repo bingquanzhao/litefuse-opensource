@@ -26,7 +26,7 @@ export default function NewTemplatesPage() {
         title: t("Create custom evaluator"),
         breadcrumb: [
           {
-            name: "Evaluators",
+            name: t("Evaluators"),
             href: `/project/${projectId}/evals/templates`,
           },
         ],

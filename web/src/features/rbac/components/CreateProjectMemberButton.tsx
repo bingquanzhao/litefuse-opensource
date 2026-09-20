@@ -42,6 +42,9 @@ import { RoleSelectItem } from "@/src/features/rbac/components/RoleSelectItem";
 import { ActionButton } from "@/src/components/ActionButton";
 
 import { useTranslation } from "react-i18next";
+
+/** Example address shown in the field, identical in every language. */
+const EXAMPLE_EMAIL = "jsdoe@example.com";
 const formSchema = z.object({
   email: z.string().trim().email(),
   orgRole: z.enum(Role),
@@ -169,9 +172,9 @@ export function CreateProjectMemberButton(props: {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{t("Email")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="jsdoe@example.com" {...field} />
+                        <Input placeholder={EXAMPLE_EMAIL} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -183,7 +186,7 @@ export function CreateProjectMemberButton(props: {
                     name="orgRole"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Organization Role</FormLabel>
+                        <FormLabel>{t("Organization Role")}</FormLabel>
                         <Select
                           defaultValue={field.value}
                           onValueChange={(value) =>
@@ -194,7 +197,9 @@ export function CreateProjectMemberButton(props: {
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select an organization role" />
+                              <SelectValue
+                                placeholder={t("Select an organization role")}
+                              />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -214,7 +219,7 @@ export function CreateProjectMemberButton(props: {
                     name="projectRole"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Project Role</FormLabel>
+                        <FormLabel>{t("Project Role")}</FormLabel>
                         <Select
                           defaultValue={field.value}
                           onValueChange={(value) =>
@@ -225,7 +230,9 @@ export function CreateProjectMemberButton(props: {
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select a project role" />
+                              <SelectValue
+                                placeholder={t("Select a project role")}
+                              />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -246,8 +253,10 @@ export function CreateProjectMemberButton(props: {
                         </Select>
                         {!hasOnlySingleProjectAccess && (
                           <FormDescription>
-                            This project role will override the default role for
-                            this current project ({props.project!.name}).
+                            {t(
+                              "This project role will override the default role for this current project ({{project}}).",
+                              { project: props.project!.name },
+                            )}
                           </FormDescription>
                         )}
                         <FormMessage />

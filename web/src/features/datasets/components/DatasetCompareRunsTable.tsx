@@ -238,7 +238,7 @@ function DatasetCompareRunsTableInternal(props: {
                 onClick={() => setIsFieldsDropdownOpen(!isFieldsDropdownOpen)}
               >
                 <LayoutList className="mr-2 h-4 w-4" />
-                <span>Fields</span>
+                <span>{t("Fields")}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -248,19 +248,19 @@ function DatasetCompareRunsTableInternal(props: {
                 checked={isFieldSelected("output")}
                 onCheckedChange={() => toggleField("output")}
               >
-                Output
+                {t("Output")}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={isFieldSelected("scores")}
                 onCheckedChange={() => toggleField("scores")}
               >
-                Scores
+                {t("Scores")}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={isFieldSelected("resourceMetrics")}
                 onCheckedChange={() => toggleField("resourceMetrics")}
               >
-                Latency and cost
+                {t("Latency and cost")}
               </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>

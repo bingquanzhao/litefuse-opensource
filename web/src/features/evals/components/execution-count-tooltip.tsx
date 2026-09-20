@@ -33,8 +33,8 @@ export const ExecutionCountTooltip = ({
         {isLoading ? (
           <span className="inline-block font-mono">...</span>
         ) : isTraceTarget ? (
-          t("({{count}} traces)", {
-            count: compactNumberFormatter(
+          t("({{total}} traces)", {
+            total: compactNumberFormatter(
               !globalConfig.data ||
                 (totalCount && totalCount < globalConfig.data)
                 ? totalCount
@@ -42,8 +42,8 @@ export const ExecutionCountTooltip = ({
             ),
           })
         ) : (
-          t("({{count}} dataset run items)", {
-            count: compactNumberFormatter(
+          t("({{total}} dataset run items)", {
+            total: compactNumberFormatter(
               !globalConfig.data ||
                 (totalCount && totalCount < globalConfig.data)
                 ? totalCount

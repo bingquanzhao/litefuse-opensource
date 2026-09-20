@@ -119,8 +119,8 @@ export const LogViewToolbar = memo(function LogViewToolbar({
             <p className="font-medium">{t("Optimized for performance")}</p>
             <p className="text-muted-foreground mt-1.5">
               {t(
-                "This trace has {{count}} observations. To keep things smooth:",
-                { count: observationCount?.toLocaleString() ?? t("many") },
+                "This trace has {{total}} observations. To keep things smooth:",
+                { total: observationCount?.toLocaleString() ?? t("many") },
               )}
             </p>
             <ul className="text-muted-foreground mt-1.5 list-inside list-disc space-y-0.5">

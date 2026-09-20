@@ -499,8 +499,8 @@ const OrgRoleDropdown = ({
       utils.members.invalidate();
       if (data.userId === session.data?.user?.id) void session.update();
       showSuccessToast({
-        title: t("Saved"),
-        description: t("Organization role updated successfully"),
+        title: t(t("Saved")),
+        description: t(t("Organization role updated successfully")),
         duration: 2000,
       });
     },
@@ -514,7 +514,9 @@ const OrgRoleDropdown = ({
         if (
           userId !== session.data?.user?.id ||
           confirm(
-            "Are you sure that you want to change your own organization role?",
+            t(
+              "Are you sure that you want to change your own organization role?",
+            ),
           )
         ) {
           mut.mutate({
@@ -560,8 +562,8 @@ const ProjectRoleDropdown = ({
       utils.members.invalidate();
       if (data.userId === session.data?.user?.id) void session.update();
       showSuccessToast({
-        title: t("Saved"),
-        description: t("Project role updated successfully"),
+        title: t(t("Saved")),
+        description: t(t("Project role updated successfully")),
         duration: 2000,
       });
     },
@@ -574,7 +576,9 @@ const ProjectRoleDropdown = ({
       onValueChange={(value) => {
         if (
           userId !== session.data?.user?.id ||
-          confirm("Are you sure that you want to change your own project role?")
+          confirm(
+            t("Are you sure that you want to change your own project role?"),
+          )
         ) {
           mut.mutate({
             orgId,

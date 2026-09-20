@@ -32,6 +32,12 @@ export function JSONView(props: {
   canEnableMarkdown?: boolean;
   json?: unknown;
   title?: string;
+  /**
+   * Locale-independent role used to pick the panel background ("Input",
+   * "Output", "assistant", "system", ...). The visible `title` is translated,
+   * so it must never be compared against; pass this alongside it.
+   */
+  titleKey?: string;
   hideTitle?: boolean;
   className?: string;
   isLoading?: boolean;
@@ -46,6 +52,8 @@ export function JSONView(props: {
 }) {
   const { t } = useTranslation();
   // some users ingest stringified json nested in json, parse it
+  // The visible title is translated, so the role has to come from titleKey.
+  const panelRole = props.titleKey ?? props.title;
   const parsedJson = useMemo(() => deepParseJson(props.json), [props.json]);
   const { resolvedTheme } = useTheme();
   const { setIsMarkdownEnabled } = useMarkdownContext();
@@ -94,10 +102,10 @@ export function JSONView(props: {
         className={cn(
           "io-message-content flex gap-2 text-xs wrap-break-word whitespace-pre-wrap",
           props.borderless ? "" : "p-2",
-          props.title === "assistant" || props.title === "Output"
+          panelRole === "assistant" || panelRole === "Output"
             ? "bg-accent-light-green dark:border-accent-dark-green"
             : "",
-          props.title === "system" || props.title === "Input"
+          panelRole === "system" || panelRole === "Input"
             ? "bg-primary-foreground"
             : "",
           props.scrollable || props.borderless ? "" : "rounded-sm border",
@@ -193,7 +201,7 @@ export function JSONView(props: {
                 size="icon-xs"
                 onClick={handleToggleCollapse}
                 className="hover:bg-border -mr-2"
-                title={isCollapsed ? "Expand all" : "Collapse all"}
+                title={isCollapsed ? t("Expand all") : t("Collapse all")}
               >
                 {isCollapsed ? (
                   <UnfoldVertical className="h-3 w-3" />

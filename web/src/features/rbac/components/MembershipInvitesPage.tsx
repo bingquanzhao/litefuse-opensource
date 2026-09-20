@@ -168,7 +168,7 @@ export function MembershipInvitesPage({
             <button
               onClick={() => {
                 if (
-                  confirm("Are you sure you want to cancel this invitation?")
+                  confirm(t("Are you sure you want to cancel this invitation?"))
                 ) {
                   mutDeleteInvite.mutate({ inviteId, orgId });
                 }

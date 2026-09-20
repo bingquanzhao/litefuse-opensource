@@ -14,7 +14,9 @@ export function SetupDefaultEvalModelCard({
       <CardContent className="mt-2 flex flex-col gap-1">
         <ManageDefaultEvalModel
           projectId={projectId}
-          setUpMessage="Set up default evaluation model to use this evaluator"
+          setUpMessage={t(
+            "Set up default evaluation model to use this evaluator",
+          )}
           variant="color-coded"
         />
         <p className="text-dark-yellow/70 text-xs">

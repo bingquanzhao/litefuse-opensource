@@ -18,6 +18,7 @@ import { traceViewQuery } from "@/src/features/dashboard/lib/dashboard-utils";
 import { useScheduledDashboardExecuteQuery } from "@/src/hooks/useDashboardQueryScheduler";
 
 import { useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 type BarChartDataPoint = {
   name: string;
   value: number;
@@ -172,7 +173,7 @@ export const UserChart = ({
 
   const data = [
     {
-      tabTitle: "Token cost",
+      tabTitle: i18nKey("Token cost"),
       data: isExpanded
         ? transformedCost.slice(0, maxNumberOfEntries.expanded)
         : transformedCost.slice(0, maxNumberOfEntries.collapsed),
@@ -181,7 +182,7 @@ export const UserChart = ({
       formatter: localUsdFormatter,
     },
     {
-      tabTitle: "Count of Traces",
+      tabTitle: i18nKey("Count of Traces"),
       data: isExpanded
         ? transformedNumberOfTraces.slice(0, maxNumberOfEntries.expanded)
         : transformedNumberOfTraces.slice(0, maxNumberOfEntries.collapsed),
@@ -238,7 +239,9 @@ export const UserChart = ({
                 ) : (
                   <NoDataOrLoading
                     isLoading={isLoading || user.isPending}
-                    description="Consumption per user is tracked by passing their ids on traces."
+                    description={t(
+                      "Consumption per user is tracked by passing their ids on traces.",
+                    )}
                     href="https://litefuse.ai/docs/observability/features/users"
                   />
                 )}
@@ -255,7 +258,7 @@ export const UserChart = ({
         expandText={
           transformedCost.length > maxNumberOfEntries.expanded
             ? t("Show top {{count}}", { count: maxNumberOfEntries.expanded })
-            : "Show all"
+            : t("Show all")
         }
       />
     </DashboardCard>

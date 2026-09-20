@@ -19,6 +19,7 @@ import { timeSeriesToDataPoints } from "@/src/features/dashboard/lib/chart-data-
 import { useScheduledDashboardExecuteQuery } from "@/src/hooks/useDashboardQueryScheduler";
 
 import { useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 export const TracesAndObservationsTimeSeriesChart = ({
   className,
   projectId,
@@ -158,7 +159,7 @@ export const TracesAndObservationsTimeSeriesChart = ({
   const data = isV2
     ? [
         {
-          tabTitle: "Observations by Level",
+          tabTitle: i18nKey("Observations by Level"),
           data: transformedObservations,
           totalMetric: totalObservations,
           metricDescription: `Observations tracked`,
@@ -166,13 +167,13 @@ export const TracesAndObservationsTimeSeriesChart = ({
       ]
     : [
         {
-          tabTitle: "Traces",
+          tabTitle: i18nKey("Traces"),
           data: transformedTraces,
           totalMetric: total,
           metricDescription: `Traces tracked`,
         },
         {
-          tabTitle: "Observations by Level",
+          tabTitle: i18nKey("Observations by Level"),
           data: transformedObservations,
           totalMetric: totalObservations,
           metricDescription: `Observations tracked`,
@@ -222,7 +223,9 @@ export const TracesAndObservationsTimeSeriesChart = ({
                       observations.isPending ||
                       (!isV2 && traces.isPending)
                     }
-                    description="Traces contain details about LLM applications and can be created using the SDK."
+                    description={t(
+                      "Traces contain details about LLM applications and can be created using the SDK.",
+                    )}
                     href="https://litefuse.ai/docs/observability/overview"
                   />
                 )}

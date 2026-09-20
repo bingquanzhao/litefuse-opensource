@@ -185,7 +185,7 @@ const SingleOrganizationPage = ({
   return (
     <ContainerPage
       headerProps={{
-        title: org?.name ?? "Organization",
+        title: org?.name ?? t("Organization"),
         actionButtonsRight: <OrganizationActionButtons orgId={orgId} />,
       }}
     >
@@ -201,6 +201,7 @@ const SingleOrganizationProjectOverviewTile = ({
   orgId: string;
   search?: string;
 }) => {
+  const { t } = useTranslation();
   const session = useSession();
   const org = session.data?.user?.organizations.find((o) => o.id === orgId);
 
@@ -225,7 +226,9 @@ const SingleOrganizationProjectOverviewTile = ({
       <Header
         title={org.name}
         className="truncate"
-        status={orgId === env.NEXT_PUBLIC_DEMO_ORG_ID ? "Demo Org" : undefined}
+        status={
+          orgId === env.NEXT_PUBLIC_DEMO_ORG_ID ? t("Demo Org") : undefined
+        }
         actionButtons={
           <OrganizationActionButtons
             orgId={orgId}
@@ -279,7 +282,7 @@ export const OrganizationProjectOverview = () => {
         },
         breadcrumb: [
           {
-            name: "Organizations",
+            name: t("Organizations"),
             href: "/",
           },
         ],
@@ -287,14 +290,14 @@ export const OrganizationProjectOverview = () => {
           <>
             <Input
               className="mr-1 w-36 lg:w-56"
-              placeholder="Search projects"
+              placeholder={t("Search projects")}
               onChange={(e) => setQueryParams({ search: e.target.value })}
             />
             {canCreateOrg && (
               <Button data-testid="create-organization-btn" asChild>
                 <Link href={createOrganizationRoute}>
                   <PlusIcon className="mr-1.5 h-4 w-4" aria-hidden="true" />
-                  New Organization
+                  {t("New Organization")}
                 </Link>
               </Button>
             )}

@@ -566,9 +566,11 @@ export default function EvaluatorTable({ projectId }: { projectId: string }) {
                 setEditConfigId(null);
                 void utils.evals.allConfigs.invalidate();
                 showSuccessToast({
-                  title: t("Evaluator updated successfully"),
+                  title: t(t("Evaluator updated successfully")),
                   description: t(
-                    "Changes will automatically be reflected future evaluator runs",
+                    t(
+                      "Changes will automatically be reflected future evaluator runs",
+                    ),
                   ),
                 });
               }}

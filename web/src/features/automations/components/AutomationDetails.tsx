@@ -124,7 +124,7 @@ export const AutomationDetails: React.FC<AutomationDetailsProps> = ({
               <div className="flex gap-2">
                 <Button variant="outline" onClick={handleEdit}>
                   <Edit className="mr-2 h-4 w-4" />
-                  Edit
+                  {t("Edit")}
                 </Button>
                 <DeleteAutomationButton
                   projectId={projectId}

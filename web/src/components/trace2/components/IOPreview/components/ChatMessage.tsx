@@ -108,6 +108,7 @@ export function ChatMessage({
       <div className={cn("hover:bg-muted transition-colors")}>
         <PrettyJsonView
           title={title || (isOutputMessage ? t("Output") : t("Input"))}
+          titleKey={title || (isOutputMessage ? t("Output") : t("Input"))}
           json={message.json}
           currentView={currentView}
         />
@@ -232,6 +233,7 @@ export function ChatMessage({
       <div className={cn("hover:bg-muted transition-colors")}>
         <PrettyJsonView
           title={title || (isOutputMessage ? t("Output") : t("Input"))}
+          titleKey={title || (isOutputMessage ? t("Output") : t("Input"))}
           json={message}
           currentView={currentView}
         />

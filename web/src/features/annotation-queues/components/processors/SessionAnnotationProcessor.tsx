@@ -76,7 +76,7 @@ export const SessionAnnotationProcessor: React.FC<
               {item.objectId}
             </span>
             <CopyIdsPopover
-              idItems={[{ id: item.objectId, name: "Session ID" }]}
+              idItems={[{ id: item.objectId, name: t("Session ID") }]}
             />
           </div>
           {data?.traces && (

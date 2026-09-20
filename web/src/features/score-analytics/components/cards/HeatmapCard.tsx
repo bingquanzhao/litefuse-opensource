@@ -60,8 +60,8 @@ function HeatmapTooltipContent({
       {/* Primary Metrics Section */}
       <div className="space-y-1">
         <p className="text-foreground text-base font-semibold">
-          {t("{{count}} observations", {
-            count: cell.value.toLocaleString(),
+          {t("{{total}} observations", {
+            total: cell.value.toLocaleString(),
           })}
         </p>
         <p className="text-muted-foreground text-xs">

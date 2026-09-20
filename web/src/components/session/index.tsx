@@ -380,13 +380,15 @@ export const SessionPage: React.FC<{
   });
 
   if (session.error?.data?.code === "UNAUTHORIZED")
-    return <ErrorPage message="You do not have access to this session." />;
+    return <ErrorPage message={t("You do not have access to this session.")} />;
 
   if (session.error?.data?.code === "NOT_FOUND")
     return (
       <ErrorPage
         title={t("Session not found")}
-        message="The session is either still being processed or has been deleted."
+        message={t(
+          "The session is either still being processed or has been deleted.",
+        )}
         additionalButton={{
           label: t("Retry"),
           onClick: () => void window.location.reload(),
@@ -401,7 +403,7 @@ export const SessionPage: React.FC<{
         itemType: "SESSION",
         breadcrumb: [
           {
-            name: "Sessions",
+            name: t("Sessions"),
             href: `/project/${projectId}/sessions`,
           },
         ],
@@ -439,7 +441,7 @@ export const SessionPage: React.FC<{
               variant="outline"
               size="icon"
               onClick={downloadSessionAsJson}
-              title="Download session as JSON"
+              title={t("Download session as JSON")}
             >
               <Download className="h-4 w-4" />
             </Button>
@@ -479,7 +481,7 @@ export const SessionPage: React.FC<{
                 className="scale-75"
               />
               <span className="text-muted-foreground text-xs">
-                Show corrections
+                {t("Show corrections")}
               </span>
             </div>
           </>
@@ -884,13 +886,15 @@ export const SessionEventsPage: React.FC<{
   });
 
   if (session.error?.data?.code === "UNAUTHORIZED")
-    return <ErrorPage message="You do not have access to this session." />;
+    return <ErrorPage message={t("You do not have access to this session.")} />;
 
   if (session.error?.data?.code === "NOT_FOUND")
     return (
       <ErrorPage
         title={t("Session not found")}
-        message="The session is either still being processed or has been deleted."
+        message={t(
+          "The session is either still being processed or has been deleted.",
+        )}
         additionalButton={{
           label: t("Retry"),
           onClick: () => void window.location.reload(),
@@ -905,7 +909,7 @@ export const SessionEventsPage: React.FC<{
         itemType: "SESSION",
         breadcrumb: [
           {
-            name: "Sessions",
+            name: t("Sessions"),
             href: `/project/${projectId}/sessions`,
           },
         ],
@@ -975,7 +979,7 @@ export const SessionEventsPage: React.FC<{
                 className="scale-75"
               />
               <span className="text-muted-foreground text-xs">
-                Show corrections
+                {t("Show corrections")}
               </span>
             </div>
           </>

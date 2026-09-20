@@ -84,7 +84,7 @@ export const DatasetStep: React.FC<DatasetStepProps> = ({
         name="datasetId"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Dataset</FormLabel>
+            <FormLabel>{t("Dataset")}</FormLabel>
             <div className="flex items-center gap-2">
               <Popover
                 open={datasetPopoverOpen}
@@ -99,7 +99,7 @@ export const DatasetStep: React.FC<DatasetStepProps> = ({
                   >
                     {field.value
                       ? datasets?.find((d) => d.id === field.value)?.name
-                      : "Select a dataset"}
+                      : t("Select a dataset")}
                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
@@ -109,12 +109,14 @@ export const DatasetStep: React.FC<DatasetStepProps> = ({
                 >
                   <InputCommand>
                     <InputCommandInput
-                      placeholder="Search datasets..."
+                      placeholder={t("Search datasets...")}
                       className="h-9"
                       variant="bottom"
                     />
                     <InputCommandList>
-                      <InputCommandEmpty>No dataset found.</InputCommandEmpty>
+                      <InputCommandEmpty>
+                        {t("No dataset found.")}
+                      </InputCommandEmpty>
                       <InputCommandGroup>
                         {(datasets ?? []).map((dataset) => (
                           <InputCommandItem
@@ -146,26 +148,32 @@ export const DatasetStep: React.FC<DatasetStepProps> = ({
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline" className="h-8">
-                      Expected columns
+                      {t("Expected columns")}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-80">
                     <div className="space-y-2">
                       <h4 className="leading-none font-medium">
-                        Expected Dataset Structure
+                        {t("Expected Dataset Structure")}
                       </h4>
                       <p className="text-muted-foreground text-sm">
-                        Based on prompt {selectedPromptName} v
-                        {selectedPromptVersion}
+                        {t("Based on prompt {{name}} v{{version}}", {
+                          name: selectedPromptName,
+                          version: selectedPromptVersion,
+                        })}
                       </p>
                       <div className="space-y-1 pt-2">
-                        <p className="text-sm font-medium">Input variables:</p>
+                        <p className="text-sm font-medium">
+                          {t("Input variables:")}
+                        </p>
                         <ul className="list-inside list-disc text-sm">
                           {expectedColumns.inputVariables.map((variable) => (
                             <li key={variable}>{variable}</li>
                           ))}
                         </ul>
-                        <p className="text-sm font-medium">Expected output:</p>
+                        <p className="text-sm font-medium">
+                          {t("Expected output:")}
+                        </p>
                         <ul className="list-inside list-disc text-sm">
                           <li>
                             {expectedColumns.outputVariableName} (
@@ -189,7 +197,7 @@ export const DatasetStep: React.FC<DatasetStepProps> = ({
           name="datasetVersion"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Dataset Version (Optional)</FormLabel>
+              <FormLabel>{t("Dataset Version (Optional)")}</FormLabel>
               <Select
                 onValueChange={(value) => {
                   if (value === "latest") {
@@ -202,26 +210,29 @@ export const DatasetStep: React.FC<DatasetStepProps> = ({
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Latest version" />
+                    <SelectValue placeholder={t("Latest version")} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="latest">
-                    Latest version (default)
+                    {t("Latest version (default)")}
                   </SelectItem>
                   {datasetVersions.map((version) => (
                     <SelectItem
                       key={version.toISOString()}
                       value={version.toISOString()}
                     >
-                      {format(version, "MMM d, yyyy 'at' h:mm a")} (UTC)
+                      {t("{{timestamp}} (UTC)", {
+                        timestamp: format(version, "MMM d, yyyy 'at' h:mm a"),
+                      })}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <FormDescription>
-                Run the experiment using the dataset state at a specific point
-                in time. Defaults to the latest version.
+                {t(
+                  "Run the experiment using the dataset state at a specific point in time. Defaults to the latest version.",
+                )}
               </FormDescription>
               <FormMessage />
             </FormItem>

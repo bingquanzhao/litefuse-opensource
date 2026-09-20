@@ -52,8 +52,8 @@ export function ScoreAnalyticsNoticeBanner() {
             {estimate && (
               <div className="text-muted-foreground text-sm">
                 {estimate.mode === "single"
-                  ? t("Analyzing ~{{count}} scores", {
-                      count: estimate.score1Count.toLocaleString(),
+                  ? t("Analyzing ~{{total}} scores", {
+                      total: estimate.score1Count.toLocaleString(),
                     })
                   : t(
                       "Analyzing ~{{first}} (Score 1) and ~{{second}} (Score 2) scores",

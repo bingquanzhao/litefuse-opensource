@@ -208,7 +208,7 @@ export const ScoresTable = ({
         headers={[
           "Name",
           <RightAlignedCell key="count">#</RightAlignedCell>,
-          <RightAlignedCell key="average">Avg</RightAlignedCell>,
+          <RightAlignedCell key="average">{t("Avg")}</RightAlignedCell>,
           <RightAlignedCell key="zero">0</RightAlignedCell>,
           <RightAlignedCell key="one">1</RightAlignedCell>,
         ]}

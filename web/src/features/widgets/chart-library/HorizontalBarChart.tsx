@@ -9,6 +9,7 @@ import { type ChartProps } from "@/src/features/widgets/chart-library/chart-prop
 import { formatAxisLabel } from "@/src/features/widgets/chart-library/utils";
 import { compactNumberFormatter } from "@/src/utils/numbers";
 
+import { useTranslation } from "react-i18next";
 const CHAR_WIDTH_PX = 7;
 const LABEL_PADDING_PX = 16;
 
@@ -33,6 +34,7 @@ export const HorizontalBarChart: React.FC<ChartProps> = ({
   valueFormatter = compactNumberFormatter,
   subtleFill = false,
 }) => {
+  const { t } = useTranslation();
   const rightMargin = useMemo(() => {
     if (!showValueLabels || !data?.length) return 8;
     const maxLabelLength = Math.max(

@@ -1036,7 +1036,7 @@ export function useSidebarFilterState(
               isDisabled: true,
               reason: t(
                 'Disabled because "{{facet}}" cannot be used with "{{blocking}}".',
-                { facet: facet.label, blocking: blockingLabel },
+                { facet: t(facet.label), blocking: t(blockingLabel) },
               ),
             };
           }
@@ -1714,6 +1714,7 @@ export function useSidebarFilterState(
     mutualExclusionContext,
     managedEnvironmentColumn,
     managedEnvironmentPolicyConfig.hiddenEnvironments,
+    t,
   ]);
 
   return {

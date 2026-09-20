@@ -10,6 +10,10 @@ import { useScoreAnalytics } from "../ScoreAnalyticsProvider";
 import { MetricCard } from "../charts/MetricCard";
 import { SamplingDetailsHoverCard } from "../SamplingDetailsHoverCard";
 import { useTranslation } from "react-i18next";
+
+/** Statistical abbreviations, written the same way in every language. */
+const METRIC_MAE = "MAE";
+const METRIC_RMSE = "RMSE";
 import {
   calculateCohensKappa,
   calculateWeightedF1Score,
@@ -202,7 +206,7 @@ export function StatisticsCard() {
                       ? "--"
                       : "N/A"
                 }
-                helpText="Most frequent category and its count"
+                helpText={t("Most frequent category and its count")}
                 isPlaceholder={!showScore1Data}
                 isContext
               />
@@ -215,7 +219,9 @@ export function StatisticsCard() {
                       ? "--"
                       : "N/A"
                 }
-                helpText="Percentage of observations with the most frequent category"
+                helpText={t(
+                  "Percentage of observations with the most frequent category",
+                )}
                 isPlaceholder={!showScore1Data}
                 isContext
               />
@@ -304,7 +310,7 @@ export function StatisticsCard() {
                         ? "--"
                         : "N/A"
                   }
-                  helpText="Most frequent category and its count"
+                  helpText={t("Most frequent category and its count")}
                   isPlaceholder={!showScore2Data}
                   isContext
                 />
@@ -319,7 +325,9 @@ export function StatisticsCard() {
                         ? "--"
                         : "N/A"
                   }
-                  helpText="Percentage of observations with the most frequent category"
+                  helpText={t(
+                    "Percentage of observations with the most frequent category",
+                  )}
                   isPlaceholder={!showScore2Data}
                   isContext
                 />
@@ -343,7 +351,7 @@ export function StatisticsCard() {
                         ? statistics.comparison.matchedCount.toLocaleString()
                         : "--"
                     }
-                    helpText="Number of observations with both scores"
+                    helpText={t("Number of observations with both scores")}
                     warning={
                       hasCartesianProduct
                         ? {
@@ -351,20 +359,20 @@ export function StatisticsCard() {
                             content: (
                               <div className="space-y-2 text-xs">
                                 <p className="font-semibold">
-                                  Matched count exceeds individual score counts
-                                  due to Cartesian product
+                                  {t(
+                                    "Matched count exceeds individual score counts due to Cartesian product",
+                                  )}
                                 </p>
                                 <p>
-                                  This occurs when multiple scores of the same
-                                  name/source exist on a single attachment point
-                                  (trace/observation/session/run). Each
-                                  combination creates a match.
+                                  {t(
+                                    "This occurs when multiple scores of the same name/source exist on a single attachment point (trace/observation/session/run). Each combination creates a match.",
+                                  )}
                                 </p>
                                 <p className="text-muted-foreground">
-                                  <strong>Example:</strong> If one trace has 2
-                                  &quot;gpt4&quot; scores and 3
-                                  &quot;gemini&quot; scores, this creates 6
-                                  matched pairs (2 × 3 = 6).
+                                  <strong>{t("Example:")}</strong>{" "}
+                                  {t(
+                                    'If one trace has 2 "gpt4" scores and 3 "gemini" scores, this creates 6 matched pairs (2 × 3 = 6).',
+                                  )}
                                 </p>
                               </div>
                             ),
@@ -394,7 +402,7 @@ export function StatisticsCard() {
                           )
                         : undefined
                     }
-                    helpText="Linear correlation (-1 to 1)"
+                    helpText={t("Linear correlation (-1 to 1)")}
                     isPlaceholder={!showComparisonMetrics}
                   />
                   <MetricCard
@@ -417,7 +425,7 @@ export function StatisticsCard() {
                           )
                         : undefined
                     }
-                    helpText="Rank correlation (-1 to 1)"
+                    helpText={t("Rank correlation (-1 to 1)")}
                     isPlaceholder={!showComparisonMetrics}
                   />
                 </div>
@@ -425,7 +433,7 @@ export function StatisticsCard() {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <div />
                   <MetricCard
-                    label="MAE"
+                    label={METRIC_MAE}
                     value={
                       showComparisonMetrics &&
                       statistics.comparison &&
@@ -442,11 +450,11 @@ export function StatisticsCard() {
                         ? interpretMAE(statistics.comparison.mae)
                         : undefined
                     }
-                    helpText="Mean Absolute Error"
+                    helpText={t("Mean Absolute Error")}
                     isPlaceholder={!showComparisonMetrics}
                   />
                   <MetricCard
-                    label="RMSE"
+                    label={METRIC_RMSE}
                     value={
                       showComparisonMetrics &&
                       statistics.comparison &&
@@ -463,7 +471,7 @@ export function StatisticsCard() {
                         ? interpretRMSE(statistics.comparison.rmse)
                         : undefined
                     }
-                    helpText="Root Mean Square Error"
+                    helpText={t("Root Mean Square Error")}
                     isPlaceholder={!showComparisonMetrics}
                   />
                 </div>
@@ -479,7 +487,7 @@ export function StatisticsCard() {
                         ? statistics.comparison.matchedCount.toLocaleString()
                         : "--"
                     }
-                    helpText="Number of observations with both scores"
+                    helpText={t("Number of observations with both scores")}
                     warning={
                       hasCartesianProduct
                         ? {
@@ -487,20 +495,20 @@ export function StatisticsCard() {
                             content: (
                               <div className="space-y-2 text-xs">
                                 <p className="font-semibold">
-                                  Matched count exceeds individual score counts
-                                  due to Cartesian product
+                                  {t(
+                                    "Matched count exceeds individual score counts due to Cartesian product",
+                                  )}
                                 </p>
                                 <p>
-                                  This occurs when multiple scores of the same
-                                  name/source exist on a single attachment point
-                                  (trace/observation/session/run). Each
-                                  combination creates a match.
+                                  {t(
+                                    "This occurs when multiple scores of the same name/source exist on a single attachment point (trace/observation/session/run). Each combination creates a match.",
+                                  )}
                                 </p>
                                 <p className="text-muted-foreground">
-                                  <strong>Example:</strong> If one trace has 2
-                                  &quot;gpt4&quot; scores and 3
-                                  &quot;gemini&quot; scores, this creates 6
-                                  matched pairs (2 × 3 = 6).
+                                  <strong>{t("Example:")}</strong>{" "}
+                                  {t(
+                                    'If one trace has 2 "gpt4" scores and 3 "gemini" scores, this creates 6 matched pairs (2 × 3 = 6).',
+                                  )}
                                 </p>
                               </div>
                             ),
@@ -524,7 +532,7 @@ export function StatisticsCard() {
                         ? interpretOverallAgreement(overallAgreement)
                         : undefined
                     }
-                    helpText="Overall agreement percentage"
+                    helpText={t("Overall agreement percentage")}
                     isPlaceholder={!showComparisonMetrics}
                   />
                 </div>
@@ -545,7 +553,7 @@ export function StatisticsCard() {
                         ? interpretCohensKappa(cohensKappa)
                         : undefined
                     }
-                    helpText="Inter-rater reliability (-1 to 1)"
+                    helpText={t("Inter-rater reliability (-1 to 1)")}
                     isPlaceholder={!showComparisonMetrics}
                   />
                   <MetricCard
@@ -562,7 +570,7 @@ export function StatisticsCard() {
                         ? interpretF1Score(f1Score)
                         : undefined
                     }
-                    helpText="Weighted F1 score (0 to 1)"
+                    helpText={t("Weighted F1 score (0 to 1)")}
                     isPlaceholder={!showComparisonMetrics}
                   />
                 </div>

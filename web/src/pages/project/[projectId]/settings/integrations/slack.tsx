@@ -93,7 +93,7 @@ export default function SlackIntegrationSettings() {
       headerProps={{
         title: t("Slack Integration"),
         breadcrumb: [
-          { name: "Settings", href: `/project/${projectId}/settings` },
+          { name: t("Settings"), href: `/project/${projectId}/settings` },
         ],
         actionButtonsLeft: <>{status && <StatusBadge type={status} />}</>,
         actionButtonsRight: <AutomationButton projectId={projectId} />,

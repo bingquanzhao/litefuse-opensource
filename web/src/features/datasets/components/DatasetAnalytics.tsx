@@ -44,7 +44,7 @@ export function DatasetAnalytics(props: {
             props.setSelectedMetrics([]);
           }}
         >
-          Hide all charts
+          {t("Hide all charts")}
         </DropdownMenuItem>
       }
     />

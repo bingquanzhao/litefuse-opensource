@@ -424,7 +424,7 @@ export function WidgetForm({
       ]);
       setUserFilterState([]);
     }
-  }, [isBetaEnabled, isExistingWidget]);
+  }, [isBetaEnabled, isExistingWidget, t]);
 
   // Static sort state for pivot table preview (non-interactive)
   const previewSortState = useMemo(
@@ -1085,12 +1085,12 @@ export function WidgetForm({
 
   const handleSaveWidget = () => {
     if (!queryValidation.valid) {
-      showErrorToast("Invalid query", queryValidation.reason);
+      showErrorToast(t("Invalid query"), queryValidation.reason);
       return;
     }
 
     if (!widgetName.trim()) {
-      showErrorToast("Error", "Widget name is required");
+      showErrorToast(t("Error"), t("Widget name is required"));
       return;
     }
 
@@ -1100,8 +1100,8 @@ export function WidgetForm({
     );
     if (selectedChartType === "PIVOT_TABLE" && validMetrics.length === 0) {
       showErrorToast(
-        "Error",
-        "At least one metric is required for pivot tables",
+        t("Error"),
+        t("At least one metric is required for pivot tables"),
       );
       return;
     }

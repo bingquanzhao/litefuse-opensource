@@ -29,13 +29,13 @@ const { t } = useTranslation();
 `account preference (users.locale)` > `NEXT_LOCALE cookie` > `Accept-Language`
 
 > `en`, restricted to `LITEFUSE_I18N_LOCALES` (server env, comma separated,
-> default `en,zh-CN`). The server resolves cookie/header in `_app` / `_document`
+> default `en`). The server resolves cookie/header in `_app` / `_document`
 > (`getI18nAppProps.ts`); the provider re-syncs to the account preference once
 > the session is loaded. URLs never carry a locale prefix.
 
 The language switcher (`LanguageSwitcher`, account settings, sign-in page)
-renders only when more than one locale is enabled, so a deployment that sets
-`LITEFUSE_I18N_LOCALES=en` stays English with no switcher at all.
+renders only when more than one locale is enabled, which is how zh-CN stays
+invisible until the coverage gap is closed.
 
 ## Tooling (`web/`)
 
@@ -62,19 +62,64 @@ protocol identifier.
 
 ## Not translated
 
+**Error reporting stays English.** `TRPCError` messages raised under
+`src/server` and the feature routers are printed verbatim by the global error
+toast, so `src/utils/trpcErrorToast.tsx` keeps its titles and descriptions in
+English too: a translated heading over an untranslated body is the mixed state
+this migration exists to avoid. The file is in `I18N_EXCLUDED_FILES` so the
+gate does not ask for it back.
+
+This applies to text that _is_ an error. It does not apply to a toast whose
+title describes what the user was doing, e.g.
+`showErrorToast(t("Failed to update dashboard"), error.message)`: the heading
+is UI copy and stays translated, the body is the raw server message and stays
+English.
+
 `src/features/discover/**` (and its shims) is deprecated and vendored, and may
 be re-synced wholesale, so it is excluded from both lint gates and from
 extraction. It stays English regardless of the selected language. Nothing else
 in `src/` is exempt.
 
-## Keeping it complete
+## Gate
 
-Both lint gates are clean across `src/` and the zh-CN dictionary is complete,
-so zh-CN ships enabled by default. A deployment that wants English only sets
-`LITEFUSE_I18N_LOCALES=en`.
+`pnpm i18n:gate` is the real check. `pnpm run lint` cannot be one: the repo
+eslint config loads `eslint-plugin-only-warn`, which rewrites every severity to
+"warning", so `eslint src` exits 0 no matter how many violations exist. The
+gate runs the same rules through `eslint.i18n.config.mjs`, which imports
+`eslint.i18n.rules.mjs` directly and never touches that plugin. Keep it that
+way: the moment the rules module imports the repo config, the gate stops being
+able to fail.
 
-Keeping it that way is the maintenance contract: after every upstream merge run
-`pnpm i18n:extract`, translate the new keys against the glossary, and confirm
-`pnpm i18n:check` and `pnpm exec eslint src` are green. An untranslated key
-renders its English source text, so a missed merge degrades gracefully into a
-mixed page rather than a crash. Do not let it sit.
+The rules and why they are shaped that way:
+
+- `i18next/no-literal-string` runs in **`jsx-text-only`** mode, so it reports
+  only literals rendered directly as JSX children. Everything else it could see
+  (call arguments, object literals, arrays inside event handlers) holds
+  identifiers far more often than text, and judging those by value shape
+  produced hundreds of false positives.
+- `jsx-attributes` must stay an **exclude** denylist even so. With an `include`
+  allowlist the plugin skips every other attribute _together with its whole JSX
+  subtree_, which exempted every react-hook-form `render={...}` body in the app.
+- Attribute values, data properties, toast copy and native dialog copy each get
+  an explicit `no-restricted-syntax` selector. Naming the attributes and
+  property keys keeps enum-valued props (`variant`, `col`, `context`,
+  `severity`) out without re-introducing the subtree skipping.
+
+Still outside every rule, and so still a human's job: text returned from a
+helper function and text built with a template literal. (Server error messages
+are the third such category, and they stay English by decision; see **Not
+translated**.) Measure the first of those with:
+
+```sh
+grep -rnoE '\breturn\s+"[^"]{6,}"' src --include='*.ts*' | grep -vE 'discover|test'
+```
+
+## Rollout rule
+
+zh-CN stays off (`LITEFUSE_I18N_LOCALES=en`) while any user-visible English
+remains. A green gate is necessary but not sufficient: it says no rule-visible
+literal is left, not that the UI is translated. The categories listed above are
+the known gap. Test environments may set `en,zh-CN` to review progress.
+
+After every upstream merge: `pnpm i18n:extract`, translate the new keys against
+the glossary, then `pnpm i18n:check` and `pnpm i18n:gate`.

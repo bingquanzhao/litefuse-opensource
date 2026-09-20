@@ -248,7 +248,7 @@ export function TableViewPresetsDrawer({
     currentName: form.watch("name"),
     allNames: allViewNames,
     form,
-    errorMessage: "View name already exists.",
+    errorMessage: t("View name already exists."),
   });
 
   const handleSelectView = (view: TableViewPresetState & { id: string }) => {
@@ -367,8 +367,8 @@ export function TableViewPresetsDrawer({
       });
     } else {
       showErrorToast(
-        "Failed to generate permalink",
-        "Please reach out to Litefuse support and report this issue.",
+        t("Failed to generate permalink"),
+        t("Please reach out to Litefuse support and report this issue."),
         "WARNING",
       );
     }
@@ -646,7 +646,9 @@ export function TableViewPresetsDrawer({
                                           name="name"
                                           render={({ field }) => (
                                             <FormItem>
-                                              <FormLabel>View name</FormLabel>
+                                              <FormLabel>
+                                                {t("View name")}
+                                              </FormLabel>
                                               <FormControl>
                                                 <Input
                                                   defaultValue={view.name}
@@ -812,7 +814,7 @@ export function TableViewPresetsDrawer({
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>View name</FormLabel>
+                      <FormLabel>{t("View name")}</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -835,8 +837,8 @@ export function TableViewPresetsDrawer({
                       })}
                     </li>
                     <li>
-                      {t("Sort order ({{count}} criteria)", {
-                        count: formatOrderBy(currentState.orderBy),
+                      {t("Sort order ({{order}})", {
+                        order: formatOrderBy(currentState.orderBy),
                       })}
                     </li>
                     {currentState.searchQuery && <li>{t("Search term")}</li>}

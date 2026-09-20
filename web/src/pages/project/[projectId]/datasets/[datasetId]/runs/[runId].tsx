@@ -47,12 +47,15 @@ export default function Dataset() {
         title: run.data?.name ?? runId,
         itemType: "DATASET_RUN",
         breadcrumb: [
-          { name: "Datasets", href: `/project/${projectId}/datasets` },
+          { name: t("Datasets"), href: `/project/${projectId}/datasets` },
           {
             name: dataset.data?.name ?? datasetId,
             href: `/project/${projectId}/datasets/${datasetId}`,
           },
-          { name: "Runs", href: `/project/${projectId}/datasets/${datasetId}` },
+          {
+            name: t("Runs"),
+            href: `/project/${projectId}/datasets/${datasetId}`,
+          },
         ],
         actionButtonsRight: (
           <>
@@ -64,7 +67,7 @@ export default function Dataset() {
             >
               <Button>
                 <Columns3 className="mr-2 h-4 w-4" />
-                <span>Compare</span>
+                <span>{t("Compare")}</span>
               </Button>
             </Link>
             <DetailPageNav
@@ -105,7 +108,7 @@ export default function Dataset() {
           />
         </div>
         <SidePanel
-          mobileTitle="Experiment run details"
+          mobileTitle={t("Experiment run details")}
           id="experiment-run-details"
         >
           <SidePanelHeader>

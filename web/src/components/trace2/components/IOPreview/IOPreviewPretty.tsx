@@ -52,6 +52,7 @@ function JsonInputOutputView({
       {showInput && (
         <PrettyJsonView
           title={t("Input")}
+          titleKey={t("Input")}
           json={parsedInput ?? null}
           isLoading={isLoading}
           isParsing={isParsing}
@@ -64,6 +65,7 @@ function JsonInputOutputView({
       {showOutput && (
         <PrettyJsonView
           title={t("Output")}
+          titleKey={t("Output")}
           json={parsedOutput}
           isLoading={isLoading}
           isParsing={isParsing}

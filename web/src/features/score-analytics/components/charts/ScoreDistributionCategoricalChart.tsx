@@ -231,6 +231,7 @@ export function ScoreDistributionCategoricalChart({
     score2Source,
     colors,
     categories,
+    t,
   ]);
 
   return (

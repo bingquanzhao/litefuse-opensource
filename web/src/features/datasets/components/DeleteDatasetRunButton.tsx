@@ -51,7 +51,7 @@ export const DeleteDatasetRunButton = ({
     >
       <div className="flex w-full flex-row items-center gap-1">
         <Trash className="h-4 w-4" />
-        <span className="text-sm font-normal">Delete</span>
+        <span className="text-sm font-normal">{t("Delete")}</span>
       </div>
     </Button>
   );

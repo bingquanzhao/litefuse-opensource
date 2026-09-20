@@ -42,19 +42,19 @@ export function EditDashboardDialog({
     onSuccess: () => {
       void utils.dashboard.invalidate();
       showSuccessToast({
-        title: t("Dashboard updated"),
-        description: t("The dashboard has been updated successfully"),
+        title: t(t("Dashboard updated")),
+        description: t(t("The dashboard has been updated successfully")),
       });
       onOpenChange(false);
     },
     onError: (e) => {
-      showErrorToast("Failed to update dashboard", e.message);
+      showErrorToast(t("Failed to update dashboard"), e.message);
     },
   });
 
   const handleSave = () => {
     if (!name.trim()) {
-      showErrorToast("Validation error", "Dashboard name is required");
+      showErrorToast(t("Validation error"), t("Dashboard name is required"));
       return;
     }
 

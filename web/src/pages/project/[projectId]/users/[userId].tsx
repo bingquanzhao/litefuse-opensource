@@ -74,7 +74,7 @@ export default function UserPage() {
     <Page
       headerProps={{
         title: userId,
-        breadcrumb: [{ name: "Users", href: `/project/${projectId}/users` }],
+        breadcrumb: [{ name: t("Users"), href: `/project/${projectId}/users` }],
         itemType: "USER",
         actionButtonsRight: (
           <>
@@ -83,7 +83,7 @@ export default function UserPage() {
               variant="secondary"
               icon={<LayoutDashboard className="h-4 w-4" />}
             >
-              Dashboard
+              {t("Dashboard")}
             </ActionButton>
             <DetailPageNav
               currentId={userId}
@@ -98,18 +98,18 @@ export default function UserPage() {
         {user.data && (
           <div className="flex flex-wrap gap-2 px-4 py-4">
             <Badge variant="outline">
-              {t("Observations: {{count}}", {
-                count: compactNumberFormatter(user.data.totalObservations),
+              {t("Observations: {{total}}", {
+                total: compactNumberFormatter(user.data.totalObservations),
               })}
             </Badge>
             <Badge variant="outline">
-              {t("Traces: {{count}}", {
-                count: compactNumberFormatter(user.data.totalTraces),
+              {t("Traces: {{total}}", {
+                total: compactNumberFormatter(user.data.totalTraces),
               })}
             </Badge>
             <Badge variant="outline">
-              {t("Total Tokens: {{count}}", {
-                count: compactNumberFormatter(user.data.totalTokens),
+              {t("Total Tokens: {{total}}", {
+                total: compactNumberFormatter(user.data.totalTokens),
               })}
             </Badge>
             <Badge variant="outline">

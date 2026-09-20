@@ -111,7 +111,7 @@ export function AddObservationsToDatasetDialog(
           {step === "input-mapping" && (
             <MappingStep
               field="input"
-              fieldLabel="Input"
+              fieldLabel={t("Input")}
               defaultSourceField="input"
               config={state.mapping.input}
               onConfigChange={handleInputConfigChange}
@@ -125,7 +125,7 @@ export function AddObservationsToDatasetDialog(
           {step === "output-mapping" && (
             <MappingStep
               field="expectedOutput"
-              fieldLabel="Expected Output"
+              fieldLabel={t("Expected Output")}
               defaultSourceField="output"
               config={state.mapping.expectedOutput}
               onConfigChange={handleOutputConfigChange}
@@ -139,7 +139,7 @@ export function AddObservationsToDatasetDialog(
           {step === "metadata-mapping" && (
             <MappingStep
               field="metadata"
-              fieldLabel="Metadata"
+              fieldLabel={t("Metadata")}
               defaultSourceField="metadata"
               config={state.mapping.metadata}
               onConfigChange={handleMetadataConfigChange}

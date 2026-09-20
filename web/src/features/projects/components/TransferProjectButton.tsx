@@ -75,9 +75,11 @@ export function TransferProjectButton() {
   const transferProject = api.projects.transfer.useMutation({
     onSuccess: async () => {
       showSuccessToast({
-        title: t("Project transferred"),
+        title: t(t("Project transferred")),
         description: t(
-          "The project is successfully transferred to the new organization. Redirecting...",
+          t(
+            "The project is successfully transferred to the new organization. Redirecting...",
+          ),
         ),
       });
       await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -145,7 +147,7 @@ export function TransferProjectButton() {
                 name="projectId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Select New Organization</FormLabel>
+                    <FormLabel>{t("Select New Organization")}</FormLabel>
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
@@ -153,7 +155,7 @@ export function TransferProjectButton() {
                         disabled={transferProject.isPending}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select organization" />
+                          <SelectValue placeholder={t("Select organization")} />
                         </SelectTrigger>
                         <SelectContent>
                           {organizationsToTransferTo
@@ -167,8 +169,9 @@ export function TransferProjectButton() {
                       </Select>
                     </FormControl>
                     <FormDescription>
-                      Transfer this project to another organization where you
-                      have the ability to create projects.
+                      {t(
+                        "Transfer this project to another organization where you have the ability to create projects.",
+                      )}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -179,7 +182,7 @@ export function TransferProjectButton() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm</FormLabel>
+                    <FormLabel>{t("Confirm")}</FormLabel>
                     <FormControl>
                       <Input placeholder={confirmMessage} {...field} />
                     </FormControl>

@@ -61,11 +61,13 @@ export function DeleteWidget({
     onError: (error) => {
       if (error.data?.code === "CONFLICT") {
         showErrorToast(
-          "Widget in use",
-          "Widget is still in use. Please remove it from all dashboards before deleting it.",
+          t("Widget in use"),
+          t(
+            "Widget is still in use. Please remove it from all dashboards before deleting it.",
+          ),
         );
       } else {
-        showErrorToast("Failed to delete widget", error.message);
+        showErrorToast(t("Failed to delete widget"), error.message);
       }
     },
   });

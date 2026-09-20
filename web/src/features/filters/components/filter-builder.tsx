@@ -286,6 +286,8 @@ export function InlineFilterState({
         {filter.operator}{" "}
         {filter.type === "positionInTrace"
           ? (() => {
+              // "last" is the sentinel the branches match on, so the default
+              // stays untranslated; only the rendered label is translated.
               const mode = filter.key ?? t("last");
               const label =
                 mode === "root"
@@ -293,8 +295,12 @@ export function InlineFilterState({
                   : mode === "last"
                     ? t("last")
                     : mode === "nthFromStart"
-                      ? `nth from start ${filter.value ?? ""}`.trim()
-                      : `nth from end ${filter.value ?? ""}`.trim();
+                      ? t("nth from start {{n}}", {
+                          n: filter.value ?? "",
+                        }).trim()
+                      : t("nth from end {{n}}", {
+                          n: filter.value ?? "",
+                        }).trim();
               return label;
             })()
           : filter.type === "datetime"
@@ -649,7 +655,6 @@ function FilterBuilderForm({
                                 {columns.map((option) => {
                                   const hasAlert = !!option.alert;
                                   const severity =
-                                    // eslint-disable-next-line i18next/no-literal-string -- style variant, not text
                                     option.alert?.severity ?? "warning";
                                   const alertStyles = getAlertStyles(severity);
 
@@ -676,7 +681,7 @@ function FilterBuilderForm({
                                                 : undefined,
                                             key:
                                               col?.type === "positionInTrace"
-                                                ? "last"
+                                                ? t("last")
                                                 : undefined,
                                           } as WipFilterCondition,
                                           i,
@@ -974,7 +979,6 @@ function FilterBuilderForm({
                             <SelectValue placeholder="" />
                           </SelectTrigger>
                           <SelectContent>
-                            {/* eslint-disable-next-line i18next/no-literal-string -- boolean filter values */}
                             {["true", "false"].map((option) => (
                               <SelectItem key={option} value={option}>
                                 {option}

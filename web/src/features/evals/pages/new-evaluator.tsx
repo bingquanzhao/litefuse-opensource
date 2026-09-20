@@ -73,7 +73,7 @@ export default function NewEvaluatorPage() {
         title: t("Set up evaluator"),
         breadcrumb: [
           {
-            name: "Running Evaluators",
+            name: t("Running Evaluators"),
             href: `/project/${projectId}/evals`,
           },
         ],

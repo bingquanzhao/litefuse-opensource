@@ -6,7 +6,7 @@ import { SessionsOnboarding } from "@/src/components/onboarding/SessionsOnboardi
 import { api } from "@/src/utils/api";
 import { useV4Beta } from "@/src/features/events/hooks/useV4Beta";
 
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 export default function Sessions() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -51,19 +51,19 @@ export default function Sessions() {
         help: {
           description: (
             <>
-              A session is a collection of related traces, such as a
-              conversation or thread. To begin, add a sessionId to the trace.
-              See{" "}
-              <a
-                href="https://litefuse.ai/docs/observability/features/sessions"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="decoration-primary/30 hover:decoration-primary underline"
-                onClick={(e) => e.stopPropagation()}
-              >
-                docs
-              </a>{" "}
-              to learn more.
+              <Trans
+                i18nKey="A session is a collection of related traces, such as a conversation or thread. To begin, add a sessionId to the trace. See <0>docs</0> to learn more."
+                components={[
+                  <a
+                    key="0"
+                    href="https://litefuse.ai/docs/observability/features/sessions"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="decoration-primary/30 hover:decoration-primary underline"
+                    onClick={(e) => e.stopPropagation()}
+                  />,
+                ]}
+              />
             </>
           ),
           href: "https://litefuse.ai/docs/observability/features/sessions",

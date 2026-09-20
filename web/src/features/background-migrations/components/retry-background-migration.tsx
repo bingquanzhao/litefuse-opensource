@@ -29,12 +29,12 @@ export function RetryBackgroundMigration({
     api.backgroundMigrations.retry.useMutation({
       onSuccess: () => {
         void utils.backgroundMigrations.invalidate();
-        toast.success("Migration scheduled for retry");
+        toast.success(t("Migration scheduled for retry"));
         setIsOpen(false);
         setAdminApiKey("");
       },
       onError: (error) => {
-        toast.error(error?.message || "Failed to retry migration");
+        toast.error(error?.message || t("Failed to retry migration"));
       },
       onSettled: () => {
         setIsLoading(false);
@@ -43,7 +43,7 @@ export function RetryBackgroundMigration({
 
   const handleRetry = async () => {
     if (!adminApiKey.trim()) {
-      toast.error("Admin API key is required");
+      toast.error(t("Admin API key is required"));
       return;
     }
     setIsLoading(true);

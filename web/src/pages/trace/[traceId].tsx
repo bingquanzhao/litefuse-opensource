@@ -62,7 +62,9 @@ const TraceRedirectPage = ({
     return (
       <ErrorPage
         title={t("Trace not found")}
-        message="The trace is either still being processed or has been deleted."
+        message={t(
+          "The trace is either still being processed or has been deleted.",
+        )}
         additionalButton={{
           label: t("Retry"),
           onClick: () => void window.location.reload(),
@@ -75,7 +77,7 @@ const TraceRedirectPage = ({
     return (
       <ErrorPage
         title={t("Trace not found")}
-        message="Please upgrade the SDK as the URL schema has changed."
+        message={t("Please upgrade the SDK as the URL schema has changed.")}
       />
     );
   }

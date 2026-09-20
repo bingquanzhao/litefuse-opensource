@@ -225,8 +225,8 @@ export function SupportFormSection({
     onError: (error) => {
       setIsSubmittingLocal(false);
       showErrorToast(
-        "Upload Preparation Failed",
-        error.message || "Failed to prepare file uploads. Please try again.",
+        t("Upload Preparation Failed"),
+        error.message || t("Failed to prepare file uploads. Please try again."),
         "ERROR",
       );
     },
@@ -356,7 +356,7 @@ export function SupportFormSection({
             name="messageType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Message Type</FormLabel>
+                <FormLabel>{t("Message Type")}</FormLabel>
                 <FormControl>
                   <RadioGroup
                     className="grid grid-cols-3 gap-2"
@@ -379,7 +379,7 @@ export function SupportFormSection({
                   </RadioGroup>
                 </FormControl>
                 <FormDescription className="sr-only">
-                  Choose the type of your message.
+                  {t("Choose the type of your message.")}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -392,11 +392,11 @@ export function SupportFormSection({
             name="severity"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Severity</FormLabel>
+                <FormLabel>{t("Severity")}</FormLabel>
                 <FormControl>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select severity" />
+                      <SelectValue placeholder={t("Select severity")} />
                     </SelectTrigger>
                     <SelectContent>
                       {SEVERITIES.map((s) => (
@@ -418,19 +418,19 @@ export function SupportFormSection({
             name="topic"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Topic</FormLabel>
+                <FormLabel>{t("Topic")}</FormLabel>
                 <FormControl>
                   <Select
                     value={(field.value as string | undefined) ?? undefined}
                     onValueChange={field.onChange}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a topic" />
+                      <SelectValue placeholder={t("Select a topic")} />
                     </SelectTrigger>
                     <SelectContent>
                       <div className="p-2">
                         <div className="text-muted-foreground mb-2 text-xs font-medium">
-                          Product Features
+                          {t("Product Features")}
                         </div>
                         {TopicGroups["Product Features"].map((t) => (
                           <SelectItem key={t} value={t}>
@@ -440,7 +440,7 @@ export function SupportFormSection({
                       </div>
                       <div className="border-t p-2">
                         <div className="text-muted-foreground mb-2 text-xs font-medium">
-                          Operations
+                          {t("Operations")}
                         </div>
                         {TopicGroups.Operations.map((t) => (
                           <SelectItem key={t} value={t}>
@@ -463,11 +463,13 @@ export function SupportFormSection({
               name="integrationType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Integration Type (optional)</FormLabel>
+                  <FormLabel>{t("Integration Type (optional)")}</FormLabel>
                   <FormControl>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select integration type" />
+                        <SelectValue
+                          placeholder={t("Select integration type")}
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         {INTEGRATION_TYPES.map((it) => (
@@ -490,10 +492,11 @@ export function SupportFormSection({
             name="message"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Message</FormLabel>
+                <FormLabel>{t("Message")}</FormLabel>
                 <div className="text-muted-foreground text-xs">
-                  We will email you at your account address. Replies may take up
-                  to one business day.
+                  {t(
+                    "We will email you at your account address. Replies may take up to one business day.",
+                  )}
                 </div>
                 <FormControl>
                   <div className="relative w-full">
@@ -503,7 +506,9 @@ export function SupportFormSection({
                       placeholder={
                         isProductFeatureTopic
                           ? "Please explain as fully as possible what you're aiming to do, and what you'd like help with.\n\nIf your question involves a specific trace, prompt, score, etc. please include a link to it."
-                          : "Please explain as fully as possible what you're aiming to do, and what you'd like help with."
+                          : t(
+                              "Please explain as fully as possible what you're aiming to do, and what you'd like help with.",
+                            )
                       }
                     />
                   </div>
@@ -515,9 +520,9 @@ export function SupportFormSection({
                     role="status"
                     aria-live="polite"
                   >
-                    The message seems short — adding a bit more context can help
-                    us get you a quicker, smarter answer. You can submit again
-                    as is, or add more details.
+                    {t(
+                      "The message seems short — adding a bit more context can help us get you a quicker, smarter answer. You can submit again as is, or add more details.",
+                    )}
                   </p>
                 )}
 
@@ -530,7 +535,11 @@ export function SupportFormSection({
                   onDrop={(accepted) => setFiles(accepted)}
                   onError={(error) => {
                     const userMessage = formatFileError(error, t);
-                    showErrorToast("File Upload Error", userMessage, "WARNING");
+                    showErrorToast(
+                      t("File Upload Error"),
+                      userMessage,
+                      "WARNING",
+                    );
                   }}
                   src={files}
                 >
@@ -541,7 +550,7 @@ export function SupportFormSection({
                       <span className="truncate">
                         {hasFiles
                           ? `${files!.length} file${files!.length > 1 ? "s" : ""} • ${totalMB} MB`
-                          : "Attach files"}
+                          : t("Attach files")}
                       </span>
                     </div>
                   </DropzoneEmptyState>
@@ -549,7 +558,7 @@ export function SupportFormSection({
                   <DropzoneContent>
                     <div className="flex w-full cursor-pointer items-center justify-start gap-2 p-2 text-xs">
                       <Paperclip className="h-4 w-4" />
-                      <span className="truncate">Attach files</span>
+                      <span className="truncate">{t("Attach files")}</span>
                     </div>
                   </DropzoneContent>
                 </Dropzone>
@@ -557,7 +566,7 @@ export function SupportFormSection({
                 {files && files.length > 0 && (
                   <div className="p-0 text-left text-sm font-medium">
                     <div className="text-muted-foreground mb-2 text-xs font-medium">
-                      Attached files
+                      {t("Attached files")}
                     </div>
                     {files?.map((file) => (
                       <div
@@ -573,7 +582,7 @@ export function SupportFormSection({
                           }
                           className="p-0"
                         >
-                          <span className="sr-only">Remove file</span>
+                          <span className="sr-only">{t("Remove file")}</span>
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                         {file.name}

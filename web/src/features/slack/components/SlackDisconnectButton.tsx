@@ -92,8 +92,10 @@ export const SlackDisconnectButton: React.FC<SlackDisconnectButtonProps> = ({
       setIsDialogOpen(false);
 
       showSuccessToast({
-        title: t("Slack Disconnected"),
-        description: t("Successfully disconnected from your Slack workspace."),
+        title: t(t("Slack Disconnected")),
+        description: t(
+          t("Successfully disconnected from your Slack workspace."),
+        ),
       });
 
       onSuccess?.();
@@ -103,7 +105,7 @@ export const SlackDisconnectButton: React.FC<SlackDisconnectButtonProps> = ({
 
       const errorMessage = error.message || "Failed to disconnect from Slack";
 
-      showErrorToast("Disconnection Failed", errorMessage);
+      showErrorToast(t("Disconnection Failed"), errorMessage);
 
       onError?.(new Error(errorMessage));
     },

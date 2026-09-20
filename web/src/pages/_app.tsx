@@ -84,6 +84,7 @@ import { resolveRequestI18n } from "@/src/features/i18n/getI18nAppProps";
 import { CorrectionCacheProvider } from "@/src/features/corrections/contexts/CorrectionCacheContext";
 import { V4_BETA_ENABLED_POSTHOG_PROPERTY } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 
+import { useTranslation } from "react-i18next";
 // Check that PostHog is client-side (used to handle Next.js SSR) and that env vars are set
 if (
   typeof window !== "undefined" &&
@@ -119,6 +120,7 @@ const MyApp = ({
   pageProps: { session, ...pageProps },
   i18n,
 }: MyAppProps) => {
+  const { t } = useTranslation();
   const router = useRouter();
 
   useEffect(() => {

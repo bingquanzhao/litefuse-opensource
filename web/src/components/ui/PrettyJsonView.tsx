@@ -745,6 +745,12 @@ export function PrettyJsonView(props: {
   json?: unknown;
   parsedJson?: unknown; // Pre-parsed data (optional, from useParsedObservation hook)
   title?: string;
+  /**
+   * Locale-independent role used to pick the panel background ("Input",
+   * "Output", "assistant", "system", ...). The visible `title` is translated,
+   * so it must never be compared against; pass this alongside it.
+   */
+  titleKey?: string;
   titleIcon?: React.ReactNode;
   className?: string;
   isLoading?: boolean;
@@ -1168,12 +1174,13 @@ export function PrettyJsonView(props: {
   const shouldUseTableView =
     isPrettyView && !isChatML && !isMarkdown && !emptyValueDisplay;
 
+  // The visible title is translated, so the role has to come from titleKey.
+  const panelRole = props.titleKey ?? props.title;
+
   const getBackgroundColorClass = () =>
     cn(
-      ASSISTANT_TITLES.includes(props.title || "")
-        ? "bg-accent-light-green"
-        : "",
-      SYSTEM_TITLES.includes(props.title || "") ? "bg-primary-foreground" : "",
+      ASSISTANT_TITLES.includes(panelRole || "") ? "bg-accent-light-green" : "",
+      SYSTEM_TITLES.includes(panelRole || "") ? "bg-primary-foreground" : "",
     );
 
   const body = (
@@ -1183,7 +1190,7 @@ export function PrettyJsonView(props: {
           <div
             className={cn(
               getContainerClasses(
-                props.title,
+                panelRole,
                 props.scrollable,
                 props.codeClassName,
               ),
@@ -1207,7 +1214,7 @@ export function PrettyJsonView(props: {
             className={cn(
               "flex items-center",
               getContainerClasses(
-                props.title,
+                panelRole,
                 props.scrollable,
                 props.codeClassName,
               ),
@@ -1231,7 +1238,7 @@ export function PrettyJsonView(props: {
           >
             <div
               className={getContainerClasses(
-                props.title,
+                panelRole,
                 props.scrollable,
                 props.codeClassName,
                 "flex text-xs wrap-break-word whitespace-pre-wrap",
@@ -1268,7 +1275,8 @@ export function PrettyJsonView(props: {
           >
             <JSONView
               json={props.json}
-              title={props.title} // Title value used for background styling
+              title={props.title}
+              titleKey={panelRole} // Role value used for background styling
               hideTitle={true} // But hide the title, we display it
               className=""
               isLoading={props.isLoading}
@@ -1325,7 +1333,9 @@ export function PrettyJsonView(props: {
                   onClick={() => expandAllRef.current?.()}
                   className="hover:bg-border -mr-2"
                   title={
-                    allRowsExpanded ? "Collapse all rows" : "Expand all rows"
+                    allRowsExpanded
+                      ? t("Collapse all rows")
+                      : t("Expand all rows")
                   }
                 >
                   {allRowsExpanded ? (
@@ -1341,7 +1351,7 @@ export function PrettyJsonView(props: {
                   size="icon-xs"
                   onClick={handleJsonToggleCollapse}
                   className="hover:bg-border -mr-2"
-                  title={jsonIsCollapsed ? "Expand all" : "Collapse all"}
+                  title={jsonIsCollapsed ? t("Expand all") : t("Collapse all")}
                 >
                   {jsonIsCollapsed ? (
                     <UnfoldVertical className="h-3 w-3" />

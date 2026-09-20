@@ -96,7 +96,7 @@ export default function DatasetCompare() {
         },
         breadcrumb: [
           {
-            name: "Datasets",
+            name: t("Datasets"),
             href: `/project/${projectId}/datasets`,
           },
           {
@@ -121,7 +121,9 @@ export default function DatasetCompare() {
                   onClick={() => capture("dataset_run:new_form_open")}
                 >
                   <FlaskConical className="h-4 w-4" />
-                  <span className="ml-2 hidden md:block">New experiment</span>
+                  <span className="ml-2 hidden md:block">
+                    {t("New experiment")}
+                  </span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-h-[90vh] overflow-y-auto">
@@ -139,9 +141,9 @@ export default function DatasetCompare() {
             </Dialog>
             <MultiSelectKeyValues
               key="select-runs"
-              title="Runs"
+              title={t("Runs")}
               showSelectedValueStrings={false}
-              placeholder="Select runs to compare"
+              placeholder={t("Select runs to compare")}
               className="w-fit"
               variant="outline"
               hideClearButton

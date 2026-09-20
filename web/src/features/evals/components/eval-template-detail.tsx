@@ -73,7 +73,7 @@ export const EvalTemplateDetail = () => {
         itemType: "EVALUATOR",
         breadcrumb: [
           {
-            name: "Evaluator Library",
+            name: t("Evaluator Library"),
             href: `/project/${router.query.projectId as string}/evals/templates`,
           },
         ],
@@ -125,7 +125,7 @@ export const EvalTemplateDetail = () => {
               setIsEditing={setIsEditing}
             />
           </div>
-          <SidePanel mobileTitle="Change history" id="change-history">
+          <SidePanel mobileTitle={t("Change history")} id="change-history">
             <SidePanelHeader>
               <SidePanelTitle className="text-base font-semibold">
                 {t("Change history")}

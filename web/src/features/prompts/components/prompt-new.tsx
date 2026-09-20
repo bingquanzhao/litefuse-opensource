@@ -54,7 +54,7 @@ export const NewPrompt = () => {
       headerProps={{
         title: initialPrompt
           ? t("{{name}} — New version", { name: initialPrompt.name })
-          : "Create new prompt",
+          : t("Create new prompt"),
         help: {
           description: t(
             "Manage and version your prompts in Litefuse. Edit and update them via the UI and SDK. Retrieve the production version via the SDKs. Learn more in the docs.",

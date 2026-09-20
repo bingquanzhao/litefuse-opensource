@@ -40,7 +40,7 @@ export const SuccessNotification: React.FC<SuccessNotificationProps> = ({
             variant="secondary"
             className="self-start"
           >
-            {link.text}
+            {t(link.text)}
           </ActionButton>
         )}
       </div>

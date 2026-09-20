@@ -59,7 +59,7 @@ export default function SSOInitiate() {
       <Head>
         <title>{t("Signing in | Litefuse")}</title>
       </Head>
-      <Spinner message="Redirecting to your identity provider..." />
+      <Spinner message={t("Redirecting to your identity provider...")} />
     </>
   );
 }

@@ -488,9 +488,11 @@ export default function TracesTable({
   const traceDeleteMutation = api.traces.deleteMany.useMutation({
     onSuccess: () => {
       showSuccessToast({
-        title: t("Traces deleted"),
+        title: t(t("Traces deleted")),
         description: t(
-          "Selected traces will be deleted. Traces are removed asynchronously and may continue to be visible for up to 15 minutes.",
+          t(
+            "Selected traces will be deleted. Traces are removed asynchronously and may continue to be visible for up to 15 minutes.",
+          ),
         ),
       });
     },
@@ -502,7 +504,7 @@ export default function TracesTable({
   const addToQueueMutation = api.annotationQueueItems.createMany.useMutation({
     onSuccess: (data) => {
       showSuccessToast({
-        title: t("Traces added to queue"),
+        title: t(t("Traces added to queue")),
         description: t(
           'Selected traces will be added to queue "{{queue}}". This may take a minute.',
           { queue: data.queueName },

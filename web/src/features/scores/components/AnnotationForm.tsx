@@ -200,7 +200,7 @@ function AnnotateHeader({
             )}
           </div>
           <span className="text-muted-foreground text-xs">
-            {showSaving ? "Saving score data" : "Score data saved"}
+            {showSaving ? t("Saving score data") : t("Score data saved")}
           </span>
         </div>,
         actionButtons,
@@ -574,7 +574,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
             <MultiSelectKeyValues
               placeholder={t("Value")}
               align="end"
-              items="empty scores"
+              items={t("empty scores")}
               className="grid grid-cols-[auto_1fr_auto_auto] gap-2"
               options={selectionOptions}
               onValueChange={handleSelectionChange}
@@ -599,7 +599,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
                     );
                   }}
                 >
-                  Manage score configs
+                  {t("Manage score configs")}
                 </DropdownMenuItem>
               }
             />
@@ -667,7 +667,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
                                 variant="link"
                                 type="button"
                                 size="xs"
-                                title="Add or view score comment"
+                                title={t("Add or view score comment")}
                                 className="disabled:text-primary/50 h-full px-0 pl-1 disabled:opacity-100"
                                 disabled={
                                   isScoreUnsaved(score.id) ||
@@ -775,9 +775,11 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
                                         value: category.label,
                                         disabled: category.isOutdated,
                                       }))}
-                                      placeholder="Select category"
-                                      searchPlaceholder="Search categories..."
-                                      emptyText="No category found."
+                                      placeholder={t("Select category")}
+                                      searchPlaceholder={t(
+                                        "Search categories...",
+                                      )}
+                                      emptyText={t("No category found.")}
                                     />
                                   </FormControl>
                                   <FormMessage className="text-xs" />
@@ -848,7 +850,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
                                   variant="link"
                                   type="button"
                                   className="px-0 pl-1"
-                                  title="Delete archived score"
+                                  title={t("Delete archived score")}
                                   disabled={isScoreUnsaved(score.id)}
                                 >
                                   <Archive className="h-4 w-4"></Archive>
@@ -856,11 +858,12 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
                               </PopoverTrigger>
                               <PopoverContent>
                                 <h2 className="text-md mb-3 font-semibold">
-                                  Your score is archived
+                                  {t("Your score is archived")}
                                 </h2>
                                 <p className="mb-3 text-sm">
-                                  This action will delete your score
-                                  irreversibly.
+                                  {t(
+                                    "This action will delete your score irreversibly.",
+                                  )}
                                 </p>
                                 <div className="flex justify-end space-x-4">
                                   <Button
@@ -869,7 +872,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
                                     loading={deleteMutation.isPending}
                                     onClick={() => handleDeleteScore(index)}
                                   >
-                                    Delete
+                                    {t("Delete")}
                                   </Button>
                                 </div>
                               </PopoverContent>
@@ -879,7 +882,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
                               variant="link"
                               type="button"
                               className="px-0 pl-1"
-                              title="Delete score from trace/observation"
+                              title={t("Delete score from trace/observation")}
                               disabled={
                                 isScoreUnsaved(score.id) ||
                                 updateMutation.isPending

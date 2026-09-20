@@ -197,7 +197,7 @@ export const TemplateSelector = ({
                 {filteredTemplates.custom.length > 0 && (
                   <>
                     <InputCommandGroup
-                      heading="Custom evaluators"
+                      heading={t("Custom evaluators")}
                       className="max-h-full"
                     >
                       {filteredTemplates.custom.map(([name, templateData]) => {
@@ -294,7 +294,7 @@ export const TemplateSelector = ({
 
                 {filteredTemplates.langfuse.length > 0 && (
                   <InputCommandGroup
-                    heading="Litefuse managed evaluators"
+                    heading={t("Litefuse managed evaluators")}
                     className="max-h-full min-h-0"
                   >
                     {filteredTemplates.langfuse.map(([name, templateData]) => {

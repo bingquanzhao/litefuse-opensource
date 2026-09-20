@@ -205,7 +205,7 @@ export const EditDatasetItem = ({
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex items-center gap-2">
-                        <FormLabel>Input</FormLabel>
+                        <FormLabel>{t("Input")}</FormLabel>
                         {dataset?.inputSchema && (
                           <DatasetSchemaHoverCard
                             schema={dataset.inputSchema}
@@ -244,7 +244,7 @@ export const EditDatasetItem = ({
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex items-center gap-2">
-                        <FormLabel>Expected output</FormLabel>
+                        <FormLabel>{t("Expected output")}</FormLabel>
                         {dataset?.expectedOutputSchema && (
                           <DatasetSchemaHoverCard
                             schema={dataset.expectedOutputSchema}
@@ -284,7 +284,7 @@ export const EditDatasetItem = ({
                 name="metadata"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Metadata</FormLabel>
+                    <FormLabel>{t("Metadata")}</FormLabel>
                     <FormControl>
                       <CodeMirrorEditor
                         mode="json"

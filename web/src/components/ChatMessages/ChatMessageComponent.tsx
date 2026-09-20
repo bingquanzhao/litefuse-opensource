@@ -34,6 +34,8 @@ import {
 } from "@/src/components/ui/select";
 import { useOptionalPlaygroundContext } from "@/src/features/playground/page/context";
 import { useTranslation } from "react-i18next";
+import { type TFunction } from "i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 import {
   useOptionalMessageSearchActions,
   useOptionalMessageSearchPageId,
@@ -56,23 +58,32 @@ const ROLES: ChatMessageRole[] = [
   ChatMessageRole.Tool,
 ] as const;
 
-const getRoleNamePlaceholder = (role: string) => {
+const getEditorPlaceholder = (role: string, t: TFunction) => {
   switch (role) {
     case ChatMessageRole.System:
-      return "a system message";
+      return t("Enter a system message here.");
     case ChatMessageRole.Developer:
-      return "a developer message";
+      return t("Enter a developer message here.");
     case ChatMessageRole.Assistant:
-      return "an assistant message";
+      return t("Enter an assistant message here.");
     case ChatMessageRole.User:
-      return "a user message";
+      return t("Enter a user message here.");
     case ChatMessageRole.Tool:
-      return "a tool response message";
+      return t("Enter a tool response message here.");
     case "placeholder":
-      return "placeholder name (e.g. chat_history)";
+      return t("Enter placeholder name (e.g. chat_history) here.");
     default:
-      return `a ${role}`;
+      return t("Enter a {{role}} here.", { role });
   }
+};
+
+/** Chat roles are protocol values; these are the labels shown for them. */
+const roleLabels: Record<string, string> = {
+  [ChatMessageRole.System]: i18nKey("System"),
+  [ChatMessageRole.Developer]: i18nKey("Developer"),
+  [ChatMessageRole.Assistant]: i18nKey("Assistant"),
+  [ChatMessageRole.User]: i18nKey("User"),
+  [ChatMessageRole.Tool]: i18nKey("Tool"),
 };
 
 const ToolCalls: React.FC<{ toolCalls: LLMToolCall[] }> = ({ toolCalls }) => {
@@ -291,7 +302,9 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
                 variant="ghost"
                 className="text-muted-foreground hover:bg-accent hover:text-accent-foreground h-6 w-full px-1 py-0 text-[10px] font-semibold"
               >
-                {capitalize(message.role)}
+                {roleLabels[message.role]
+                  ? t(roleLabels[message.role])
+                  : capitalize(message.role)}
               </Button>
             )}
           </div>
@@ -372,6 +385,7 @@ const MemoizedEditor = memo(function MemoizedEditor(props: {
   onEditorMount: () => void;
   enableSearchKeymap: boolean;
 }) {
+  const { t } = useTranslation();
   const {
     value,
     role,
@@ -380,7 +394,7 @@ const MemoizedEditor = memo(function MemoizedEditor(props: {
     onEditorMount,
     enableSearchKeymap,
   } = props;
-  const placeholder = `Enter ${getRoleNamePlaceholder(role)} here.`;
+  const placeholder = getEditorPlaceholder(role, t);
 
   return (
     <CodeMirrorEditor

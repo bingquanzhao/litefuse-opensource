@@ -114,7 +114,7 @@ export const ModelCostTable = ({
       <DashboardTable
         headers={[
           "Model",
-          <RightAlignedCell key="tokens">Tokens</RightAlignedCell>,
+          <RightAlignedCell key="tokens">{t("Tokens")}</RightAlignedCell>,
           <RightAlignedCell key="cost">USD</RightAlignedCell>,
         ]}
         rows={metricsData}

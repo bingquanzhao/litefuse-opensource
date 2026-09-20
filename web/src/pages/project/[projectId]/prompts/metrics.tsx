@@ -394,7 +394,7 @@ export default function PromptVersionTable({
         },
         breadcrumb: [
           {
-            name: "Prompts",
+            name: t("Prompts"),
             href: `/project/${projectId}/prompts/`,
           },
           {

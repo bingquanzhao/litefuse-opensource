@@ -87,11 +87,11 @@ export const EvaluatorDetail = () => {
       headerProps={{
         title: evaluator.data
           ? `${evaluator.data.scoreName}: ${evaluator.data.id}`
-          : "Loading...",
+          : t("Loading..."),
         itemType: "EVALUATOR",
         breadcrumb: [
           {
-            name: "LLM-as-a-Judge Evaluators",
+            name: t("LLM-as-a-Judge Evaluators"),
             href: `/project/${router.query.projectId as string}/evals`,
           },
         ],

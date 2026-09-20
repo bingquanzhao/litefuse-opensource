@@ -183,7 +183,7 @@ export const VariableMappingCard = ({
                     <div className="bg-muted/50 flex max-h-full min-h-48 w-full flex-col gap-1 lg:w-2/3">
                       <div className="flex flex-row items-center justify-between py-0 text-sm font-medium capitalize">
                         <div className="flex flex-row items-center gap-2">
-                          Evaluation Prompt Preview
+                          {t("Evaluation Prompt Preview")}
                           <Skeleton className="h-[25px] w-[63px]" />
                         </div>
                         <div className="flex justify-end">
@@ -192,8 +192,9 @@ export const VariableMappingCard = ({
                       </div>
                       <div className="flex h-full w-full flex-1 items-center justify-center rounded border">
                         <p className="text-muted-foreground text-center text-sm">
-                          No trace data found, please adjust filters or switch
-                          to not show preview.
+                          {t(
+                            "No trace data found, please adjust filters or switch to not show preview.",
+                          )}
                         </p>
                       </div>
                     </div>
@@ -245,7 +246,7 @@ export const VariableMappingCard = ({
                             render={({ field }) => (
                               <div className="flex items-center gap-2">
                                 <VariableMappingDescription
-                                  title="Object"
+                                  title={t("Object")}
                                   description={
                                     "Litefuse object to retrieve the data from."
                                   }
@@ -333,7 +334,7 @@ export const VariableMappingCard = ({
                                             >
                                               <SelectTrigger>
                                                 <SelectValue>
-                                                  Enter name...
+                                                  {t("Enter name...")}
                                                 </SelectValue>
                                               </SelectTrigger>
                                               <SelectContent>
@@ -349,7 +350,7 @@ export const VariableMappingCard = ({
                                                   key="custom"
                                                   value="custom"
                                                 >
-                                                  Enter name...
+                                                  {t("Enter name...")}
                                                 </SelectItem>
                                               </SelectContent>
                                             </Select>
@@ -362,7 +363,9 @@ export const VariableMappingCard = ({
                                               onChange={(e) =>
                                                 field.onChange(e.target.value)
                                               }
-                                              placeholder="Enter Litefuse object name"
+                                              placeholder={t(
+                                                "Enter Litefuse object name",
+                                              )}
                                               disabled={disabled}
                                             />
                                           </div>
@@ -389,7 +392,7 @@ export const VariableMappingCard = ({
                                                 key="custom"
                                                 value="custom"
                                               >
-                                                Enter name...
+                                                {t("Enter name...")}
                                               </SelectItem>
                                             </SelectContent>
                                           </Select>
@@ -441,7 +444,9 @@ export const VariableMappingCard = ({
                                       }}
                                     >
                                       <SelectTrigger>
-                                        <SelectValue placeholder="Select field" />
+                                        <SelectValue
+                                          placeholder={t("Select field")}
+                                        />
                                       </SelectTrigger>
                                       <SelectContent>
                                         {availableVariables
@@ -492,7 +497,7 @@ export const VariableMappingCard = ({
                                         {...field}
                                         value={field.value ?? ""}
                                         disabled={disabled}
-                                        placeholder="Optional"
+                                        placeholder={t("Optional")}
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -527,8 +532,10 @@ export const VariableMappingCard = ({
                           {hideAdvancedSettings && (
                             <div className="flex items-center gap-2">
                               <VariableMappingDescription
-                                title="Object"
-                                description="Type of object to retrieve the data from."
+                                title={t("Object")}
+                                description={t(
+                                  "Type of object to retrieve the data from.",
+                                )}
                                 href="https://litefuse.ai/docs/evaluation/evaluation-methods/llm-as-a-judge"
                               />
                               <div className="w-2/3">
@@ -578,7 +585,9 @@ export const VariableMappingCard = ({
                                         onValueChange={field.onChange}
                                       >
                                         <SelectTrigger>
-                                          <SelectValue placeholder="Select field" />
+                                          <SelectValue
+                                            placeholder={t("Select field")}
+                                          />
                                         </SelectTrigger>
                                         <SelectContent>
                                           {availableColumns.map((column) => (
@@ -627,7 +636,7 @@ export const VariableMappingCard = ({
                                         {...field}
                                         value={field.value ?? ""}
                                         disabled={disabled}
-                                        placeholder="Optional"
+                                        placeholder={t("Optional")}
                                       />
                                     </FormControl>
                                     <FormMessage />

@@ -63,7 +63,12 @@ export const CreateNewAnnotationQueueItem = ({
           });
         } else {
           const confirmRemoval = confirm(
-            `Are you sure you want to remove this item from the queue "${queueName}"?`,
+            t(
+              'Are you sure you want to remove this item from the queue "{{queue}}"?',
+              {
+                queue: queueName,
+              },
+            ),
           );
           if (confirmRemoval) {
             await removeFromQueueMutation.mutateAsync({

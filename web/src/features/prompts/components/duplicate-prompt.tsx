@@ -121,7 +121,7 @@ const DuplicatePromptForm: React.FC<{
             name="name"
             render={({ field }) => (
               <FormItem className="flex flex-col gap-2">
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t("Name")}</FormLabel>
                 <FormControl>
                   <Input {...field} type="text" />
                 </FormControl>
@@ -134,7 +134,7 @@ const DuplicatePromptForm: React.FC<{
             name="isCopySingleVersion"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Settings</FormLabel>
+                <FormLabel>{t("Settings")}</FormLabel>
                 <FormControl>
                   <RadioGroup
                     {...field}
@@ -147,7 +147,9 @@ const DuplicatePromptForm: React.FC<{
                         <RadioGroupItem value={CopySettings.SINGLE_VERSION} />
                       </FormControl>
                       <FormLabel className="font-normal">
-                        Copy only version {promptVersion}
+                        {t("Copy only version {{version}}", {
+                          version: promptVersion,
+                        })}
                       </FormLabel>
                     </FormItem>
                     <FormItem className="flex items-center space-y-0 space-x-3">
@@ -155,7 +157,7 @@ const DuplicatePromptForm: React.FC<{
                         <RadioGroupItem value={CopySettings.ALL_VERSIONS} />
                       </FormControl>
                       <FormLabel className="font-normal">
-                        Copy all prompt versions and labels
+                        {t("Copy all prompt versions and labels")}
                       </FormLabel>
                     </FormItem>
                   </RadioGroup>

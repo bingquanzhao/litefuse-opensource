@@ -100,7 +100,7 @@ export function SetPromptVersionLabels({
   const handleSubmitLabels = async () => {
     try {
       if (!projectId) {
-        alert("Project ID is missing");
+        alert(t("Project ID is missing"));
         return;
       }
 
@@ -215,7 +215,7 @@ export function SetPromptVersionLabels({
           <InputCommand className="mx-0 my-3 px-0">
             <InputCommandList className="max-h-full overflow-hidden">
               <InputCommandSeparator />
-              <InputCommandGroup heading="Promote to production?">
+              <InputCommandGroup heading={t("Promote to production?")}>
                 <LabelCommandItem
                   {...{
                     selectedLabels,
@@ -225,7 +225,7 @@ export function SetPromptVersionLabels({
                 />
               </InputCommandGroup>
               <InputCommandSeparator />
-              <InputCommandGroup heading="Custom labels">
+              <InputCommandGroup heading={t("Custom labels")}>
                 {/* Search + create input */}
                 <div className="px-2 pt-1 pb-2">
                   <Input

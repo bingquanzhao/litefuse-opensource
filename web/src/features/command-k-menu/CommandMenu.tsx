@@ -29,11 +29,12 @@ function MainNavigationGroup({
   navItems: Array<{ title: string; url: string }>;
   onNavigate: (item: { title: string; url: string }) => void;
 }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const capture = usePostHogClientCapture();
 
   return (
-    <CommandGroup heading="Main Navigation">
+    <CommandGroup heading={t("Main Navigation")}>
       {navItems.map((item) => (
         <CommandItem
           key={item.url}
@@ -57,6 +58,7 @@ function MainNavigationGroup({
 }
 
 function ProjectsGroup({ onNavigate }: { onNavigate: () => void }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const capture = usePostHogClientCapture();
   const { allProjectItems } = useNavigationItems();
@@ -66,7 +68,7 @@ function ProjectsGroup({ onNavigate }: { onNavigate: () => void }) {
   return (
     <>
       <CommandSeparator />
-      <CommandGroup heading="Projects">
+      <CommandGroup heading={t("Projects")}>
         {allProjectItems.map((item) => (
           <CommandItem
             key={item.url}
@@ -92,6 +94,7 @@ function ProjectsGroup({ onNavigate }: { onNavigate: () => void }) {
 }
 
 function DashboardsGroup({ onNavigate }: { onNavigate: () => void }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const capture = usePostHogClientCapture();
   const { project } = useQueryProjectOrOrganization();
@@ -119,7 +122,7 @@ function DashboardsGroup({ onNavigate }: { onNavigate: () => void }) {
   return (
     <>
       <CommandSeparator />
-      <CommandGroup heading="Dashboards">
+      <CommandGroup heading={t("Dashboards")}>
         {dashboards.map((dashboard) => (
           <CommandItem
             key={dashboard.id}
@@ -150,6 +153,7 @@ function DashboardsGroup({ onNavigate }: { onNavigate: () => void }) {
 }
 
 function ProjectSettingsGroup({ onNavigate }: { onNavigate: () => void }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const capture = usePostHogClientCapture();
   const settingsPages = useProjectSettingsPages();
@@ -168,7 +172,7 @@ function ProjectSettingsGroup({ onNavigate }: { onNavigate: () => void }) {
   return (
     <>
       <CommandSeparator />
-      <CommandGroup heading="Project Settings">
+      <CommandGroup heading={t("Project Settings")}>
         {projectSettingsItems.map((item) => (
           <CommandItem
             key={item.url}
@@ -193,6 +197,7 @@ function ProjectSettingsGroup({ onNavigate }: { onNavigate: () => void }) {
 }
 
 function OrganizationSettingsGroup({ onNavigate }: { onNavigate: () => void }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const capture = usePostHogClientCapture();
   const orgSettingsPages = useOrganizationSettingsPages();
@@ -211,7 +216,7 @@ function OrganizationSettingsGroup({ onNavigate }: { onNavigate: () => void }) {
   return (
     <>
       <CommandSeparator />
-      <CommandGroup heading="Organization Settings">
+      <CommandGroup heading={t("Organization Settings")}>
         {orgSettingsItems.map((item) => (
           <CommandItem
             key={item.url}
@@ -236,6 +241,7 @@ function OrganizationSettingsGroup({ onNavigate }: { onNavigate: () => void }) {
 }
 
 function AccountSettingsGroup({ onNavigate }: { onNavigate: () => void }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const capture = usePostHogClientCapture();
   const accountSettingsPages = useAccountSettingsPages();
@@ -251,7 +257,7 @@ function AccountSettingsGroup({ onNavigate }: { onNavigate: () => void }) {
   return (
     <>
       <CommandSeparator />
-      <CommandGroup heading="Account Settings">
+      <CommandGroup heading={t("Account Settings")}>
         {accountSettingsItems.map((item) => (
           <CommandItem
             key={item.url}

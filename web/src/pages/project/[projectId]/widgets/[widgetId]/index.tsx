@@ -39,8 +39,8 @@ export default function EditWidget() {
     },
     onSuccess: () => {
       showSuccessToast({
-        title: t("Widget updated successfully"),
-        description: t("Your widget has been updated."),
+        title: t(t("Widget updated successfully")),
+        description: t(t("Your widget has been updated.")),
       });
       // Navigate back to dashboard if provided else widgets list
       if (dashboardId) {
@@ -52,7 +52,7 @@ export default function EditWidget() {
       }
     },
     onError: (error) => {
-      showErrorToast("Failed to update widget", error.message);
+      showErrorToast(t("Failed to update widget"), error.message);
     },
   });
 
@@ -113,7 +113,8 @@ export default function EditWidget() {
             metrics: widgetData.metrics,
             dimensions: widgetData.dimensions,
             // Keep single values for backward compatibility and fallbacks
-            dimension: widgetData.dimensions.slice().shift()?.field ?? "none",
+            dimension:
+              widgetData.dimensions.slice().shift()?.field ?? t("none"),
             measure: widgetData.metrics.slice().shift()?.measure ?? "count",
             aggregation:
               (widgetData.metrics.slice().shift()?.agg as z.infer<

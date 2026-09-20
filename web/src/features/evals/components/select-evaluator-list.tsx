@@ -125,8 +125,8 @@ export function SelectEvaluatorList({ projectId }: SelectEvaluatorListProps) {
                 setSelectedTemplate(newTemplate);
               }
               showSuccessToast({
-                title: t("Evaluator created successfully"),
-                description: t("You can now use this evaluator."),
+                title: t(t("Evaluator created successfully")),
+                description: t(t("You can now use this evaluator.")),
               });
             }}
           />

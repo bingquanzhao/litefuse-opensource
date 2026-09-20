@@ -99,8 +99,8 @@ export const CorrectedOutputDiffDialog: React.FC<
               <DiffViewer
                 oldString={formattedActualOutput}
                 newString={formattedCorrectedOutput}
-                oldLabel="Original Output"
-                newLabel="Corrected Output"
+                oldLabel={t("Original Output")}
+                newLabel={t("Corrected Output")}
               />
             </div>
           )}

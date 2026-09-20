@@ -221,7 +221,7 @@ export function DataTableControls({ queryFilter }: DataTableControlsProps) {
                   onChange={filter.onChange}
                   isActive={filter.isActive}
                   onReset={filter.onReset}
-                  keyPlaceholder="Name"
+                  keyPlaceholder={t("Name")}
                   isDisabled={filter.isDisabled}
                   disabledReason={filter.disabledReason}
                 />
@@ -242,7 +242,7 @@ export function DataTableControls({ queryFilter }: DataTableControlsProps) {
                   onChange={filter.onChange}
                   isActive={filter.isActive}
                   onReset={filter.onReset}
-                  keyPlaceholder="Name"
+                  keyPlaceholder={t("Name")}
                   isDisabled={filter.isDisabled}
                   disabledReason={filter.disabledReason}
                 />

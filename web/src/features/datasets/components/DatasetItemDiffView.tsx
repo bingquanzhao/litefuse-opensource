@@ -32,8 +32,8 @@ export const DatasetItemDiffView = ({
             <DiffViewer
               oldString={stringifyDatasetItemData(selectedVersion.input)}
               newString={stringifyDatasetItemData(latestVersion.input)}
-              oldLabel="Selected Version"
-              newLabel="Latest Version"
+              oldLabel={t("Selected Version")}
+              newLabel={t("Latest Version")}
             />
           </AccordionContent>
         </AccordionItem>
@@ -46,8 +46,8 @@ export const DatasetItemDiffView = ({
                 selectedVersion.expectedOutput,
               )}
               newString={stringifyDatasetItemData(latestVersion.expectedOutput)}
-              oldLabel="Selected Version"
-              newLabel="Latest Version"
+              oldLabel={t("Selected Version")}
+              newLabel={t("Latest Version")}
             />
           </AccordionContent>
         </AccordionItem>
@@ -58,8 +58,8 @@ export const DatasetItemDiffView = ({
             <DiffViewer
               oldString={stringifyDatasetItemData(selectedVersion.metadata)}
               newString={stringifyDatasetItemData(latestVersion.metadata)}
-              oldLabel="Selected Version"
-              newLabel="Latest Version"
+              oldLabel={t("Selected Version")}
+              newLabel={t("Latest Version")}
             />
           </AccordionContent>
         </AccordionItem>

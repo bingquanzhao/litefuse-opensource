@@ -182,12 +182,12 @@ export default function ProtectedLabelsSettings({
                     <PopoverContent className="w-full p-0">
                       <Command>
                         <CommandInput
-                          placeholder="Search or enter a new label..."
+                          placeholder={t("Search or enter a new label...")}
                           onValueChange={(value) => {
                             field.onChange(value);
                           }}
                         />
-                        <CommandEmpty>No label found</CommandEmpty>
+                        <CommandEmpty>{t("No label found")}</CommandEmpty>
                         <CommandGroup>
                           {availableLabels.map((label) => (
                             <CommandItem

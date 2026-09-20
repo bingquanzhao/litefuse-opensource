@@ -54,8 +54,8 @@ export function DefaultEvalModelSetup({ projectId }: { projectId: string }) {
     api.defaultLlmModel.upsertDefaultModel.useMutation({
       onSuccess: () => {
         showSuccessToast({
-          title: t("Default evaluation model updated"),
-          description: t("All running evaluators will use the new model."),
+          title: t(t("Default evaluation model updated")),
+          description: t(t("All running evaluators will use the new model.")),
         });
 
         utils.defaultLlmModel.fetchDefaultModel.invalidate({ projectId });
@@ -89,7 +89,9 @@ export function DefaultEvalModelSetup({ projectId }: { projectId: string }) {
           <ManageDefaultEvalModel
             projectId={projectId}
             variant="color-coded"
-            setUpMessage="No default model set. Set up default evaluation model"
+            setUpMessage={t(
+              "No default model set. Set up default evaluation model",
+            )}
             className="text-sm font-normal"
             showEditButton={false}
           />
@@ -128,7 +130,7 @@ export function DefaultEvalModelSetup({ projectId }: { projectId: string }) {
             <ModelParameters
               customHeader={
                 <p className="leading-none font-medium">
-                  Default model configuration
+                  {t("Default model configuration")}
                 </p>
               }
               {...{
@@ -233,7 +235,7 @@ function UpdateButton({
             loading={isLoading}
             onClick={() => {
               if (confirmationInput !== CONFIRMATION) {
-                alert("Please type the correct confirmation");
+                alert(t("Please type the correct confirmation"));
                 return;
               }
               executeUpsertMutation();

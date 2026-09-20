@@ -38,12 +38,15 @@ export const UploadDatasetCsv = ({
 
     const result = FileSchema.safeParse(file);
     if (!result.success) {
-      showErrorToast("Invalid file type", "Please select a valid CSV file");
+      showErrorToast(
+        t("Invalid file type"),
+        t("Please select a valid CSV file"),
+      );
       return;
     }
 
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      showErrorToast("File too large", "Maximum file size is 10MB");
+      showErrorToast(t("File too large"), t("Maximum file size is 10MB"));
       return;
     }
 
@@ -55,15 +58,15 @@ export const UploadDatasetCsv = ({
       });
 
       if (!Boolean(preview.columns.length)) {
-        showErrorToast("Invalid CSV", "CSV must have at least 1 column");
+        showErrorToast(t("Invalid CSV"), t("CSV must have at least 1 column"));
         return;
       }
 
       setPreview(preview);
     } catch (error) {
       showErrorToast(
-        "Failed to parse CSV",
-        error instanceof Error ? error.message : "Unknown error",
+        t("Failed to parse CSV"),
+        error instanceof Error ? error.message : t("Unknown error"),
       );
     }
   };

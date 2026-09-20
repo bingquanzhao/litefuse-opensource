@@ -110,9 +110,11 @@ export function CreateEvaluatorDialog(props: CreateEvaluatorDialogProps) {
                     targetObject: EvalTargetObject.EVENT,
                   });
                   showSuccessToast({
-                    title: t("Evaluator created"),
+                    title: t(t("Evaluator created")),
                     description: t(
-                      "Select it in the previous step to run it on selected observations.",
+                      t(
+                        "Select it in the previous step to run it on selected observations.",
+                      ),
                     ),
                   });
                 }}

@@ -128,11 +128,12 @@ export const WebhookActionForm: React.FC<WebhookActionFormProps> = ({
       <FormField
         control={form.control}
         name="webhook.url"
-        rules={{ required: "Webhook URL is required" }}
+        rules={{ required: t("Webhook URL is required") }}
         render={({ field }) => (
           <FormItem>
             <FormLabel className="flex items-center">
-              Webhook URL <span className="text-destructive ml-1">*</span>
+              {t("Webhook URL")}{" "}
+              <span className="text-destructive ml-1">*</span>
             </FormLabel>
             <FormControl>
               <Input
@@ -142,8 +143,9 @@ export const WebhookActionForm: React.FC<WebhookActionFormProps> = ({
               />
             </FormControl>
             <FormDescription>
-              The HTTP URL to call when the trigger fires. We will send a POST
-              request to this URL. Only HTTPS URLs are allowed for security.
+              {t(
+                "The HTTP URL to call when the trigger fires. We will send a POST request to this URL. Only HTTPS URLs are allowed for security.",
+              )}
             </FormDescription>
             <FormMessage />
           </FormItem>
@@ -155,7 +157,7 @@ export const WebhookActionForm: React.FC<WebhookActionFormProps> = ({
         name="webhook.apiVersion.prompt"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>API Version</FormLabel>
+            <FormLabel>{t("API Version")}</FormLabel>
             <Select
               onValueChange={field.onChange}
               value={field.value}
@@ -163,16 +165,17 @@ export const WebhookActionForm: React.FC<WebhookActionFormProps> = ({
             >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select API version" />
+                  <SelectValue placeholder={t("Select API version")} />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem value="v1">v1</SelectItem>
+                <SelectItem value="v1">{"v1"}</SelectItem>
               </SelectContent>
             </Select>
             <FormDescription>
-              The API version to use for the webhook payload format when prompt
-              events are triggered.
+              {t(
+                "The API version to use for the webhook payload format when prompt events are triggered.",
+              )}
             </FormDescription>
             <FormMessage />
           </FormItem>
@@ -242,7 +245,7 @@ export const WebhookActionForm: React.FC<WebhookActionFormProps> = ({
                   <FormItem>
                     <FormControl>
                       <Input
-                        placeholder="Header Name"
+                        placeholder={t("Header Name")}
                         {...field}
                         disabled={disabled}
                       />
@@ -378,9 +381,9 @@ export const RegenerateWebhookSecretButton = ({
     api.automations.regenerateWebhookSecret.useMutation({
       onSuccess: (data) => {
         showSuccessToast({
-          title: t("Webhook Secret Regenerated"),
+          title: t(t("Webhook Secret Regenerated")),
           description: t(
-            "Your webhook secret has been successfully regenerated.",
+            t("Your webhook secret has been successfully regenerated."),
           ),
         });
         setRegeneratedSecret(data.webhookSecret);

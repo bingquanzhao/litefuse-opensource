@@ -72,7 +72,7 @@ export const DatasetItemFields = ({
             name={"input" as FieldPath<any>}
             render={({ field }) => (
               <DatasetItemField
-                label="Input"
+                label={t("Input")}
                 value={field.value}
                 schema={dataset?.inputSchema}
                 schemaType="input"
@@ -107,7 +107,7 @@ export const DatasetItemFields = ({
             name={"expectedOutput" as FieldPath<any>}
             render={({ field }) => (
               <DatasetItemField
-                label="Expected output"
+                label={t("Expected output")}
                 value={field.value}
                 schema={dataset?.expectedOutputSchema}
                 schemaType="expectedOutput"
@@ -143,7 +143,7 @@ export const DatasetItemFields = ({
           name={"metadata" as FieldPath<any>}
           render={({ field }) => (
             <DatasetItemField
-              label="Metadata"
+              label={t("Metadata")}
               value={field.value}
               editable={editable}
               onChange={(v) => {

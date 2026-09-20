@@ -30,14 +30,14 @@ export default function NewDashboard() {
   const createDashboard = api.dashboard.createDashboard.useMutation({
     onSuccess: (data) => {
       showSuccessToast({
-        title: t("Dashboard created"),
-        description: t("Your new dashboard has been created successfully"),
+        title: t(t("Dashboard created")),
+        description: t(t("Your new dashboard has been created successfully")),
       });
       // Navigate to the newly created dashboard
       router.push(`/project/${projectId}/dashboards/${data.id}`);
     },
     onError: (error) => {
-      showErrorToast("Error creating dashboard", error.message);
+      showErrorToast(t("Error creating dashboard"), error.message);
     },
   });
 
@@ -50,7 +50,7 @@ export default function NewDashboard() {
         description: dashboardDescription,
       });
     } else {
-      showErrorToast("Validation error", "Dashboard name is required");
+      showErrorToast(t("Validation error"), t("Dashboard name is required"));
     }
   };
 
@@ -68,7 +68,7 @@ export default function NewDashboard() {
               variant="outline"
               onClick={() => router.push(`/project/${projectId}/dashboards`)}
             >
-              Cancel
+              {t("Cancel")}
             </Button>
             <Button
               onClick={handleCreateDashboard}
@@ -79,7 +79,7 @@ export default function NewDashboard() {
               }
               loading={createDashboard.isPending}
             >
-              Create
+              {t("Create")}
             </Button>
           </>
         ),

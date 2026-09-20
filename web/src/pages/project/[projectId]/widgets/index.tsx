@@ -43,7 +43,7 @@ export default function Widgets() {
               capture("dashboard:new_widget_form_open");
             }}
           >
-            New widget
+            {t("New widget")}
           </ActionButton>
         ),
       }}

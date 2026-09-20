@@ -117,7 +117,7 @@ export function EvaluatorSelector({
 
         {filteredTemplates.custom.length > 0 && (
           <>
-            <InputCommandGroup heading="Custom evaluators">
+            <InputCommandGroup heading={t("Custom evaluators")}>
               {filteredTemplates.custom.map(([name, templateData]) => {
                 const latestVersion = templateData[templateData.length - 1];
                 const isInvalid = isTemplateInvalid(latestVersion);
@@ -210,7 +210,7 @@ export function EvaluatorSelector({
 
         {filteredTemplates.langfuse.length > 0 && (
           <>
-            <InputCommandGroup heading="Litefuse managed evaluators">
+            <InputCommandGroup heading={t("Litefuse managed evaluators")}>
               {filteredTemplates.langfuse.map(([name, templateData]) => {
                 const latestVersion = templateData[templateData.length - 1];
                 const isInvalid = isTemplateInvalid(latestVersion);

@@ -197,9 +197,9 @@ export function CreateLLMApiKeyForm({
       name="customModels"
       render={() => (
         <FormItem>
-          <FormLabel>Custom models</FormLabel>
+          <FormLabel>{t("Custom models")}</FormLabel>
           <FormDescription>
-            Custom model names accepted by given endpoint.
+            {t("Custom model names accepted by given endpoint.")}
           </FormDescription>
 
           {fields.map((customModel, index) => (
@@ -226,7 +226,7 @@ export function CreateLLMApiKeyForm({
             className="w-full"
           >
             <PlusIcon className="mr-1.5 -ml-0.5 h-5 w-5" aria-hidden="true" />
-            Add custom model name
+            {t("Add custom model name")}
           </Button>
         </FormItem>
       )}
@@ -239,18 +239,19 @@ export function CreateLLMApiKeyForm({
       name="extraHeaders"
       render={() => (
         <FormItem>
-          <FormLabel>Extra Headers</FormLabel>
+          <FormLabel>{t("Extra Headers")}</FormLabel>
           <FormDescription>
-            Optional additional HTTP headers to include with requests towards
-            LLM provider. All header values stored encrypted{" "}
-            {isLangfuseCloud ? "on our servers" : "in your database"}.
+            {t(
+              "Optional additional HTTP headers to include with requests towards LLM provider. All header values stored encrypted",
+            )}{" "}
+            {isLangfuseCloud ? t("on our servers") : t("in your database")}.
           </FormDescription>
 
           {headerFields.map((header, index) => (
             <div key={header.id} className="flex flex-row space-x-2">
               <Input
                 {...form.register(`extraHeaders.${index}.key`)}
-                placeholder="Header name"
+                placeholder={t("Header name")}
               />
               <Input
                 {...form.register(`extraHeaders.${index}.value`)}
@@ -259,7 +260,7 @@ export function CreateLLMApiKeyForm({
                   existingKey?.extraHeaderKeys &&
                   existingKey.extraHeaderKeys[index]
                     ? "***"
-                    : "Header value"
+                    : t("Header value")
                 }
               />
               <Button
@@ -279,7 +280,7 @@ export function CreateLLMApiKeyForm({
             className="w-full"
           >
             <PlusIcon className="mr-1.5 -ml-0.5 h-5 w-5" aria-hidden="true" />
-            Add Header
+            {t("Add Header")}
           </Button>
         </FormItem>
       )}
@@ -391,9 +392,9 @@ export function CreateLLMApiKeyForm({
             name="adapter"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>LLM adapter</FormLabel>
+                <FormLabel>{t("LLM adapter")}</FormLabel>
                 <FormDescription>
-                  Schema that is accepted at that provider endpoint.
+                  {t("Schema that is accepted at that provider endpoint.")}
                 </FormDescription>
                 <Select
                   defaultValue={field.value}
@@ -408,7 +409,7 @@ export function CreateLLMApiKeyForm({
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a LLM provider" />
+                      <SelectValue placeholder={t("Select a LLM provider")} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -429,10 +430,11 @@ export function CreateLLMApiKeyForm({
             name="provider"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Provider name</FormLabel>
+                <FormLabel>{t("Provider name")}</FormLabel>
                 <FormDescription>
-                  Key to identify the connection within Litefuse. Cannot contain
-                  colons.
+                  {t(
+                    "Key to identify the connection within Litefuse. Cannot contain colons.",
+                  )}
                 </FormDescription>
                 <FormControl>
                   <Input
@@ -451,11 +453,11 @@ export function CreateLLMApiKeyForm({
             name="secretKey"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>API Key</FormLabel>
+                <FormLabel>{t("API Key")}</FormLabel>
                 <FormDescription>
                   {isLangfuseCloud
-                    ? "Your API keys are stored encrypted on our servers."
-                    : "Your API keys are stored encrypted in your database."}
+                    ? t("Your API keys are stored encrypted on our servers.")
+                    : t("Your API keys are stored encrypted in your database.")}
                 </FormDescription>
                 <FormControl>
                   <Input
@@ -504,23 +506,27 @@ export function CreateLLMApiKeyForm({
                 name="baseURL"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>API Base URL</FormLabel>
+                    <FormLabel>{t("API Base URL")}</FormLabel>
                     <FormDescription>
-                      Leave blank to use the default base URL for the given LLM
-                      adapter.{" "}
+                      {t(
+                        "Leave blank to use the default base URL for the given LLM adapter.",
+                      )}{" "}
                       {currentAdapter === LLMAdapter.OpenAI && (
-                        <span>OpenAI default: https://api.openai.com/v1</span>
+                        <span>
+                          {t("OpenAI default: https://api.openai.com/v1")}
+                        </span>
                       )}
                       {currentAdapter === LLMAdapter.Anthropic && (
                         <span>
-                          Anthropic default: https://api.anthropic.com
-                          (excluding /v1/messages)
+                          {t(
+                            "Anthropic default: https://api.anthropic.com (excluding /v1/messages)",
+                          )}
                         </span>
                       )}
                     </FormDescription>
 
                     <FormControl>
-                      <Input {...field} placeholder="default" />
+                      <Input {...field} placeholder={t("default")} />
                     </FormControl>
 
                     <FormMessage />
@@ -541,10 +547,11 @@ export function CreateLLMApiKeyForm({
                   <FormItem>
                     <span className="row flex">
                       <span className="flex-1">
-                        <FormLabel>Enable default models</FormLabel>
+                        <FormLabel>{t("Enable default models")}</FormLabel>
                         <FormDescription>
-                          Default models for the selected adapter will be
-                          available in Litefuse features.
+                          {t(
+                            "Default models for the selected adapter will be available in Litefuse features.",
+                          )}
                         </FormDescription>
                       </span>
 

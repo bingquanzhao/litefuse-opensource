@@ -67,8 +67,8 @@ export function DeleteOrganizationButton() {
       });
       capture("organization_settings:delete_organization");
       showSuccessToast({
-        title: t("Organization Deleted"),
-        description: t("The organization has been successfully deleted."),
+        title: t(t("Organization Deleted")),
+        description: t(t("The organization has been successfully deleted.")),
       });
       await new Promise((resolve) => setTimeout(resolve, 5000)); // Delay for 5 seconds
       window.location.href = env.NEXT_PUBLIC_BASE_PATH ?? "/"; // Browser reload to refresh jwt

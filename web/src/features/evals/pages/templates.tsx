@@ -65,7 +65,7 @@ export default function TemplatesPage() {
                 ) : (
                   <Lock className="mr-2 h-4 w-4" />
                 )}
-                Custom Evaluator
+                {t("Custom Evaluator")}
               </Link>
             </Button>
           </>

@@ -205,7 +205,7 @@ export function TimelineChartCard() {
     }
 
     return parts.join(" | ");
-  }, [data, overallAverage, activeTab, params]);
+  }, [data, overallAverage, activeTab, params, t]);
 
   // Loading state
   if (isLoading) {

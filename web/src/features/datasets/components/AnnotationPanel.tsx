@@ -76,7 +76,9 @@ export const AnnotationPanel = ({ projectId }: { projectId: string }) => {
                   onClick={() => {
                     if (hasCommentDraft)
                       toast.error(
-                        "Please save or discard your comment before proceeding",
+                        t(
+                          "Please save or discard your comment before proceeding",
+                        ),
                       );
                     else clearActiveCell();
                   }}

@@ -50,14 +50,14 @@ export default function QueueItems() {
         itemType: "ANNOTATION_QUEUE",
         breadcrumb: [
           {
-            name: "Annotation Queues",
+            name: t("Annotation Queues"),
             href: `/project/${projectId}/annotation-queues`,
           },
         ],
         actionButtonsRight: !hasWriteAccess ? (
           <Button disabled>
             <Lock className="mr-1 h-4 w-4" />
-            <span className="text-sm">Process queue</span>
+            <span className="text-sm">{t("Process queue")}</span>
           </Button>
         ) : (
           <Button asChild>
@@ -65,7 +65,7 @@ export default function QueueItems() {
               href={`/project/${projectId}/annotation-queues/${queueId}/items`}
             >
               <ClipboardPen className="mr-1 h-4 w-4" />
-              <span className="text-sm">Process queue</span>
+              <span className="text-sm">{t("Process queue")}</span>
             </Link>
           </Button>
         ),
@@ -76,7 +76,7 @@ export default function QueueItems() {
           <AnnotationQueueItemsTable projectId={projectId} queueId={queueId} />
         </div>
         <SidePanel
-          mobileTitle={queue.data?.name ?? "Queue details"}
+          mobileTitle={queue.data?.name ?? t("Queue details")}
           id="queue-details"
         >
           <SidePanelHeader>
