@@ -8,6 +8,8 @@ import i18next from "eslint-plugin-i18next";
 const I18N_MIGRATED_FILES = [
   "src/features/i18n/**/*.tsx",
   "src/components/nav/**/*.tsx",
+  "src/components/layouts/**/*.tsx",
+  "src/features/notifications/**/*.tsx",
 ];
 
 export default [
