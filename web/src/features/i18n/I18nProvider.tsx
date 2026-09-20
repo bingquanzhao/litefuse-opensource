@@ -16,7 +16,6 @@ import {
   type AppLocale,
 } from "@/src/features/i18n/config";
 import { createI18nInstance } from "@/src/features/i18n/instance";
-import { setActiveI18n } from "@/src/features/i18n/activeInstance";
 
 /** Resolved on the server for the first render, see getI18nAppProps. */
 export type I18nAppProps = {
@@ -90,12 +89,6 @@ export function I18nProvider({
   useEffect(() => {
     document.documentElement.lang = locale;
   }, [locale]);
-
-  // Lets code outside React (the global tRPC error toast) translate.
-  useEffect(() => {
-    setActiveI18n(i18n);
-    return () => setActiveI18n(null);
-  }, [i18n]);
 
   const value = useMemo<LocaleContextValue>(
     () => ({

@@ -17,6 +17,8 @@ commit.
   ClickHouse, Prisma, Slack, GitHub, Webhook, API, SDK, URL, JSON, CSV.
 - Do not translate a string the SDK or the API reads. See
   [README](./README.md) and `locales.clienttest.ts`.
+- Do not translate error text. Server error messages and the global error toast
+  stay English, so the heading and the body always match. See the README.
 
 ## Domain
 

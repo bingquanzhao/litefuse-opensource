@@ -62,6 +62,19 @@ protocol identifier.
 
 ## Not translated
 
+**Error reporting stays English.** `TRPCError` messages raised under
+`src/server` and the feature routers are printed verbatim by the global error
+toast, so `src/utils/trpcErrorToast.tsx` keeps its titles and descriptions in
+English too: a translated heading over an untranslated body is the mixed state
+this migration exists to avoid. The file is in `I18N_EXCLUDED_FILES` so the
+gate does not ask for it back.
+
+This applies to text that _is_ an error. It does not apply to a toast whose
+title describes what the user was doing, e.g.
+`showErrorToast(t("Failed to update dashboard"), error.message)`: the heading
+is UI copy and stays translated, the body is the raw server message and stays
+English.
+
 `src/features/discover/**` (and its shims) is deprecated and vendored, and may
 be re-synced wholesale, so it is excluded from both lint gates and from
 extraction. It stays English regardless of the selected language. Nothing else
@@ -93,9 +106,9 @@ The rules and why they are shaped that way:
   `severity`) out without re-introducing the subtree skipping.
 
 Still outside every rule, and so still a human's job: text returned from a
-helper function, text built with a template literal, and `TRPCError` messages
-raised on the server and printed verbatim by the global error toast. Measure
-the first of those with:
+helper function and text built with a template literal. (Server error messages
+are the third such category, and they stay English by decision; see **Not
+translated**.) Measure the first of those with:
 
 ```sh
 grep -rnoE '\breturn\s+"[^"]{6,}"' src --include='*.ts*' | grep -vE 'discover|test'

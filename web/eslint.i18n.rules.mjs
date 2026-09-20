@@ -11,6 +11,10 @@ export const I18N_EXCLUDED_FILES = [
   "**/*.servertest.tsx",
   "src/features/discover/**",
   "src/lib/discover-shims/**",
+  // Error reporting stays English by decision: this toast prints the server's
+  // own message verbatim, so translating the heading around it would produce a
+  // Chinese title over an English body. See the README.
+  "src/utils/trpcErrorToast.tsx",
 ];
 
 // Every component file, plus the non-component modules that hold user-facing
