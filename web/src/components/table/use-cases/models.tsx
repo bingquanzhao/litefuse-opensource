@@ -10,7 +10,10 @@ import { IOTableCell } from "../../ui/IOTableCell";
 import { useRowHeightLocalStorage } from "@/src/components/table/data-table-row-height-switch";
 import { DataTableToolbar } from "@/src/components/table/data-table-toolbar";
 import useColumnOrder from "@/src/features/column-visibility/hooks/useColumnOrder";
-import { type GetModelResult } from "@/src/features/models/validation";
+import {
+  type GetModelResult,
+  priceUnitLabels,
+} from "@/src/features/models/validation";
 import { DeleteModelButton } from "@/src/features/models/components/DeleteModelButton";
 import { EditModelButton } from "@/src/features/models/components/EditModelButton";
 import { CloneModelButton } from "@/src/features/models/components/CloneModelButton";
@@ -176,7 +179,9 @@ export default function ModelTable({ projectId }: { projectId: string }) {
       header: () => {
         return (
           <div className="flex items-center gap-2">
-            <span>{t("Prices {{unit}}", { unit: priceUnit })}</span>
+            <span>
+              {t("Prices {{unit}}", { unit: t(priceUnitLabels[priceUnit]) })}
+            </span>
             <PriceUnitSelector />
           </div>
         );

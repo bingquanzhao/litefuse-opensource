@@ -124,6 +124,16 @@ export enum PriceUnit {
   Per1MUnits = "per 1M units",
 }
 
+/**
+ * The enum values are the stored setting, so they stay English. These are the
+ * labels shown for them; the renderer calls t() on the result.
+ */
+export const priceUnitLabels: Record<PriceUnit, string> = {
+  [PriceUnit.PerUnit]: i18nKey("per unit"),
+  [PriceUnit.Per1KUnits]: i18nKey("per 1K units"),
+  [PriceUnit.Per1MUnits]: i18nKey("per 1M units"),
+};
+
 export const ModelLastUsedQueryResult = z.array(
   z.object({
     modelId: z.string(),
