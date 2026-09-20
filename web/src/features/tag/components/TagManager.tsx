@@ -13,6 +13,7 @@ import { cn } from "@/src/utils/tailwind";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 import { Label } from "@/src/components/ui/label";
 
+import { useTranslation } from "react-i18next";
 type TagManagerProps = {
   itemName: "prompt" | "trace";
   tags: string[] | string | null | undefined;
@@ -36,6 +37,7 @@ const TagManager = ({
   isTableCell = false,
   allowTagRemoval = true,
 }: TagManagerProps) => {
+  const { t } = useTranslation();
   // Ensure tags is always an array
   const processedTags = (() => {
     if (Array.isArray(tags)) {
@@ -139,7 +141,9 @@ const TagManager = ({
           }
         }}
       >
-        <Label className="text-base capitalize">{itemName} Tags</Label>
+        <Label className="text-base capitalize">
+          {t("{{itemName}} Tags", { itemName })}
+        </Label>
         <Command
           shouldFilter={false} // we do not use cmdk's filter feature as it does not support virtualization for large lists
         >

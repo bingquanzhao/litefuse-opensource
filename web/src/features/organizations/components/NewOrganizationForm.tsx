@@ -27,11 +27,13 @@ import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePos
 import { SurveyName } from "@prisma/client";
 import { useLangfuseCloudRegion } from "@/src/features/organizations/hooks";
 
+import { useTranslation } from "react-i18next";
 export const NewOrganizationForm = ({
   onSuccess,
 }: {
   onSuccess: (orgId: string) => void;
 }) => {
+  const { t } = useTranslation();
   const { update: updateSession } = useSession();
 
   const form = useForm({
@@ -188,7 +190,7 @@ export const NewOrganizationForm = ({
           </>
         )}
         <Button type="submit" loading={createOrgMutation.isPending}>
-          Create
+          {t("Create")}
         </Button>
       </form>
     </Form>

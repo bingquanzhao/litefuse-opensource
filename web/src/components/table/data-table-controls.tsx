@@ -412,8 +412,8 @@ interface FilterAccordionItemProps {
 }
 
 export function FilterAccordionItem({
-  label,
-  tooltip,
+  label: labelKey,
+  tooltip: tooltipKey,
   filterKey,
   filterKeyShort,
   children,
@@ -423,6 +423,10 @@ export function FilterAccordionItem({
   onReset,
 }: FilterAccordionItemProps) {
   const { t } = useTranslation();
+  // Labels and tooltips arrive from the static filter configs, which mark them
+  // with i18nKey(), so they are translated here at the single render point.
+  const label = t(labelKey);
+  const tooltip = tooltipKey ? t(tooltipKey) : undefined;
   return (
     <FilterAccordionItemPrimitive value={filterKey} className="border-none">
       <FilterAccordionTrigger
@@ -492,7 +496,7 @@ export function FilterAccordionItem({
                 }
               }}
               className="bg-background hover:bg-accent hover:text-accent-foreground inline-flex h-5 cursor-pointer items-center gap-1 rounded-full border px-2 text-xs"
-              aria-label={`Clear ${label} filter`}
+              aria-label={t("Clear {{label}} filter", { label })}
             >
               <span>{t("Clear")}</span>
               <IconX className="h-3 w-3" />

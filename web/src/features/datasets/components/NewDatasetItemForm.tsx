@@ -261,7 +261,9 @@ export const NewDatasetItemForm = (props: {
         }
 
         setFormError(
-          `Item does not match dataset schema. Errors: ${JSON.stringify(result.validationErrors, null, 2)}`,
+          t("Item does not match dataset schema. Errors: {{errors}}", {
+            errors: JSON.stringify(result.validationErrors, null, 2),
+          }),
         );
         console.error(result.validationErrors);
       })

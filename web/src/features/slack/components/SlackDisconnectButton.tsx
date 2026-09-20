@@ -14,6 +14,7 @@ import { showSuccessToast } from "@/src/features/notifications/showSuccessToast"
 import { showErrorToast } from "@/src/features/notifications/showErrorToast";
 import { api } from "@/src/utils/api";
 
+import { useTranslation } from "react-i18next";
 /**
  * Props for the SlackDisconnectButton component
  */
@@ -80,6 +81,7 @@ export const SlackDisconnectButton: React.FC<SlackDisconnectButtonProps> = ({
   showConfirmation = true,
   showText = true,
 }) => {
+  const { t } = useTranslation();
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -90,8 +92,8 @@ export const SlackDisconnectButton: React.FC<SlackDisconnectButtonProps> = ({
       setIsDialogOpen(false);
 
       showSuccessToast({
-        title: "Slack Disconnected",
-        description: "Successfully disconnected from your Slack workspace.",
+        title: t("Slack Disconnected"),
+        description: t("Successfully disconnected from your Slack workspace."),
       });
 
       onSuccess?.();
@@ -141,7 +143,7 @@ export const SlackDisconnectButton: React.FC<SlackDisconnectButtonProps> = ({
       ) : (
         <Unlink className={showText ? "mr-2 h-4 w-4" : "h-4 w-4"} />
       )}
-      {showText && (isDisconnecting ? "Disconnecting..." : buttonText)}
+      {showText && (isDisconnecting ? t("Disconnecting...") : buttonText)}
     </>
   );
 
@@ -162,25 +164,27 @@ export const SlackDisconnectButton: React.FC<SlackDisconnectButtonProps> = ({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="text-destructive h-5 w-5" />
-              Disconnect Slack Integration
+              {t("Disconnect Slack Integration")}
             </DialogTitle>
             <DialogDescription className="space-y-2">
               <p>
-                Are you sure you want to disconnect your Slack workspace from
-                this project?
+                {t(
+                  "Are you sure you want to disconnect your Slack workspace from this project?",
+                )}
               </p>
               <div className="bg-muted space-y-2 rounded-md p-3">
-                <p className="text-sm font-medium">This will:</p>
+                <p className="text-sm font-medium">{t("This will:")}</p>
                 <ul className="ml-4 space-y-1 text-sm">
-                  <li>• Remove the bot from your Slack workspace</li>
-                  <li>• Disable all existing Slack automations</li>
-                  <li>• Stop all future Slack notifications</li>
-                  <li>• Delete stored workspace credentials</li>
+                  <li>{t("• Remove the bot from your Slack workspace")}</li>
+                  <li>{t("• Disable all existing Slack automations")}</li>
+                  <li>{t("• Stop all future Slack notifications")}</li>
+                  <li>{t("• Delete stored workspace credentials")}</li>
                 </ul>
               </div>
               <p className="text-muted-foreground text-sm">
-                You can reconnect at any time, but you&apos;ll need to
-                reconfigure your automations.
+                {t(
+                  "You can reconnect at any time, but you'll need to reconfigure your automations.",
+                )}
               </p>
             </DialogDescription>
           </DialogHeader>
@@ -190,7 +194,7 @@ export const SlackDisconnectButton: React.FC<SlackDisconnectButtonProps> = ({
               onClick={() => setIsDialogOpen(false)}
               disabled={isDisconnecting}
             >
-              Cancel
+              {t("Cancel")}
             </Button>
             <Button
               variant="destructive"
@@ -200,12 +204,12 @@ export const SlackDisconnectButton: React.FC<SlackDisconnectButtonProps> = ({
               {isDisconnecting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Disconnecting...
+                  {t("Disconnecting...")}
                 </>
               ) : (
                 <>
                   <Unlink className="mr-2 h-4 w-4" />
-                  Disconnect
+                  {t("Disconnect")}
                 </>
               )}
             </Button>

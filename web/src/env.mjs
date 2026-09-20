@@ -58,7 +58,7 @@ export const env = createEnv({
     // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
     // UI locales exposed to users, comma separated (e.g. "en,zh-CN"). "en" is
     // always enabled. The language switcher only shows with >1 locale.
-    LITEFUSE_I18N_LOCALES: z.string().default("en"),
+    LITEFUSE_I18N_LOCALES: z.string().default("en,zh-CN"),
     LITEFUSE_ENABLE_EXPERIMENTAL_FEATURES: z.enum(["true", "false"]).optional(),
     SALT: z.string({
       required_error:

@@ -11,7 +11,9 @@ import {
 } from "@/src/features/navigation/utils/tracing-tabs";
 import { useQueryProject } from "@/src/features/projects/hooks";
 
+import { useTranslation } from "react-i18next";
 export default function Traces() {
+  const { t } = useTranslation();
   const router = useRouter();
   const projectId = router.query.projectId as string;
   const [, setQueryParams] = useQueryParams({ viewMode: StringParam });
@@ -46,7 +48,7 @@ export default function Traces() {
     return (
       <Page
         headerProps={{
-          title: "Tracing",
+          title: t("Tracing"),
           help: {
             description:
               "A trace represents a single function/api invocation. Traces contain observations. See [docs](https://litefuse.ai/docs/observability/data-model) to learn more.",
@@ -63,7 +65,7 @@ export default function Traces() {
   return (
     <Page
       headerProps={{
-        title: "Tracing",
+        title: t("Tracing"),
         help: {
           description: (
             <>

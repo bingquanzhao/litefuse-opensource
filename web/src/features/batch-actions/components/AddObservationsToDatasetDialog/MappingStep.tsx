@@ -75,13 +75,13 @@ export function MappingStep({
   const getFullLabel = () => {
     switch (field) {
       case "input":
-        return "Full observation input";
+        return t("Full observation input");
       case "expectedOutput":
-        return "Full observation output";
+        return t("Full observation output");
       case "metadata":
-        return "Full observation metadata";
+        return t("Full observation metadata");
       default:
-        return `Full observation ${field}`;
+        return t("Full observation {{field}}", { field });
     }
   };
 

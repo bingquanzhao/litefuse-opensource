@@ -40,6 +40,7 @@ import useSessionStorage from "@/src/components/useSessionStorage";
 import { useQueryParam, withDefault, StringParam } from "use-query-params";
 import { useEffect } from "react";
 
+import { Trans, useTranslation } from "react-i18next";
 export type MembersTableRow = {
   user: {
     image: string | null;
@@ -65,6 +66,7 @@ export function MembersTable({
   project?: { id: string; name: string };
   showSettingsCard?: boolean;
 }) {
+  const { t } = useTranslation();
   // Create a unique key for this table's pagination state
   const paginationKey = project
     ? `projectMembers_${project.id}_pagination`
@@ -151,7 +153,7 @@ export function MembersTable({
     {
       accessorKey: "user",
       id: "user",
-      header: "Name",
+      header: t("Name"),
       cell: ({ row }) => {
         const { name, image } = row.getValue("user") as MembersTableRow["user"];
         return (
@@ -159,7 +161,7 @@ export function MembersTable({
             <Avatar className="h-7 w-7">
               <AvatarImage
                 src={image ?? undefined}
-                alt={name ?? "User Avatar"}
+                alt={name ?? t("User Avatar")}
               />
               <AvatarFallback>
                 {name
@@ -179,12 +181,12 @@ export function MembersTable({
     {
       accessorKey: "email",
       id: "email",
-      header: "Email",
+      header: t("Email"),
     },
     {
       accessorKey: "providers",
       id: "providers",
-      header: "SSO Provider",
+      header: t("SSO Provider"),
       enableHiding: true,
       cell: ({ row }) => {
         const providers = row.getValue("providers") as string[];
@@ -196,10 +198,11 @@ export function MembersTable({
     {
       accessorKey: "orgRole",
       id: "orgRole",
-      header: "Organization Role",
+      header: t("Organization Role"),
       headerTooltip: {
-        description:
+        description: t(
           "The org-role is the default role for this user in this organization and applies to the organization and all its projects.",
+        ),
         href: "https://litefuse.ai/docs/administration/rbac",
       },
       cell: ({ row }) => {
@@ -234,14 +237,16 @@ export function MembersTable({
                     side="right"
                   >
                     <p className="text-xs">
-                      The organization-level role can to be edited in the{" "}
-                      <Link
-                        href={`/organization/${orgId}/settings/members`}
-                        className="underline"
-                      >
-                        organization settings
-                      </Link>
-                      .
+                      <Trans
+                        i18nKey="The organization-level role can to be edited in the <0>organization settings</0>."
+                        components={[
+                          <Link
+                            key="0"
+                            href={`/organization/${orgId}/settings/members`}
+                            className="underline"
+                          />,
+                        ]}
+                      />
                     </p>
                   </HoverCardContent>
                 </HoverCardPortal>
@@ -258,10 +263,11 @@ export function MembersTable({
           {
             accessorKey: "projectRole",
             id: "projectRole",
-            header: "Project Role",
+            header: t("Project Role"),
             headerTooltip: {
-              description:
+              description: t(
                 "The role for this user in this specific project. This role overrides the default project role.",
+              ),
               href: "https://litefuse.ai/docs/administration/rbac",
             },
             cell: ({
@@ -297,7 +303,7 @@ export function MembersTable({
     {
       accessorKey: "createdAt",
       id: "createdAt",
-      header: "Member Since",
+      header: t("Member Since"),
       enableHiding: true,
       defaultHidden: true,
       cell: ({ row }) => {
@@ -308,7 +314,7 @@ export function MembersTable({
     {
       accessorKey: "meta",
       id: "meta",
-      header: "Actions",
+      header: t("Actions"),
       enableHiding: false,
       cell: ({ row }) => {
         const { orgMembershipId, userId } = row.getValue(
@@ -372,9 +378,11 @@ export function MembersTable({
   if (project ? !hasProjectViewAccess : !hasOrgViewAccess) {
     return (
       <Alert>
-        <AlertTitle>Access Denied</AlertTitle>
+        <AlertTitle>{t("Access Denied")}</AlertTitle>
         <AlertDescription>
-          You do not have permission to view members of this organization.
+          {t(
+            "You do not have permission to view members of this organization.",
+          )}
         </AlertDescription>
       </Alert>
     );
@@ -483,6 +491,7 @@ const OrgRoleDropdown = ({
   userId: string;
   hasCudAccess: boolean;
 }) => {
+  const { t } = useTranslation();
   const utils = api.useUtils();
   const session = useSession();
   const mut = api.members.updateOrgMembership.useMutation({
@@ -490,8 +499,8 @@ const OrgRoleDropdown = ({
       utils.members.invalidate();
       if (data.userId === session.data?.user?.id) void session.update();
       showSuccessToast({
-        title: "Saved",
-        description: "Organization role updated successfully",
+        title: t("Saved"),
+        description: t("Organization role updated successfully"),
         duration: 2000,
       });
     },
@@ -543,6 +552,7 @@ const ProjectRoleDropdown = ({
   projectId: string;
   hasCudAccess: boolean;
 }) => {
+  const { t } = useTranslation();
   const utils = api.useUtils();
   const session = useSession();
   const mut = api.members.updateProjectRole.useMutation({
@@ -550,8 +560,8 @@ const ProjectRoleDropdown = ({
       utils.members.invalidate();
       if (data.userId === session.data?.user?.id) void session.update();
       showSuccessToast({
-        title: "Saved",
-        description: "Project role updated successfully",
+        title: t("Saved"),
+        description: t("Project role updated successfully"),
         duration: 2000,
       });
     },

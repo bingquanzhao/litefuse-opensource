@@ -31,6 +31,8 @@ import { type UiCustomization } from "@/src/features/ui-customization/useUiCusto
 import { DialogBody } from "@/src/components/ui/dialog";
 import { env } from "@/src/env.mjs";
 
+import { useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 const isLangfuseCloud = Boolean(env.NEXT_PUBLIC_LITEFUSE_CLOUD_REGION);
 
 const createFormSchema = (mode: "create" | "update") =>
@@ -64,13 +66,14 @@ const createFormSchema = (mode: "create" | "update") =>
         return data.withDefaultModels || data.customModels.length > 0;
       },
       {
-        message:
+        message: i18nKey(
           "At least one custom model name is required when default models are disabled.",
+        ),
         path: ["withDefaultModels"],
       },
     )
     .refine((data) => mode === "update" || data.secretKey, {
-      message: "Secret key is required.",
+      message: i18nKey("Secret key is required."),
       path: ["secretKey"],
     });
 
@@ -89,6 +92,7 @@ export function CreateLLMApiKeyForm({
   mode = "create",
   existingKey,
 }: CreateLLMApiKeyFormProps) {
+  const { t } = useTranslation();
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
   const utils = api.useUtils();
   const capture = usePostHogClientCapture();
@@ -202,7 +206,9 @@ export function CreateLLMApiKeyForm({
             <span key={customModel.id} className="flex flex-row space-x-2">
               <Input
                 {...form.register(`customModels.${index}.value`)}
-                placeholder={`Custom model name ${index + 1}`}
+                placeholder={t("Custom model name {{index}}", {
+                  index: index + 1,
+                })}
               />
               <Button
                 type="button"
@@ -297,7 +303,7 @@ export function CreateLLMApiKeyForm({
       ) {
         form.setError("provider", {
           type: "manual",
-          message: "There already exists an API key for this provider.",
+          message: t("There already exists an API key for this provider."),
         });
         return;
       }
@@ -480,8 +486,8 @@ export function CreateLLMApiKeyForm({
               >
                 <span>
                   {showAdvancedSettings
-                    ? "Hide advanced settings"
-                    : "Show advanced settings"}
+                    ? t("Hide advanced settings")
+                    : t("Show advanced settings")}
                 </span>
                 <ChevronDown
                   className={`ml-1 h-4 w-4 transition-transform ${showAdvancedSettings ? "rotate-180" : "rotate-0"}`}
@@ -568,7 +574,7 @@ export function CreateLLMApiKeyForm({
               className="w-full"
               loading={form.formState.isSubmitting}
             >
-              {mode === "create" ? "Create connection" : "Save changes"}
+              {mode === "create" ? t("Create connection") : t("Save changes")}
             </Button>
             {form.formState.errors.root && (
               <FormMessage>{form.formState.errors.root.message}</FormMessage>

@@ -433,7 +433,7 @@ function IOPreviewJSONInner({
           size="icon"
           className="h-7 w-7"
           onClick={handleCycleWrapMode}
-          title={`String wrap mode: ${stringWrapMode}`}
+          title={t("String wrap mode: {{mode}}", { mode: stringWrapMode })}
         >
           {wrapIcon}
         </Button>

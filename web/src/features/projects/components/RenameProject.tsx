@@ -20,7 +20,9 @@ import { useQueryProject } from "@/src/features/projects/hooks";
 import { useSession } from "next-auth/react";
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
 
+import { useTranslation } from "react-i18next";
 export default function RenameProject() {
+  const { t } = useTranslation();
   const { update: updateSession } = useSession();
   const { project } = useQueryProject();
   const capture = usePostHogClientCapture();
@@ -60,19 +62,20 @@ export default function RenameProject() {
 
   return (
     <div>
-      <Header title="Project Name" />
+      <Header title={t("Project Name")} />
       <Card className="mb-4 p-3">
         {form.getValues().name !== "" ? (
           <p className="text-primary mb-4 text-sm">
-            Your Project will be renamed from &quot;
-            {project?.name ?? ""}
-            &quot; to &quot;
-            <b>{form.watch().name}</b>&quot;.
+            {t('Your Project will be renamed from "{{from}}" to "{{to}}".', {
+              from: project?.name ?? "",
+              to: form.watch().name,
+            })}
           </p>
         ) : (
           <p className="text-primary mb-4 text-sm">
-            Your Project is currently named &quot;
-            <b>{project?.name ?? ""}</b>
+            {t('Your Project is currently named "{{name}}".', {
+              name: project?.name ?? "",
+            })}
             &quot;.
           </p>
         )}
@@ -114,7 +117,7 @@ export default function RenameProject() {
                 disabled={form.getValues().name === "" || !hasAccess}
                 className="mt-4"
               >
-                Save
+                {t("Save")}
               </Button>
             )}
           </form>

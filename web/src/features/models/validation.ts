@@ -1,4 +1,5 @@
 import { z } from "zod/v4";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 import {
   PricingTierConditionSchema,
   PricingTierInputSchema,
@@ -84,7 +85,7 @@ export const UpsertModelSchema = z
       return result.valid;
     },
     {
-      message: "Invalid pricing tiers configuration",
+      message: i18nKey("Invalid pricing tiers configuration"),
       path: ["pricingTiers"],
     },
   );
@@ -106,7 +107,7 @@ export const FormUpsertModelSchema = z.object({
         }
       },
       {
-        message: "Tokenizer config needs to be valid JSON",
+        message: i18nKey("Tokenizer config needs to be valid JSON"),
       },
     )
     .transform((value) => (value === "{}" ? undefined : value))

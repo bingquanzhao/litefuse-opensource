@@ -26,6 +26,7 @@ import {
 import { lightTheme } from "@/src/components/editor/light-theme";
 import { darkTheme } from "@/src/components/editor/dark-theme";
 
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 // Global composition state tracker to prevent search updates during IME input
 // This is a WeakMap so it automatically garbage collects when editors are destroyed
 const compositionState = new WeakMap<EditorView, boolean>();
@@ -67,7 +68,7 @@ const promptLinter = linter((view) => {
       from: match.index,
       to: match.index + match[0].length,
       severity: "error",
-      message: "Variables cannot span multiple lines",
+      message: i18nKey("Variables cannot span multiple lines"),
     });
   }
 
@@ -77,7 +78,7 @@ const promptLinter = linter((view) => {
       from: match.index,
       to: match.index + 2,
       severity: "error",
-      message: "Unclosed variable brackets",
+      message: i18nKey("Unclosed variable brackets"),
     });
   }
 
@@ -89,15 +90,16 @@ const promptLinter = linter((view) => {
         from: match.index,
         to: match.index + match[0].length,
         severity: "error",
-        message: "Empty variable is not allowed",
+        message: i18nKey("Empty variable is not allowed"),
       });
     } else if (!isValidVariableName(variable)) {
       diagnostics.push({
         from: match.index,
         to: match.index + match[0].length,
         severity: "error",
-        message:
+        message: i18nKey(
           "Variable must start with a letter and can only contain letters and underscores",
+        ),
       });
     }
   }
@@ -113,7 +115,7 @@ const promptLinter = linter((view) => {
           from: match.index,
           to: match.index + match[0].length,
           severity: "warning",
-          message: "Malformed prompt dependency tag",
+          message: i18nKey("Malformed prompt dependency tag"),
         });
       }
     } catch {
@@ -121,7 +123,7 @@ const promptLinter = linter((view) => {
         from: match.index,
         to: match.index + match[0].length,
         severity: "warning",
-        message: "Invalid prompt dependency tag format",
+        message: i18nKey("Invalid prompt dependency tag format"),
       });
     }
   }

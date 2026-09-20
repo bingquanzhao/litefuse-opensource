@@ -623,9 +623,10 @@ export function DatasetRunsTable(props: {
             <div className="h-full w-full overflow-x-auto overflow-y-auto p-3">
               <div className="flex h-full w-full gap-4">
                 {props.selectedMetrics.map((key) => {
-                  const title =
-                    RESOURCE_METRICS.find((metric) => metric.key === key)
-                      ?.label ?? getScoreLabelFromKey(key);
+                  const metric = RESOURCE_METRICS.find((m) => m.key === key);
+                  const title = metric
+                    ? t(metric.label)
+                    : getScoreLabelFromKey(key);
 
                   if (!Boolean(runAggregatedMetrics?.size)) {
                     return (

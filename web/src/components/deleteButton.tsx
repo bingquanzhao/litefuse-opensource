@@ -16,6 +16,7 @@ import { Label } from "@/src/components/ui/label";
 import { showSuccessToast } from "@/src/features/notifications/showSuccessToast";
 import { useHasEntitlement } from "@/src/features/entitlements/hooks";
 
+import { useTranslation } from "react-i18next";
 export type DeleteButtonProps = {
   itemId: string;
   projectId: string;
@@ -65,6 +66,7 @@ export function DeleteButton({
   isDeleteMutationLoading,
   customDeletePrompt,
 }: BaseDeleteButtonProps) {
+  const { t } = useTranslation();
   const [isDeleted, setIsDeleted] = useState(false);
   const router = useRouter();
   const capture = usePostHogClientCapture();
@@ -116,16 +118,18 @@ export function DeleteButton({
         </Button>
       </PopoverTrigger>
       <PopoverContent onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-md mb-3 font-semibold">Please confirm</h2>
+        <h2 className="text-md mb-3 font-semibold">{t("Please confirm")}</h2>
         <p className="mb-3 max-w-72 text-sm">
           {customDeletePrompt ??
-            `This action cannot be undone. It removes all the data associated with
-            this ${entityToDeleteName}. If this is the project default, it will be deleted for all users.`}
+            t(
+              "This action cannot be undone. It removes all the data associated with this {{entity}}. If this is the project default, it will be deleted for all users.",
+              { entity: entityToDeleteName },
+            )}
         </p>
         {deleteConfirmation && (
           <div className="mb-4 grid w-full gap-1.5">
             <Label htmlFor="delete-confirmation">
-              Type &quot;{deleteConfirmation}&quot; to confirm
+              {t('Type "{{value}}" to confirm', { value: deleteConfirmation })}
             </Label>
             <Input
               id="delete-confirmation"
@@ -159,6 +163,7 @@ export function DeleteButton({
 }
 
 export function DeleteTraceButton(props: DeleteButtonProps) {
+  const { t } = useTranslation();
   const utils = api.useUtils();
   const {
     itemId,
@@ -177,9 +182,10 @@ export function DeleteTraceButton(props: DeleteButtonProps) {
       return Promise.reject(error);
     }
     showSuccessToast({
-      title: "Trace deleted",
-      description:
+      title: t("Trace deleted"),
+      description: t(
         "Selected trace will be deleted. Traces are removed asynchronously and may continue to be visible for up to 24 hours.",
+      ),
     });
     onSuccess();
   };
@@ -250,6 +256,7 @@ export function DeleteDatasetButton(props: DeleteButtonProps) {
 }
 
 export function DeleteDashboardButton(props: DeleteButtonProps) {
+  const { t } = useTranslation();
   const utils = api.useUtils();
   const {
     itemId,
@@ -268,8 +275,8 @@ export function DeleteDashboardButton(props: DeleteButtonProps) {
       return Promise.reject(error);
     }
     showSuccessToast({
-      title: "Dashboard deleted",
-      description: "The dashboard has been deleted successfully",
+      title: t("Dashboard deleted"),
+      description: t("The dashboard has been deleted successfully"),
     });
     onSuccess();
   };
@@ -293,6 +300,7 @@ export function DeleteDashboardButton(props: DeleteButtonProps) {
 }
 
 export function DeleteEvalConfigButton(props: DeleteButtonProps) {
+  const { t } = useTranslation();
   const utils = api.useUtils();
   const {
     itemId,
@@ -304,8 +312,8 @@ export function DeleteEvalConfigButton(props: DeleteButtonProps) {
   const evaluatorMutation = api.evals.deleteEvalJob.useMutation({
     onSuccess: () => {
       showSuccessToast({
-        title: "Running evaluator deleted",
-        description: "The running evaluator has been deleted successfully",
+        title: t("Running evaluator deleted"),
+        description: t("The running evaluator has been deleted successfully"),
       });
       void utils.evals.invalidate();
     },
@@ -349,6 +357,7 @@ export function DeleteEvalConfigButton(props: DeleteButtonProps) {
 export function DeleteEvaluationModelButton(
   props: Omit<DeleteButtonProps, "itemId">,
 ) {
+  const { t } = useTranslation();
   const utils = api.useUtils();
   const {
     projectId,
@@ -360,9 +369,10 @@ export function DeleteEvaluationModelButton(
     api.defaultLlmModel.deleteDefaultModel.useMutation({
       onSuccess: () => {
         showSuccessToast({
-          title: "Default evaluation model deleted",
-          description:
+          title: t("Default evaluation model deleted"),
+          description: t(
             "The default evaluation model has been deleted. Any running evaluations relying on the default model will be inactivated. Queued jobs will fail.",
+          ),
         });
         utils.defaultLlmModel.fetchDefaultModel.invalidate({ projectId });
       },

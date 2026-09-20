@@ -40,7 +40,9 @@ import { EvaluatorForm } from "@/src/features/evals/components/evaluator-form";
 import useLocalStorage from "@/src/components/useLocalStorage";
 import { createBreadcrumbItems } from "@/src/features/folders/utils";
 
+import { useTranslation } from "react-i18next";
 export default function Dataset() {
+  const { t } = useTranslation();
   const router = useRouter();
   const capture = usePostHogClientCapture();
   const projectId = router.query.projectId as string;
@@ -113,8 +115,8 @@ export default function Dataset() {
     void utils.datasets.runsByDatasetId.invalidate();
     void utils.datasets.baseRunDataByDatasetId.invalidate();
     showSuccessToast({
-      title: "Experiment triggered successfully",
-      description: "Waiting for experiment to complete...",
+      title: t("Experiment triggered successfully"),
+      description: t("Waiting for experiment to complete..."),
       link: {
         text: "View experiment",
         href: `/project/${projectId}/datasets/${data.datasetId}/compare?runs=${data.runId}`,
@@ -325,8 +327,9 @@ export default function Dataset() {
           <DialogContent className="max-h-[90vh] max-w-(--breakpoint-md) overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
-                {selectedEvaluatorData.evaluator.id ? "Edit" : "Configure"}{" "}
-                Evaluator
+                {selectedEvaluatorData.evaluator.id
+                  ? t("Edit Evaluator")
+                  : t("Configure Evaluator")}
               </DialogTitle>
             </DialogHeader>
             <EvaluatorForm

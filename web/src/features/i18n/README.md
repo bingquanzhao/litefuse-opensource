@@ -29,13 +29,13 @@ const { t } = useTranslation();
 `account preference (users.locale)` > `NEXT_LOCALE cookie` > `Accept-Language`
 
 > `en`, restricted to `LITEFUSE_I18N_LOCALES` (server env, comma separated,
-> default `en`). The server resolves cookie/header in `_app` / `_document`
+> default `en,zh-CN`). The server resolves cookie/header in `_app` / `_document`
 > (`getI18nAppProps.ts`); the provider re-syncs to the account preference once
 > the session is loaded. URLs never carry a locale prefix.
 
 The language switcher (`LanguageSwitcher`, account settings, sign-in page)
-renders only when more than one locale is enabled, which is how zh-CN stays
-invisible until the dictionary is complete.
+renders only when more than one locale is enabled, so a deployment that sets
+`LITEFUSE_I18N_LOCALES=en` stays English with no switcher at all.
 
 ## Tooling (`web/`)
 
@@ -46,8 +46,14 @@ invisible until the dictionary is complete.
 | `pnpm i18n:lint`    | Lists hardcoded strings still to migrate                                |
 
 `eslint.config.mjs` (`I18N_MIGRATED_FILES`) turns hardcoded JSX strings into
-lint failures for migrated directories. Add a directory to that list in the
-same commit that migrates it.
+lint failures. It covers every `.tsx` file plus the non-component modules that
+carry user-facing text as data: filter configs, the widget data model, survey
+content and the zod schemas whose messages a form renders. Add a new file of
+that kind to the list in the same commit that introduces it.
+
+Client tests initialise the default i18next instance through
+`src/__tests__/i18n-client-setup.ts`, so `t()` interpolates in tests exactly as
+it does for an English user and assertions read the English copy.
 
 `locales.clienttest.ts` additionally checks that both locale files hold the
 same keys, that no zh-CN value is empty, that keys are the English text, that
@@ -61,10 +67,14 @@ be re-synced wholesale, so it is excluded from both lint gates and from
 extraction. It stays English regardless of the selected language. Nothing else
 in `src/` is exempt.
 
-## Rollout rule
+## Keeping it complete
 
-zh-CN is switched on for users only when both lint gates are clean for all of
-`src/` and `I18N_MIGRATED_FILES` covers `src/**` (minus the exclusions above). Until then production keeps
-`LITEFUSE_I18N_LOCALES=en`; test environments may enable `en,zh-CN` to review
-progress. After each upstream merge run `pnpm i18n:extract`, translate the new
-keys, and `pnpm i18n:check` is green again.
+Both lint gates are clean across `src/` and the zh-CN dictionary is complete,
+so zh-CN ships enabled by default. A deployment that wants English only sets
+`LITEFUSE_I18N_LOCALES=en`.
+
+Keeping it that way is the maintenance contract: after every upstream merge run
+`pnpm i18n:extract`, translate the new keys against the glossary, and confirm
+`pnpm i18n:check` and `pnpm exec eslint src` are green. An untranslated key
+renders its English source text, so a missed merge degrades gracefully into a
+mixed page rather than a crash. Do not let it sit.

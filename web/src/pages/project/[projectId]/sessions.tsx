@@ -6,7 +6,9 @@ import { SessionsOnboarding } from "@/src/components/onboarding/SessionsOnboardi
 import { api } from "@/src/utils/api";
 import { useV4Beta } from "@/src/features/events/hooks/useV4Beta";
 
+import { useTranslation } from "react-i18next";
 export default function Sessions() {
+  const { t } = useTranslation();
   const router = useRouter();
   const projectId = router.query.projectId as string;
   const { isBetaEnabled } = useV4Beta();
@@ -45,7 +47,7 @@ export default function Sessions() {
   return (
     <Page
       headerProps={{
-        title: "Sessions",
+        title: t("Sessions"),
         help: {
           description: (
             <>

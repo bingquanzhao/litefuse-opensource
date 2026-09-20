@@ -13,6 +13,7 @@ import {
 import { HelpCircle, AlertCircle } from "lucide-react";
 import type { InterpretationResult } from "@/src/features/score-analytics/lib/statistics-utils";
 
+import { useTranslation } from "react-i18next";
 interface MetricCardProps {
   label: string;
   value: string | number;
@@ -40,6 +41,7 @@ export function MetricCard({
   isPlaceholder = false,
   isContext = false,
 }: MetricCardProps) {
+  const { t } = useTranslation();
   // Handle N/A values - check if value is string "N/A"
   const isNA = value === "N/A";
   const displayValue = isPlaceholder ? "--" : value;
@@ -112,7 +114,7 @@ export function MetricCard({
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-xs">
-                  <p className="text-xs">{interpretation.description}</p>
+                  <p className="text-xs">{t(interpretation.description)}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

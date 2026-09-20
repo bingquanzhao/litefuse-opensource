@@ -212,7 +212,12 @@ export function TraceDetailView({
                   </TooltipTrigger>
                   <TooltipContent className="text-xs">
                     {isLogViewVirtualized
-                      ? `Shows all ${observations.length} observations with virtualization enabled.`
+                      ? t(
+                          "Shows all {{count}} observations with virtualization enabled.",
+                          {
+                            count: observations.length,
+                          },
+                        )
                       : t(
                           "Shows all observations concatenated. Great for quickly scanning through them.",
                         )}

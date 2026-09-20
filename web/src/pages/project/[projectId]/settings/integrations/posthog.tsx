@@ -46,7 +46,9 @@ import { useForm } from "react-hook-form";
 import { type z } from "zod/v4";
 import { Info, ExternalLink } from "lucide-react";
 
+import { Trans, useTranslation } from "react-i18next";
 export default function PosthogIntegrationSettings() {
+  const { t } = useTranslation();
   const router = useRouter();
   const projectId = router.query.projectId as string;
 
@@ -71,7 +73,7 @@ export default function PosthogIntegrationSettings() {
   return (
     <ContainerPage
       headerProps={{
-        title: "PostHog Integration",
+        title: t("PostHog Integration"),
         breadcrumb: [
           { name: "Settings", href: `/project/${projectId}/settings` },
         ],
@@ -86,25 +88,23 @@ export default function PosthogIntegrationSettings() {
       }}
     >
       <p className="text-primary mb-4 text-sm">
-        We have teamed up with{" "}
-        <Link href="https://posthog.com" className="underline">
-          PostHog
-        </Link>{" "}
-        (OSS product analytics) to make Litefuse events/metrics available in
-        your PostHog dashboards. Upon activation, all historical data from your
-        project will be synced. After the initial sync, new data is
-        automatically synced every hour to keep your PostHog dashboards up to
-        date.
+        <Trans
+          i18nKey="We have teamed up with <0>PostHog</0> (OSS product analytics) to make Litefuse events/metrics available in your PostHog dashboards. Upon activation, all historical data from your project will be synced. After the initial sync, new data is automatically synced every hour to keep your PostHog dashboards up to date."
+          components={[
+            <Link key="0" href="https://posthog.com" className="underline" />,
+          ]}
+        />
       </p>
       {!hasAccess && (
         <p className="text-sm">
-          You current role does not grant you access to these settings, please
-          reach out to your project admin or owner.
+          {t(
+            "You current role does not grant you access to these settings, please reach out to your project admin or owner.",
+          )}
         </p>
       )}
       {hasAccess && (
         <>
-          <Header title="Configuration" />
+          <Header title={t("Configuration")} />
           <Card className="p-3">
             <PostHogLogo className="text-foreground mb-4 w-36" />
             <PostHogIntegrationSettings
@@ -117,12 +117,12 @@ export default function PosthogIntegrationSettings() {
       )}
       {state.data?.enabled && (
         <>
-          <Header title="Status" className="mt-8" />
+          <Header title={t("Status")} className="mt-8" />
           <p className="text-primary text-sm">
-            Data synced until:{" "}
+            {t("Data synced until:")}{" "}
             {state.data?.lastSyncAt
               ? new Date(state.data.lastSyncAt).toLocaleString()
-              : "Never (pending)"}
+              : t("Never (pending)")}
           </p>
         </>
       )}
@@ -139,6 +139,7 @@ const PostHogIntegrationSettings = ({
   projectId: string;
   isLoading: boolean;
 }) => {
+  const { t } = useTranslation();
   const capture = usePostHogClientCapture();
   const { isBetaEnabled } = useV4Beta();
   const posthogForm = useForm({
@@ -313,7 +314,7 @@ const PostHogIntegrationSettings = ({
           onClick={posthogForm.handleSubmit(onSubmit)}
           disabled={isLoading}
         >
-          Save
+          {t("Save")}
         </Button>
         <Button
           variant="ghost"
@@ -328,7 +329,7 @@ const PostHogIntegrationSettings = ({
               mutDelete.mutate({ projectId });
           }}
         >
-          Reset
+          {t("Reset")}
         </Button>
       </div>
     </Form>

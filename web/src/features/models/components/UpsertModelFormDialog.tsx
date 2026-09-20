@@ -206,8 +206,18 @@ export const UpsertModelFormDialog = (({
       form.reset();
       setOpen(false);
       showSuccessToast({
-        title: `Model ${props.action === "edit" ? "updated" : "created"}`,
-        description: `The model '${upsertedModel.modelName}' has been successfully ${props.action === "edit" ? "updated" : "created"}. New generations will use these model prices.`,
+        title:
+          props.action === "edit" ? t("Model updated") : t("Model created"),
+        description:
+          props.action === "edit"
+            ? t(
+                "The model '{{name}}' has been successfully updated. New generations will use these model prices.",
+                { name: upsertedModel.modelName },
+              )
+            : t(
+                "The model '{{name}}' has been successfully created. New generations will use these model prices.",
+                { name: upsertedModel.modelName },
+              ),
       });
       router.push(
         `/project/${props.projectId}/settings/models/${upsertedModel.id}`,

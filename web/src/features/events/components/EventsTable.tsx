@@ -91,6 +91,7 @@ import { api } from "@/src/utils/api";
 import { RunEvaluationDialog } from "@/src/features/batch-actions/components/RunEvaluationDialog/index";
 import { AddObservationsToDatasetDialog } from "@/src/features/batch-actions/components/AddObservationsToDatasetDialog/index";
 
+import { useTranslation } from "react-i18next";
 export type EventsTableRow = {
   // Identity fields
   id: string;
@@ -182,6 +183,7 @@ export default function ObservationsEventsTable({
   limitRows,
   sessionId,
 }: EventsTableProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const { viewId } = router.query;
 
@@ -486,8 +488,8 @@ export default function ObservationsEventsTable({
     {
       id: ActionId.ObservationAddToAnnotationQueue,
       type: BatchActionType.Create,
-      label: "Add to Annotation Queue",
-      description: "Add selected observations to an annotation queue.",
+      label: t("Add to Annotation Queue"),
+      description: t("Add selected observations to an annotation queue."),
       targetLabel: "Annotation Queue",
       execute: handleAddToAnnotationQueue,
       accessCheck: {
@@ -497,8 +499,8 @@ export default function ObservationsEventsTable({
     {
       id: ActionId.ObservationAddToDataset,
       type: BatchActionType.Create,
-      label: "Add to Dataset",
-      description: "Add selected observations to a dataset",
+      label: t("Add to Dataset"),
+      description: t("Add selected observations to a dataset"),
       customDialog: true,
       accessCheck: {
         scope: "datasets:CUD",
@@ -507,8 +509,8 @@ export default function ObservationsEventsTable({
     {
       id: ActionId.ObservationBatchEvaluation,
       type: BatchActionType.Create,
-      label: "Evaluate",
-      description: "Run evaluations on selected observations.",
+      label: t("Evaluate"),
+      description: t("Run evaluations on selected observations."),
       customDialog: true,
       icon: <LightbulbIcon className="mr-2 h-4 w-4" />,
       accessCheck: {
@@ -623,10 +625,12 @@ export default function ObservationsEventsTable({
     },
     {
       accessorKey: "metadata",
-      header: "Metadata",
+      header: t("Metadata"),
       size: 300,
       headerTooltip: {
-        description: "Add metadata to traces to track additional information.",
+        description: t(
+          "Add metadata to traces to track additional information.",
+        ),
         href: "https://litefuse.ai/docs/observability/features/metadata",
       },
       cell: ({ row }) => {
@@ -655,8 +659,9 @@ export default function ObservationsEventsTable({
       header: getEventsColumnName("level"),
       size: 100,
       headerTooltip: {
-        description:
+        description: t(
           "You can differentiate the importance of observations with the level attribute to control the verbosity of your traces and highlight errors and warnings.",
+        ),
         href: "https://litefuse.ai/docs/observability/features/log-levels",
       },
       enableHiding: true,
@@ -739,7 +744,7 @@ export default function ObservationsEventsTable({
     },
     {
       accessorKey: "cost",
-      header: "Cost",
+      header: t("Cost"),
       id: "cost",
       enableHiding: true,
       defaultHidden: true,
@@ -839,7 +844,7 @@ export default function ObservationsEventsTable({
     },
     {
       accessorKey: "usage",
-      header: "Usage",
+      header: t("Usage"),
       id: "usage",
       enableHiding: true,
       defaultHidden: true,
@@ -852,7 +857,7 @@ export default function ObservationsEventsTable({
         {
           accessorKey: "tokensPerSecond",
           id: "tokensPerSecond",
-          header: "Tokens per second",
+          header: t("Tokens per second"),
           size: 200,
           cell: ({ row }: { row: Row<EventsTableRow> }) => {
             const latency: number | undefined = row.getValue("latency");
@@ -976,7 +981,7 @@ export default function ObservationsEventsTable({
       id: "promptName",
       header: getEventsColumnName("promptName"),
       headerTooltip: {
-        description: "Link to prompt version in Litefuse prompt management.",
+        description: t("Link to prompt version in Litefuse prompt management."),
         href: "https://litefuse.ai/docs/prompt-management/get-started",
       },
       size: 200,
@@ -1032,7 +1037,7 @@ export default function ObservationsEventsTable({
     },
     {
       accessorKey: "scores",
-      header: "Scores",
+      header: t("Scores"),
       id: "scores",
       enableHiding: true,
       defaultHidden: true,
@@ -1043,7 +1048,7 @@ export default function ObservationsEventsTable({
     },
     {
       accessorKey: "traceScores",
-      header: "Trace Scores",
+      header: t("Trace Scores"),
       id: "traceScores",
       enableHiding: true,
       defaultHidden: true,
@@ -1094,7 +1099,7 @@ export default function ObservationsEventsTable({
       header: getEventsColumnName("version"),
       size: 100,
       headerTooltip: {
-        description: "Track changes via the version tag.",
+        description: t("Track changes via the version tag."),
         href: "https://litefuse.ai/docs/experimentation",
       },
       enableHiding: true,

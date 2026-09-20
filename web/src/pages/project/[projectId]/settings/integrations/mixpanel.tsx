@@ -49,7 +49,9 @@ import { useForm } from "react-hook-form";
 import { type z } from "zod/v4";
 import { Info, ExternalLink } from "lucide-react";
 
+import { Trans, useTranslation } from "react-i18next";
 export default function MixpanelIntegrationSettings() {
+  const { t } = useTranslation();
   const router = useRouter();
   const projectId = router.query.projectId as string;
 
@@ -74,7 +76,7 @@ export default function MixpanelIntegrationSettings() {
   return (
     <ContainerPage
       headerProps={{
-        title: "Mixpanel Integration",
+        title: t("Mixpanel Integration"),
         breadcrumb: [
           { name: "Settings", href: `/project/${projectId}/settings` },
         ],
@@ -89,25 +91,23 @@ export default function MixpanelIntegrationSettings() {
       }}
     >
       <p className="text-primary mb-4 text-sm">
-        Integrate with{" "}
-        <Link href="https://mixpanel.com" className="underline">
-          Mixpanel
-        </Link>{" "}
-        to sync your Litefuse traces, generations, and scores for advanced
-        product analytics. Upon activation, all historical data from your
-        project will be synced. After the initial sync, new data is
-        automatically synced every hour to keep your Mixpanel dashboards up to
-        date.
+        <Trans
+          i18nKey="Integrate with <0>Mixpanel</0> to sync your Litefuse traces, generations, and scores for advanced product analytics. Upon activation, all historical data from your project will be synced. After the initial sync, new data is automatically synced every hour to keep your Mixpanel dashboards up to date."
+          components={[
+            <Link key="0" href="https://mixpanel.com" className="underline" />,
+          ]}
+        />
       </p>
       {!hasAccess && (
         <p className="text-sm">
-          Your current role does not grant you access to these settings, please
-          reach out to your project admin or owner.
+          {t(
+            "Your current role does not grant you access to these settings, please reach out to your project admin or owner.",
+          )}
         </p>
       )}
       {hasAccess && (
         <>
-          <Header title="Configuration" />
+          <Header title={t("Configuration")} />
           <Card className="p-3">
             <MixpanelLogo className="text-foreground mb-4 w-20" />
             <MixpanelIntegrationSettingsForm
@@ -120,12 +120,12 @@ export default function MixpanelIntegrationSettings() {
       )}
       {state.data?.enabled && (
         <>
-          <Header title="Status" className="mt-8" />
+          <Header title={t("Status")} className="mt-8" />
           <p className="text-primary text-sm">
-            Data synced until:{" "}
+            {t("Data synced until:")}{" "}
             {state.data?.lastSyncAt
               ? new Date(state.data.lastSyncAt).toLocaleString()
-              : "Never (pending)"}
+              : t("Never (pending)")}
           </p>
         </>
       )}
@@ -142,6 +142,7 @@ const MixpanelIntegrationSettingsForm = ({
   projectId: string;
   isLoading: boolean;
 }) => {
+  const { t } = useTranslation();
   const capture = usePostHogClientCapture();
   const { isBetaEnabled } = useV4Beta();
   const mixpanelForm = useForm({
@@ -337,7 +338,7 @@ const MixpanelIntegrationSettingsForm = ({
           onClick={mixpanelForm.handleSubmit(onSubmit)}
           disabled={isLoading}
         >
-          Save
+          {t("Save")}
         </Button>
         <Button
           variant="ghost"
@@ -352,7 +353,7 @@ const MixpanelIntegrationSettingsForm = ({
               mutDelete.mutate({ projectId });
           }}
         >
-          Reset
+          {t("Reset")}
         </Button>
       </div>
     </Form>

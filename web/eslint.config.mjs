@@ -2,9 +2,6 @@ import nextConfig from "@repo/eslint-config/next";
 import { tableRoutingRule } from "@repo/eslint-config/base";
 import i18next from "eslint-plugin-i18next";
 
-// Directories already migrated to react-i18next. Hardcoded UI strings are an
-// error there so they cannot regress. Extend as directories are migrated; the
-// zh-CN rollout gate is this list covering all of src/.
 // Deprecated, and a vendored subtree that may be re-synced wholesale, so it is
 // never translated and never enters the gate.
 const I18N_EXCLUDED_FILES = [
@@ -14,28 +11,24 @@ const I18N_EXCLUDED_FILES = [
   "src/lib/discover-shims/**",
 ];
 
+// Every component file, plus the non-component modules that hold user-facing
+// text as data: filter configs, the widget data model, survey content and the
+// zod schemas whose messages a form renders. The exclusions above are the only
+// exemptions, and zh-CN goes live once the gates are clean across all of them.
 const I18N_MIGRATED_FILES = [
-  "src/features/i18n/**/*.tsx",
-  "src/components/nav/**/*.tsx",
-  "src/components/layouts/**/*.tsx",
-  "src/features/notifications/**/*.tsx",
-  "src/components/ui/**/*.tsx",
-  "src/components/table/**/*.tsx",
-  "src/components/trace2/**/*.tsx",
-  "src/features/comments/**/*.tsx",
-  "src/features/evals/**/*.tsx",
-  "src/features/datasets/**/*.tsx",
-  "src/features/batch-actions/**/*.tsx",
-  "src/features/prompts/**/*.tsx",
-  "src/features/score-analytics/**/*.tsx",
-  "src/features/widgets/**/*.tsx",
-  "src/features/models/**/*.tsx",
-  "src/features/experiments/**/*.tsx",
-  "src/features/playground/**/*.tsx",
-  "src/components/onboarding/**/*.tsx",
-  "src/features/annotation-queues/**/*.tsx",
-  "src/features/automations/**/*.tsx",
-  "src/features/dashboard/**/*.tsx",
+  "src/**/*.tsx",
+  "src/features/filters/config/*.ts",
+  "src/features/events/config/*.ts",
+  "src/features/query/dataModel*.ts",
+  "src/features/score-analytics/lib/statistics-utils.ts",
+  "src/features/dashboard/lib/score-analytics-utils.ts",
+  "src/features/navigation/utils/*.ts",
+  "src/features/onboarding/lib/questions.ts",
+  "src/features/auth/lib/signupSchema.ts",
+  "src/features/blobstorage-integration/types.ts",
+  "src/features/models/validation.ts",
+  "src/features/support-chat/formConstants.ts",
+  "src/utils/date-range-utils.ts",
 ];
 
 export default [

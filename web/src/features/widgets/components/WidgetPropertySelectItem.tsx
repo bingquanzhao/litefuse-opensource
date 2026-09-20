@@ -44,7 +44,9 @@ export const PropertyHoverCard = ({
               )}
             </div>
           )}
-          {description && <p className="text-xs leading-snug">{description}</p>}
+          {description && (
+            <p className="text-xs leading-snug">{t(description)}</p>
+          )}
         </HoverCardContent>
       </HoverCardPortal>
     </HoverCard>

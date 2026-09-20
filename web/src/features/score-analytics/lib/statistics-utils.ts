@@ -1,3 +1,4 @@
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 /**
  * Statistical calculation utilities for score comparison analytics
  * Provides functions for calculating Cohen's Kappa, F1 Score, Overall Agreement,
@@ -207,7 +208,7 @@ export function interpretPearsonCorrelation(
     return {
       strength: "N/A",
       color: "gray",
-      description: "No data available",
+      description: i18nKey("No data available"),
     };
   }
 
@@ -263,7 +264,7 @@ export function interpretSpearmanCorrelation(
     return {
       strength: "N/A",
       color: "gray",
-      description: "No data available",
+      description: i18nKey("No data available"),
     };
   }
 
@@ -320,7 +321,7 @@ export function interpretCohensKappa(
     return {
       strength: "N/A",
       color: "gray",
-      description: "No data available",
+      description: i18nKey("No data available"),
     };
   }
 
@@ -328,48 +329,48 @@ export function interpretCohensKappa(
     return {
       strength: "Perfect",
       color: "green",
-      description: "perfect agreement between scores",
+      description: i18nKey("perfect agreement between scores"),
     };
   }
   if (kappa >= 0.81) {
     return {
       strength: "Almost Perfect",
       color: "green",
-      description: "Almost perfect agreement between scores",
+      description: i18nKey("Almost perfect agreement between scores"),
     };
   }
   if (kappa >= 0.61) {
     return {
       strength: "Substantial",
       color: "blue",
-      description: "Substantial agreement between scores",
+      description: i18nKey("Substantial agreement between scores"),
     };
   }
   if (kappa >= 0.41) {
     return {
       strength: "Moderate",
       color: "yellow",
-      description: "Moderate agreement between scores",
+      description: i18nKey("Moderate agreement between scores"),
     };
   }
   if (kappa >= 0.21) {
     return {
       strength: "Fair",
       color: "orange",
-      description: "Fair agreement between scores",
+      description: i18nKey("Fair agreement between scores"),
     };
   }
   if (kappa > 0) {
     return {
       strength: "Slight",
       color: "red",
-      description: "Slight agreement between scores",
+      description: i18nKey("Slight agreement between scores"),
     };
   }
   return {
     strength: "Poor",
     color: "red",
-    description: "Poor agreement (worse than chance)",
+    description: i18nKey("Poor agreement (worse than chance)"),
   };
 }
 
@@ -385,7 +386,7 @@ export function interpretF1Score(f1: number | null): InterpretationResult {
     return {
       strength: "N/A",
       color: "gray",
-      description: "No data available",
+      description: i18nKey("No data available"),
     };
   }
 
@@ -393,34 +394,34 @@ export function interpretF1Score(f1: number | null): InterpretationResult {
     return {
       strength: "Excellent",
       color: "green",
-      description: "Excellent classification performance",
+      description: i18nKey("Excellent classification performance"),
     };
   }
   if (f1 >= 0.8) {
     return {
       strength: "Good",
       color: "blue",
-      description: "Good classification performance",
+      description: i18nKey("Good classification performance"),
     };
   }
   if (f1 >= 0.6) {
     return {
       strength: "Fair",
       color: "yellow",
-      description: "Fair classification performance",
+      description: i18nKey("Fair classification performance"),
     };
   }
   if (f1 >= 0.4) {
     return {
       strength: "Poor",
       color: "orange",
-      description: "Poor classification performance",
+      description: i18nKey("Poor classification performance"),
     };
   }
   return {
     strength: "Very Poor",
     color: "red",
-    description: "Very poor classification performance",
+    description: i18nKey("Very poor classification performance"),
   };
 }
 
@@ -437,7 +438,7 @@ export function interpretOverallAgreement(
     return {
       strength: "N/A",
       color: "gray",
-      description: "No data available",
+      description: i18nKey("No data available"),
     };
   }
 
@@ -494,7 +495,7 @@ export function interpretMAE(
     return {
       strength: "N/A",
       color: "gray",
-      description: "No data available",
+      description: i18nKey("No data available"),
     };
   }
 
@@ -562,7 +563,7 @@ export function interpretRMSE(
     return {
       strength: "N/A",
       color: "gray",
-      description: "No data available",
+      description: i18nKey("No data available"),
     };
   }
 

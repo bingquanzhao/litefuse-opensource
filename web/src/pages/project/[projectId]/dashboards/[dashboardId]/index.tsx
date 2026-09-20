@@ -28,6 +28,7 @@ import {
 } from "@/src/utils/date-range-utils";
 import { useEntitlementLimit } from "@/src/features/entitlements/hooks";
 import { useEnvironmentFilterOptionsCache } from "@/src/hooks/use-environment-filter-options-cache";
+import { useTranslation } from "react-i18next";
 import {
   DashboardQuerySchedulerProvider,
   getDashboardQuerySchedulerMaxConcurrent,
@@ -45,6 +46,7 @@ interface WidgetPlacement {
 }
 
 export default function DashboardDetail() {
+  const { t } = useTranslation();
   const router = useRouter();
   const utils = api.useUtils();
   const capture = usePostHogClientCapture();
@@ -106,8 +108,8 @@ export default function DashboardDetail() {
     api.dashboard.updateDashboardDefinition.useMutation({
       onSuccess: () => {
         showSuccessToast({
-          title: "Dashboard updated",
-          description: "Your changes have been saved automatically",
+          title: t("Dashboard updated"),
+          description: t("Your changes have been saved automatically"),
           duration: 2000,
         });
         // Invalidate the dashboard query to refetch the data
@@ -123,8 +125,8 @@ export default function DashboardDetail() {
     api.dashboard.updateDashboardFilters.useMutation({
       onSuccess: () => {
         showSuccessToast({
-          title: "Filters saved",
-          description: "Dashboard filters have been saved successfully",
+          title: t("Filters saved"),
+          description: t("Dashboard filters have been saved successfully"),
           duration: 2000,
         });
         // Update saved state to match current state
@@ -475,7 +477,7 @@ export default function DashboardDetail() {
         ) : dashboard.isError ? (
           <div className="flex h-64 items-center justify-center">
             <div className="text-destructive">
-              Error: {dashboard.error.message}
+              {t("Error: {{message}}", { message: dashboard.error.message })}
             </div>
           </div>
         ) : (

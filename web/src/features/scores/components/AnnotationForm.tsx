@@ -72,6 +72,7 @@ import { useRouter } from "next/router";
 import { useAnnotationScoreConfigs } from "@/src/features/scores/hooks/useScoreConfigs";
 import { Skeleton } from "@/src/components/ui/skeleton";
 
+import { useTranslation } from "react-i18next";
 const CHAR_CUTOFF = 6;
 
 function CommentField({
@@ -85,6 +86,7 @@ function CommentField({
   loading: boolean;
   onSave: (comment: string | null) => void;
 }) {
+  const { t } = useTranslation();
   const [localValue, setLocalValue] = useState(savedComment || "");
 
   // Reset local value when saved comment changes (after mutation completes)
@@ -97,7 +99,7 @@ function CommentField({
   return (
     <div className="relative">
       <div className="mb-1 flex items-center justify-between">
-        <FormLabel className="text-sm">Score Comment</FormLabel>
+        <FormLabel className="text-sm">{t("Score Comment")}</FormLabel>
         <div className="relative">
           {savedComment && (
             <PopoverClose asChild>
@@ -135,7 +137,7 @@ function CommentField({
                 setLocalValue(savedComment || "");
               }}
             >
-              Discard Changes
+              {t("Discard Changes")}
             </Button>
           </PopoverClose>
           <PopoverClose asChild>
@@ -149,7 +151,7 @@ function CommentField({
                 onSave(localValue);
               }}
             >
-              Save Changes
+              {t("Save Changes")}
             </Button>
           </PopoverClose>
         </div>
@@ -179,9 +181,10 @@ function AnnotateHeader({
   actionButtons: React.ReactNode;
   description: string;
 }) {
+  const { t } = useTranslation();
   return (
     <Header
-      title="Annotate"
+      title={t("Annotate")}
       help={{
         description,
         href: "https://litefuse.ai/docs/evaluation/evaluation-methods/annotation",
@@ -218,6 +221,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
   actionButtons,
   configControl,
 }: InnerAnnotationFormProps<Target>) {
+  const { t } = useTranslation();
   const capture = usePostHogClientCapture();
   const router = useRouter();
   const { configs, allowManualSelection } = configControl;
@@ -311,7 +315,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
     form.setValue(`scoreData.${index}.timestamp`, previousScore.timestamp);
     form.setError(scoreValuePath(index), {
       type: "server",
-      message: "Failed to delete score",
+      message: t("Failed to delete score"),
     });
   };
 
@@ -365,7 +369,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
     form.setValue(`scoreData.${index}.stringValue`, previousStringValue);
     form.setError(scoreValuePath(index), {
       type: "server",
-      message: "Failed to update score",
+      message: t("Failed to update score"),
     });
   };
 
@@ -382,7 +386,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
     form.setValue(`scoreData.${index}.stringValue`, previousStringValue);
     form.setError(scoreValuePath(index), {
       type: "server",
-      message: "Failed to create score",
+      message: t("Failed to create score"),
     });
   };
 
@@ -527,7 +531,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
     });
     form.setError(`scoreData.${index}.comment`, {
       type: "server",
-      message: "Failed to update comment",
+      message: t("Failed to update comment"),
     });
   };
 
@@ -568,7 +572,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
         {allowManualSelection ? (
           <div className="grid grid-flow-col items-center">
             <MultiSelectKeyValues
-              placeholder="Value"
+              placeholder={t("Value")}
               align="end"
               items="empty scores"
               className="grid grid-cols-[auto_1fr_auto_auto] gap-2"
