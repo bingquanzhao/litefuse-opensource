@@ -213,7 +213,7 @@ export const LatencyTables = ({
       >
         <DashboardTable
           headers={[
-            "Trace Name",
+            t("Trace Name"),
             <RightAlignedCell key="p50">{"p50"}</RightAlignedCell>,
             <RightAlignedCell key="p90">{"p90"}</RightAlignedCell>,
             <RightAlignedCell key="p95">
@@ -234,7 +234,7 @@ export const LatencyTables = ({
       >
         <DashboardTable
           headers={[
-            "Generation Name",
+            t("Generation Name"),
             <RightAlignedCell key="p50">{"p50"}</RightAlignedCell>,
             <RightAlignedCell key="p90">{"p90"}</RightAlignedCell>,
             <RightAlignedCell key="p95">
@@ -255,7 +255,7 @@ export const LatencyTables = ({
       >
         <DashboardTable
           headers={[
-            "Observation",
+            t("Observation"),
             <RightAlignedCell key="p50">{"p50"}</RightAlignedCell>,
             <RightAlignedCell key="p90">{"p90"}</RightAlignedCell>,
             <RightAlignedCell key="p95">

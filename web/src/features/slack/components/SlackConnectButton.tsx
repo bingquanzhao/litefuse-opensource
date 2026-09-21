@@ -39,7 +39,7 @@ export const SlackConnectButton: React.FC<SlackConnectButtonProps> = ({
   disabled = false,
   variant = "default",
   size = "default",
-  buttonText = "Connect Slack",
+  buttonText,
   onSuccess,
   onError,
   showText = true,
@@ -189,7 +189,11 @@ export const SlackConnectButton: React.FC<SlackConnectButtonProps> = ({
     >
       <Slack className="h-4 w-4" />
       {showText && (
-        <span>{isConnecting ? t("Connecting...") : buttonText}</span>
+        <span>
+          {isConnecting
+            ? t("Connecting...")
+            : (buttonText ?? t("Connect Slack"))}
+        </span>
       )}
     </Button>
   );
