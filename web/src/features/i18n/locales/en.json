@@ -126,6 +126,7 @@
   "{{plan}} begins on {{date}}.": "{{plan}} begins on {{date}}.",
   "{{processed}} of {{total}} processed": "{{processed}} of {{total}} processed",
   "{{rate}}% (hash-based)": "{{rate}}% (hash-based)",
+  "{{section}} > {{page}}": "{{section}} > {{page}}",
   "{{sentence}}, filtered by {{columns}}": "{{sentence}}, filtered by {{columns}}",
   "{{sentence}}, filtered by {{total}} conditions": "{{sentence}}, filtered by {{total}} conditions",
   "{{shown}} of {{total}} channels": "{{shown}} of {{total}} channels",

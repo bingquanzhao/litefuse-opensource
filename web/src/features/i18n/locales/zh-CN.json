@@ -94,6 +94,7 @@
   "{{plan}} begins on {{date}}.": "{{plan}} 将于 {{date}} 生效。",
   "{{processed}} of {{total}} processed": "已处理 {{processed}} / {{total}}",
   "{{rate}}% (hash-based)": "{{rate}}%（基于哈希）",
+  "{{section}} > {{page}}": "{{section}} > {{page}}",
   "{{sentence}}, filtered by {{columns}}": "{{sentence}}，按{{columns}}筛选",
   "{{sentence}}, filtered by {{total}} conditions": "{{sentence}}，按 {{total}} 个条件筛选",
   "{{shown}} of {{total}} channels": "共 {{total}} 个频道，显示 {{shown}} 个",
