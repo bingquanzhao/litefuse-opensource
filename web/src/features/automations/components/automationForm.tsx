@@ -466,19 +466,24 @@ export const AutomationForm = ({
                       onValueChange={field.onChange}
                       options={[
                         {
+                          // The value travels in the webhook payload, so only
+                          // the label is translated.
                           value: "created",
+                          displayValue: t("created"),
                           description: t(
                             "Whenever a new prompt version is created",
                           ),
                         },
                         {
                           value: "updated",
+                          displayValue: t("updated"),
                           description: t(
                             "Whenever tags or labels on a prompt version are updated",
                           ),
                         },
                         {
                           value: "deleted",
+                          displayValue: t("deleted"),
                           description: t(
                             "Whenever a prompt version is deleted",
                           ),
