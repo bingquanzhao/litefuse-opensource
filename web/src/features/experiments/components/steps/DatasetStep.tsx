@@ -223,7 +223,7 @@ export const DatasetStep: React.FC<DatasetStepProps> = ({
                       value={version.toISOString()}
                     >
                       {t("{{timestamp}} (UTC)", {
-                        timestamp: format(version, "MMM d, yyyy 'at' h:mm a"),
+                        timestamp: format(version, "PPp"),
                       })}
                     </SelectItem>
                   ))}

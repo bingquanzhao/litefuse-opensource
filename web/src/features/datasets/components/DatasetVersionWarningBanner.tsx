@@ -34,7 +34,7 @@ export function DatasetVersionWarningBanner({
         <div className="flex items-center justify-between gap-4">
           <p className="text-muted-foreground text-sm wrap-break-word">
             {t("Viewing version from {{time}}", {
-              time: format(selectedVersion, "MMM d, yyyy 'at' h:mm a"),
+              time: format(selectedVersion, "PPp"),
             })}
           </p>
           <Button

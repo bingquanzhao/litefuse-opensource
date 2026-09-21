@@ -32,7 +32,10 @@ import { views, viewsV2 } from "@/src/features/query/types";
 import { type ViewVersion } from "@/src/features/query";
 import { useV4Beta } from "@/src/features/events/hooks/useV4Beta";
 import { Input } from "@/src/components/ui/input";
-import startCase from "lodash/startCase";
+import {
+  aggregationLabelKey,
+  dataModelLabelKey,
+} from "@/src/features/widgets/lib/dataModelLabels";
 import { DatePickerWithRange } from "@/src/components/date-picker";
 import { InlineFilterBuilder } from "@/src/features/filters/components/filter-builder";
 import { useDashboardDateRange } from "@/src/hooks/useDashboardDateRange";
@@ -69,6 +72,7 @@ import {
   buildWidgetName,
   buildWidgetDescription,
   formatMetricName,
+  viewLabelKey,
 } from "@/src/features/widgets/utils";
 import {
   MAX_PIVOT_TABLE_DIMENSIONS,
@@ -97,56 +101,56 @@ type ChartConfig = WidgetChartConfig;
 const chartTypes: ChartType[] = [
   {
     group: "total-value",
-    name: "Big Number",
+    name: i18nKey("Big Number"),
     value: "NUMBER",
     icon: Hash,
     supportsBreakdown: false,
   },
   {
     group: "time-series",
-    name: "Line Chart",
+    name: i18nKey("Line Chart"),
     value: "LINE_TIME_SERIES",
     icon: LineChart,
     supportsBreakdown: true,
   },
   {
     group: "time-series",
-    name: "Vertical Bar Chart",
+    name: i18nKey("Vertical Bar Chart"),
     value: "BAR_TIME_SERIES",
     icon: BarChart,
     supportsBreakdown: true,
   },
   {
     group: "total-value",
-    name: "Horizontal Bar Chart",
+    name: i18nKey("Horizontal Bar Chart"),
     value: "HORIZONTAL_BAR",
     icon: BarChartHorizontal,
     supportsBreakdown: true,
   },
   {
     group: "total-value",
-    name: "Vertical Bar Chart",
+    name: i18nKey("Vertical Bar Chart"),
     value: "VERTICAL_BAR",
     icon: BarChart,
     supportsBreakdown: true,
   },
   {
     group: "total-value",
-    name: "Histogram",
+    name: i18nKey("Histogram"),
     value: "HISTOGRAM",
     icon: BarChart3,
     supportsBreakdown: false,
   },
   {
     group: "total-value",
-    name: "Pie Chart",
+    name: i18nKey("Pie Chart"),
     value: "PIE",
     icon: PieChart,
     supportsBreakdown: true,
   },
   {
     group: "total-value",
-    name: "Pivot Table",
+    name: i18nKey("Pivot Table"),
     value: "PIVOT_TABLE",
     icon: Table,
     supportsBreakdown: true,
@@ -214,14 +218,6 @@ interface SelectedMetric {
   /** Display label for the metric */
   label: string;
 }
-
-/** View names are query identifiers; these are the labels shown for them. */
-const viewLabels: Record<string, string> = {
-  traces: i18nKey("Traces"),
-  observations: i18nKey("Observations"),
-  "scores-numeric": i18nKey("Scores (numeric)"),
-  "scores-categorical": i18nKey("Scores (categorical)"),
-};
 
 export function WidgetForm({
   initialValues,
@@ -310,7 +306,7 @@ export function WidgetForm({
           id: `${metric.agg}_${metric.measure}`,
           measure: metric.measure,
           aggregation: metric.agg as z.infer<typeof metricAggregations>,
-          label: `${startCase(metric.agg)} ${startCase(metric.measure)}`,
+          label: `${t(aggregationLabelKey(metric.agg))} ${t(dataModelLabelKey(metric.measure))}`,
         }))
       : // Default to single metric (new widget)
         [
@@ -318,7 +314,7 @@ export function WidgetForm({
             id: `${initialValues.aggregation}_${initialValues.measure}`,
             measure: initialValues.measure,
             aggregation: initialValues.aggregation,
-            label: `${startCase(initialValues.aggregation)} ${startCase(initialValues.measure)}`,
+            label: `${t(aggregationLabelKey(initialValues.aggregation))} ${t(dataModelLabelKey(initialValues.measure))}`,
           },
         ],
   );
@@ -492,7 +488,7 @@ export function WidgetForm({
         id: `${finalAggregation}_${measure}`,
         measure: measure,
         aggregation: finalAggregation as z.infer<typeof metricAggregations>,
-        label: `${startCase(finalAggregation)} ${startCase(measure)}`,
+        label: `${t(aggregationLabelKey(finalAggregation))} ${t(dataModelLabelKey(measure))}`,
       };
 
       // Set the metric at the specified index
@@ -815,7 +811,7 @@ export function WidgetForm({
         })
         .map(([key]) => ({
           value: key,
-          label: startCase(key),
+          label: t(dataModelLabelKey(key)),
         }))
         .sort((a, b) =>
           a.label.localeCompare(b.label, "en", { sensitivity: "base" }),
@@ -826,7 +822,7 @@ export function WidgetForm({
     return Object.entries(viewDeclaration.measures)
       .map(([key]) => ({
         value: key,
-        label: startCase(key),
+        label: t(dataModelLabelKey(key)),
       }))
       .sort((a, b) =>
         a.label.localeCompare(b.label, "en", { sensitivity: "base" }),
@@ -885,7 +881,7 @@ export function WidgetForm({
         })
         .map(([key]) => ({
           value: key,
-          label: startCase(key),
+          label: t(dataModelLabelKey(key)),
         }))
         .sort((a, b) =>
           a.label.localeCompare(b.label, "en", { sensitivity: "base" }),
@@ -901,7 +897,7 @@ export function WidgetForm({
       .filter(([_, dim]) => !dim.uiHidden)
       .map(([key]) => ({
         value: key,
-        label: startCase(key),
+        label: t(dataModelLabelKey(key)),
       }))
       .sort((a, b) =>
         a.label.localeCompare(b.label, "en", { sensitivity: "base" }),
@@ -1076,7 +1072,7 @@ export function WidgetForm({
                     if (Array.isArray(val)) return val.join(", ");
                     return String(val);
                   })()
-                : formatMetricName(metricField),
+                : formatMetricName(metricField, t),
             metric: processedMetric,
             time_dimension: item["time_dimension"],
           };
@@ -1183,10 +1179,12 @@ export function WidgetForm({
     if (autoLocked) return;
 
     // For pivot tables, combine all dimensions, otherwise use regular dimension
-    const dimensionForNaming =
+    const dimensionsForNaming =
       selectedChartType === "PIVOT_TABLE" && pivotDimensions.length > 0
-        ? pivotDimensions.map(startCase).join(" and ")
-        : selectedDimension;
+        ? pivotDimensions
+        : selectedDimension && selectedDimension !== "none"
+          ? [selectedDimension]
+          : [];
 
     // For pivot tables, extract actual metric names for the new formatting
     const isPivotTable = selectedChartType === "PIVOT_TABLE";
@@ -1202,10 +1200,11 @@ export function WidgetForm({
     const suggested = buildWidgetName({
       aggregation: isPivotTable ? "count" : selectedAggregation,
       measure: isPivotTable ? "count" : selectedMeasure,
-      dimension: dimensionForNaming,
+      dimensions: dimensionsForNaming,
       view: selectedView,
       metrics: metricNames,
       isMultiMetric: isPivotTable && validMetricsForNaming.length > 0,
+      t,
     });
 
     setWidgetName(suggested);
@@ -1218,6 +1217,7 @@ export function WidgetForm({
     selectedView,
     selectedChartType,
     pivotDimensions,
+    t,
   ]);
 
   // Update widget description when selection or filters change, unless locked
@@ -1225,10 +1225,12 @@ export function WidgetForm({
     if (autoLocked) return;
 
     // For pivot tables, combine all dimensions, otherwise use regular dimension
-    const dimensionForDescription =
+    const dimensionsForDescription =
       selectedChartType === "PIVOT_TABLE" && pivotDimensions.length > 0
-        ? pivotDimensions.map(startCase).join(" and ")
-        : selectedDimension;
+        ? pivotDimensions
+        : selectedDimension && selectedDimension !== "none"
+          ? [selectedDimension]
+          : [];
 
     // For pivot tables, extract actual metric names for the new formatting
     const isPivotTable = selectedChartType === "PIVOT_TABLE";
@@ -1243,11 +1245,12 @@ export function WidgetForm({
     const suggested = buildWidgetDescription({
       aggregation: isPivotTable ? "count" : selectedAggregation,
       measure: isPivotTable ? "count" : selectedMeasure,
-      dimension: dimensionForDescription,
+      dimensions: dimensionsForDescription,
       view: selectedView,
       filters: userFilterState,
       metrics: metricNames,
       isMultiMetric: isPivotTable && validMetricsForDescription.length > 0,
+      t,
     });
 
     setWidgetDescription(suggested);
@@ -1261,6 +1264,7 @@ export function WidgetForm({
     userFilterState,
     selectedChartType,
     pivotDimensions,
+    t,
   ]);
 
   return (
@@ -1367,7 +1371,7 @@ export function WidgetForm({
                       <WidgetPropertySelectItem
                         key={view}
                         value={view}
-                        label={t(viewLabels[view] ?? startCase(view))}
+                        label={t(viewLabelKey(view))}
                         description={
                           viewDeclarations[viewVersion][view].description
                         }
@@ -1503,7 +1507,7 @@ export function WidgetForm({
                                             key={aggregation}
                                             value={aggregation}
                                           >
-                                            {startCase(aggregation)}
+                                            {t(aggregationLabelKey(aggregation))}
                                           </SelectItem>
                                         ),
                                       )}
@@ -1582,7 +1586,7 @@ export function WidgetForm({
                           <SelectContent>
                             {validAggregationsForMeasure.map((aggregation) => (
                               <SelectItem key={aggregation} value={aggregation}>
-                                {startCase(aggregation)}
+                                {t(aggregationLabelKey(aggregation))}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -1812,7 +1816,7 @@ export function WidgetForm({
                             )
                             .map((metric) => (
                               <SelectItem key={metric.id} value={metric.id}>
-                                {formatMetricName(metric.id)}
+                                {formatMetricName(metric.id, t)}
                               </SelectItem>
                             ))}
                         </SelectContent>
@@ -1901,7 +1905,7 @@ export function WidgetForm({
                           <SelectItem key={chart.value} value={chart.value}>
                             <div className="flex items-center">
                               <chart.icon className="mr-2 w-4" />
-                              <span>{chart.name}</span>
+                              <span>{t(chart.name)}</span>
                             </div>
                           </SelectItem>
                         ))}
@@ -1921,7 +1925,7 @@ export function WidgetForm({
                           >
                             <div className="flex items-center">
                               <chart.icon className="mr-2 w-4" />
-                              <span>{chart.name}</span>
+                              <span>{t(chart.name)}</span>
                             </div>
                           </SelectItem>
                         ))}

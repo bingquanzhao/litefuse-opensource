@@ -247,7 +247,7 @@ export function DashboardWidget({
                 // Objects / numbers / booleans are stringified to avoid React key issues
                 return String(val);
               })()
-            : formatMetricName(metricField),
+            : formatMetricName(metricField, t),
         metric: isHistogramChart
           ? metricValue // Keep as-is (JSON string) for HistogramChart
           : Array.isArray(metricValue)
