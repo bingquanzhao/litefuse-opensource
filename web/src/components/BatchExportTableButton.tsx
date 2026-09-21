@@ -43,7 +43,7 @@ export const BatchExportTableButton: React.FC<BatchExportTableButtonProps> = (
     },
     onSuccess: () => {
       showSuccessToast({
-        title: t(t("Export queued")),
+        title: t("Export queued"),
         description: t(
           t("You will receive an email when the export is ready."),
         ),

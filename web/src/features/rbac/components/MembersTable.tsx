@@ -500,8 +500,8 @@ const OrgRoleDropdown = ({
       utils.members.invalidate();
       if (data.userId === session.data?.user?.id) void session.update();
       showSuccessToast({
-        title: t(t("Saved")),
-        description: t(t("Organization role updated successfully")),
+        title: t("Saved"),
+        description: t("Organization role updated successfully"),
         duration: 2000,
       });
     },
@@ -563,8 +563,8 @@ const ProjectRoleDropdown = ({
       utils.members.invalidate();
       if (data.userId === session.data?.user?.id) void session.update();
       showSuccessToast({
-        title: t(t("Saved")),
-        description: t(t("Project role updated successfully")),
+        title: t("Saved"),
+        description: t("Project role updated successfully"),
         duration: 2000,
       });
     },

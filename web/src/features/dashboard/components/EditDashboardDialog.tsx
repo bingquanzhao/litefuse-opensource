@@ -42,8 +42,8 @@ export function EditDashboardDialog({
     onSuccess: () => {
       void utils.dashboard.invalidate();
       showSuccessToast({
-        title: t(t("Dashboard updated")),
-        description: t(t("The dashboard has been updated successfully")),
+        title: t("Dashboard updated"),
+        description: t("The dashboard has been updated successfully"),
       });
       onOpenChange(false);
     },

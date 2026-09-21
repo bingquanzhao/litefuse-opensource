@@ -116,8 +116,8 @@ export default function Dataset() {
     void utils.datasets.runsByDatasetId.invalidate();
     void utils.datasets.baseRunDataByDatasetId.invalidate();
     showSuccessToast({
-      title: t(t("Experiment triggered successfully")),
-      description: t(t("Waiting for experiment to complete...")),
+      title: t("Experiment triggered successfully"),
+      description: t("Waiting for experiment to complete..."),
       link: {
         text: i18nKey(t("View experiment")),
         href: `/project/${projectId}/datasets/${data.datasetId}/compare?runs=${data.runId}`,

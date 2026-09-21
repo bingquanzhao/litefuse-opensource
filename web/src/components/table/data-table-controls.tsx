@@ -152,6 +152,7 @@ export function DataTableControls({ queryFilter }: DataTableControlsProps) {
                   onChange={filter.onChange}
                   onOnlyChange={filter.onOnlyChange}
                   renderIcon={filter.renderIcon}
+                  formatLabel={filter.formatLabel}
                   isActive={filter.isActive}
                   onReset={filter.onReset}
                   operator={filter.operator}
@@ -319,6 +320,7 @@ interface CategoricalFacetProps extends BaseFacetProps {
   onChange: (values: string[]) => void;
   onOnlyChange?: (value: string) => void;
   renderIcon?: (value: string) => React.ReactNode;
+  formatLabel?: (value: string) => string;
   operator?: "any of" | "all of";
   onOperatorChange?: (operator: "any of" | "all of") => void;
   textFilters?: TextFilterEntry[];
@@ -532,6 +534,7 @@ export function CategoricalFacet({
   onChange,
   onOnlyChange,
   renderIcon,
+  formatLabel,
   isActive,
   isDisabled,
   disabledReason,
@@ -736,7 +739,7 @@ export function CategoricalFacet({
                       <FilterValueCheckbox
                         key={option}
                         id={`${filterKey}-${option}`}
-                        label={option}
+                        label={formatLabel ? t(formatLabel(option)) : option}
                         icon={renderIcon?.(option)}
                         count={counts.get(option) || 0}
                         checked={value.includes(option)}

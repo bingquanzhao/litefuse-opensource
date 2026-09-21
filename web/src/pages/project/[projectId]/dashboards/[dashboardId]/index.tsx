@@ -108,8 +108,8 @@ export default function DashboardDetail() {
     api.dashboard.updateDashboardDefinition.useMutation({
       onSuccess: () => {
         showSuccessToast({
-          title: t(t("Dashboard updated")),
-          description: t(t("Your changes have been saved automatically")),
+          title: t("Dashboard updated"),
+          description: t("Your changes have been saved automatically"),
           duration: 2000,
         });
         // Invalidate the dashboard query to refetch the data
@@ -125,8 +125,8 @@ export default function DashboardDetail() {
     api.dashboard.updateDashboardFilters.useMutation({
       onSuccess: () => {
         showSuccessToast({
-          title: t(t("Filters saved")),
-          description: t(t("Dashboard filters have been saved successfully")),
+          title: t("Filters saved"),
+          description: t("Dashboard filters have been saved successfully"),
           duration: 2000,
         });
         // Update saved state to match current state

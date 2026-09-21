@@ -135,7 +135,7 @@ export default function EvalsTemplateTable({
       setPendingCloneSubmission(null);
       setShowReferenceUpdateDialog(false);
       showSuccessToast({
-        title: t(t("Evaluator cloned successfully")),
+        title: t("Evaluator cloned successfully"),
         description: t(
           t("This evaluator is now available and maintained on project level."),
         ),
@@ -394,8 +394,8 @@ export default function EvalsTemplateTable({
               setEditTemplateId(null);
               void utils.evals.templateNames.invalidate();
               showSuccessToast({
-                title: t(t("Evaluator updated successfully")),
-                description: t(t("You can now use this evaluator.")),
+                title: t("Evaluator updated successfully"),
+                description: t("You can now use this evaluator."),
               });
             }}
           />
@@ -459,7 +459,7 @@ export default function EvalsTemplateTable({
               setPendingCloneSubmission(null);
               void utils.evals.templateNames.invalidate();
               showSuccessToast({
-                title: t(t("Evaluator cloned successfully")),
+                title: t("Evaluator cloned successfully"),
                 description: t(
                   t(
                     "This evaluator is now available and maintained on project level. ",

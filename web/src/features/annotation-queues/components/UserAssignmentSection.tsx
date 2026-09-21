@@ -47,8 +47,8 @@ export const UserAssignmentSection = ({
         utils.annotationQueueAssignments.invalidate();
         utils.annotationQueues.invalidate();
         showSuccessToast({
-          title: t(t("Removed assignment")),
-          description: t(t("User removed from queue successfully")),
+          title: t("Removed assignment"),
+          description: t("User removed from queue successfully"),
         });
       },
     });

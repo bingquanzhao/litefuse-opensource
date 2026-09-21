@@ -41,6 +41,18 @@ const statusLabels: Record<string, string> = {
   partial: i18nKey("Partial"),
 };
 
+/**
+ * The badge's label for a raw status value, as an i18n key. Sidebar filter
+ * facets over the same column use this so their options read like the badges.
+ */
+export const statusLabelKey = (status: string): string => {
+  const normalized = status?.toLowerCase() ?? "";
+  return (
+    statusLabels[normalized] ??
+    (status ? status[0].toUpperCase() + status.slice(1) : status)
+  );
+};
+
 export const StatusBadge = ({
   type,
   isLive = true,
@@ -114,10 +126,7 @@ export const StatusBadge = ({
       )}
       {showText && type && (
         <span>
-          {t(
-            statusLabels[normalizedType] ??
-              type[0].toUpperCase() + type.slice(1),
-          )}
+          {t(statusLabelKey(type))}
         </span>
       )}
       {children}

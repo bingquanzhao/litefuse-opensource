@@ -36,8 +36,8 @@ export const DeleteAutomationButton: React.FC<DeleteAutomationButtonProps> = ({
     {
       onSuccess: () => {
         showSuccessToast({
-          title: t(t("Automation deleted")),
-          description: t(t("The automation has been deleted successfully.")),
+          title: t("Automation deleted"),
+          description: t("The automation has been deleted successfully."),
         });
 
         if (onSuccess) {

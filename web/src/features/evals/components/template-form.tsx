@@ -238,7 +238,7 @@ export const InnerEvalTemplateForm = (props: {
         props.existingEvalTemplateId
       ) {
         showSuccessToast({
-          title: t(t("Updated evaluators")),
+          title: t("Updated evaluators"),
           description: t(
             t("Updated referenced evaluators to use new template version."),
           ),

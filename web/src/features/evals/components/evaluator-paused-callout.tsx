@@ -65,8 +65,8 @@ export function EvaluatorPausedCallout({
     onSuccess: async () => {
       await utils.evals.invalidate();
       showSuccessToast({
-        title: t(t("Evaluator reactivated")),
-        description: t(t("The evaluator is active again.")),
+        title: t("Evaluator reactivated"),
+        description: t("The evaluator is active again."),
       });
     },
     onError: (error) => {
@@ -114,7 +114,7 @@ export function EvaluatorPausedCallout({
 
           <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-2 text-sm leading-5">
             <span className="text-muted-foreground font-medium">
-              {blockMetadata.shortLabel}
+              {t(blockMetadata.shortLabel)}
             </span>
             {blockedAtLabel ? (
               <Fragment>

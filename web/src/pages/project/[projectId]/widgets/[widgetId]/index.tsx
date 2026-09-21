@@ -39,8 +39,8 @@ export default function EditWidget() {
     },
     onSuccess: () => {
       showSuccessToast({
-        title: t(t("Widget updated successfully")),
-        description: t(t("Your widget has been updated.")),
+        title: t("Widget updated successfully"),
+        description: t("Your widget has been updated."),
       });
       // Navigate back to dashboard if provided else widgets list
       if (dashboardId) {

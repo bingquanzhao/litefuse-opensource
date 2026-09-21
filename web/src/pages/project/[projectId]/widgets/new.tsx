@@ -28,8 +28,8 @@ export default function NewWidget() {
   const createWidgetMutation = api.dashboardWidgets.create.useMutation({
     onSuccess: (data) => {
       showSuccessToast({
-        title: t(t("Widget created successfully")),
-        description: t(t("Your widget has been created.")),
+        title: t("Widget created successfully"),
+        description: t("Your widget has been created."),
       });
 
       if (dashboardId) {

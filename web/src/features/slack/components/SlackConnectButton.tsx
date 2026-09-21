@@ -116,7 +116,7 @@ export const SlackConnectButton: React.FC<SlackConnectButtonProps> = ({
           setIsConnecting(false);
 
           showSuccessToast({
-            title: t(t("Slack Connected")),
+            title: t("Slack Connected"),
             description: t("Successfully connected to {{team}}.", {
               team: event.data.teamName,
             }),

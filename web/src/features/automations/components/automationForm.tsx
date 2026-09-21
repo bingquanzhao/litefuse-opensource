@@ -250,9 +250,9 @@ export const AutomationForm = ({
 
     if (!validation.isValid) {
       showErrorToast(
-        t(t("Validation Error")),
+        t("Validation Error"),
         validation.errors?.join(", ") ||
-          t(t("Please fill in all required fields")),
+          t("Please fill in all required fields"),
       );
       return;
     }
@@ -274,7 +274,7 @@ export const AutomationForm = ({
       });
 
       showSuccessToast({
-        title: t(t("Automation Updated")),
+        title: t("Automation Updated"),
         description: t('Successfully updated automation "{{name}}".', {
           name: data.name,
         }),
@@ -295,7 +295,7 @@ export const AutomationForm = ({
       });
 
       showSuccessToast({
-        title: t(t("Automation Created")),
+        title: t("Automation Created"),
         description: t('Successfully created automation "{{name}}".', {
           name: data.name,
         }),

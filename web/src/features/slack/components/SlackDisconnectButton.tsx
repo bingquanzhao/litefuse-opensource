@@ -92,7 +92,7 @@ export const SlackDisconnectButton: React.FC<SlackDisconnectButtonProps> = ({
       setIsDialogOpen(false);
 
       showSuccessToast({
-        title: t(t("Slack Disconnected")),
+        title: t("Slack Disconnected"),
         description: t(
           t("Successfully disconnected from your Slack workspace."),
         ),

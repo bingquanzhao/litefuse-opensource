@@ -54,8 +54,8 @@ export function DefaultEvalModelSetup({ projectId }: { projectId: string }) {
     api.defaultLlmModel.upsertDefaultModel.useMutation({
       onSuccess: () => {
         showSuccessToast({
-          title: t(t("Default evaluation model updated")),
-          description: t(t("All running evaluators will use the new model.")),
+          title: t("Default evaluation model updated"),
+          description: t("All running evaluators will use the new model."),
         });
 
         utils.defaultLlmModel.fetchDefaultModel.invalidate({ projectId });

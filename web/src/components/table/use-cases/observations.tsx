@@ -503,7 +503,7 @@ export default function ObservationsTable({
   const addToQueueMutation = api.annotationQueueItems.createMany.useMutation({
     onSuccess: (data) => {
       showSuccessToast({
-        title: t(t("Observations added to queue")),
+        title: t("Observations added to queue"),
         description: t(
           'Selected observations will be added to queue "{{queue}}". This may take a minute.',
           { queue: data.queueName },

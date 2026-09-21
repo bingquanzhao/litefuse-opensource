@@ -63,4 +63,11 @@ export const SHARED_VALIDATION_MESSAGES = [
   i18nKey(
     "Evaluator paused: provider account setup is incomplete. Complete the provider setup and then reactivate the evaluator.",
   ),
+  // EVALUATOR_BLOCK_METADATA.shortLabel, rendered by `evaluator-paused-callout`
+  i18nKey("Authentication failed"),
+  i18nKey("LLM connection missing"),
+  i18nKey("Default evaluation model missing"),
+  i18nKey("Evaluation model invalid"),
+  i18nKey("Model unavailable"),
+  i18nKey("Provider account setup incomplete"),
 ] as const;

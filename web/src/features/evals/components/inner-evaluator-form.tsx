@@ -789,6 +789,7 @@ export const InnerEvaluatorForm = (props: {
                                 {t("New {{target}}", {
                                   target: getTargetDisplayName(
                                     form.watch("target"),
+                                    t,
                                   ),
                                 })}
                               </label>
@@ -818,6 +819,7 @@ export const InnerEvaluatorForm = (props: {
                                 {t("Existing {{target}}", {
                                   target: getTargetDisplayName(
                                     form.watch("target"),
+                                    t,
                                   ),
                                 })}
                               </label>
@@ -835,6 +837,7 @@ export const InnerEvaluatorForm = (props: {
                                           {
                                             target: getTargetDisplayName(
                                               form.watch("target"),
+                                              t,
                                             ),
                                           },
                                         )}
@@ -878,7 +881,7 @@ export const InnerEvaluatorForm = (props: {
                             <FormDescription>
                               {t(
                                 "Automatically evaluate new incoming {{target}}.",
-                                { target: getTargetDisplayName(target) },
+                                { target: getTargetDisplayName(target, t) },
                               )}
                             </FormDescription>
                           </div>
@@ -958,7 +961,7 @@ export const InnerEvaluatorForm = (props: {
                             {props.disabled && !hasFilters ? (
                               <p className="text-muted-foreground text-xs">
                                 {t("All {{target}} will be evaluated", {
-                                  target: getTargetDisplayName(target),
+                                  target: getTargetDisplayName(target, t),
                                 })}
                               </p>
                             ) : (
@@ -1005,7 +1008,7 @@ export const InnerEvaluatorForm = (props: {
                             <AlertDescription className="text-dark-yellow">
                               {t(
                                 "No filters set. This evaluator will run on all {{target}}.",
-                                { target: getTargetDisplayName(target) },
+                                { target: getTargetDisplayName(target, t) },
                               )}
                             </AlertDescription>
                           </div>
