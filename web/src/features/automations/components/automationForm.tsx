@@ -311,7 +311,7 @@ export const AutomationForm = ({
 
   // Update button text based on if we're editing an existing automation
   const submitButtonText =
-    isEditing && automation ? "Update Automation" : "Save Automation";
+    isEditing && automation ? t("Update Automation") : t("Save Automation");
 
   // Update required fields based on action type
   const handleActionTypeChange = (value: ActionTypes) => {
