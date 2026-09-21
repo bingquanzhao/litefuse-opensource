@@ -722,7 +722,7 @@ export function TableViewPresetsDrawer({
                                   itemId={view.id}
                                   projectId={projectId}
                                   scope="TableViewPresets:CUD"
-                                  entityToDeleteName="view"
+                                  entityToDeleteName={t("view")}
                                   executeDeleteMutation={async () => {
                                     await handleDeleteView(view.id);
                                   }}

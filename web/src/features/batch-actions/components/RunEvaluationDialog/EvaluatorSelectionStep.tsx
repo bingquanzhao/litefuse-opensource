@@ -68,11 +68,11 @@ export function EvaluatorSelectionStep(props: EvaluatorSelectionStepProps) {
 
   const getPromptPreview = (evaluator: Evaluator) => {
     if (isPreviewLoading) {
-      return "Loading preview...";
+      return t("Loading preview...");
     }
 
     if (!previewObservation) {
-      return "Preview unavailable for the current selection.";
+      return t("Preview unavailable for the current selection.");
     }
 
     const mappingResult = observationVariableMappingList.safeParse(
@@ -80,7 +80,7 @@ export function EvaluatorSelectionStep(props: EvaluatorSelectionStepProps) {
     );
 
     if (!mappingResult.success) {
-      return "Evaluator mapping is not valid for observation preview.";
+      return t("Evaluator mapping is not valid for observation preview.");
     }
 
     return renderPromptPreviewFromObservation({

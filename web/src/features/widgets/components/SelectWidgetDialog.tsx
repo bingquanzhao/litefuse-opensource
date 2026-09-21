@@ -136,6 +136,7 @@ export function SelectWidgetDialog({
                       <TableCell>
                         {getChartTypeDisplayName(
                           widget.chartType as DashboardWidgetChartType,
+                          t,
                         )}
                       </TableCell>
                     </TableRow>

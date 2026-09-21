@@ -12,6 +12,7 @@ import type {
 } from "./types";
 import { wizardReducer, initialWizardState } from "./wizardReducer";
 
+import { useTranslation } from "react-i18next";
 export type UseAddToDatasetWizardProps = {
   projectId: string;
   selectedObservationIds: string[];
@@ -26,6 +27,7 @@ export type UseAddToDatasetWizardProps = {
 };
 
 export function useAddToDatasetWizard(props: UseAddToDatasetWizardProps) {
+  const { t } = useTranslation();
   const {
     projectId,
     selectedObservationIds,
@@ -289,21 +291,21 @@ export function useAddToDatasetWizard(props: UseAddToDatasetWizardProps) {
   const dialogDescription = useMemo(() => {
     switch (state.step) {
       case "choice":
-        return "Choose where to add your observations";
+        return t("Choose where to add your observations");
       case "select":
-        return "Select an existing dataset";
+        return t("Select an existing dataset");
       case "create":
-        return "Create a new dataset";
+        return t("Create a new dataset");
       case "input-mapping":
-        return "Configure dataset item input mapping";
+        return t("Configure dataset item input mapping");
       case "output-mapping":
-        return "Configure dataset item expected output mapping";
+        return t("Configure dataset item expected output mapping");
       case "metadata-mapping":
-        return "Configure dataset item metadata mapping";
+        return t("Configure dataset item metadata mapping");
       case "preview":
-        return "Review and confirm your configuration";
+        return t("Review and confirm your configuration");
       case "status":
-        return "Your bulk action status";
+        return t("Your bulk action status");
       default:
         return "";
     }

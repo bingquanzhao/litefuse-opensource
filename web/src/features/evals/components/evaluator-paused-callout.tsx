@@ -16,6 +16,8 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 import { useTranslation } from "react-i18next";
+import { type TFunction } from "i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 type EvaluatorPausedCalloutProps = {
   projectId: string;
   evalConfig: Pick<
@@ -26,27 +28,29 @@ type EvaluatorPausedCalloutProps = {
   };
 };
 
-const DEFAULT_BLOCK_MESSAGE =
-  "This evaluator is paused until its configuration is fixed and reactivated.";
+const DEFAULT_BLOCK_MESSAGE = i18nKey(
+  "This evaluator is paused until its configuration is fixed and reactivated.",
+);
 
 function getResolutionActionLabel(params: {
   blockReason: EvaluatorBlockReason;
   templateId?: string | null;
+  t: TFunction;
 }) {
-  const { blockReason, templateId } = params;
+  const { blockReason, templateId, t } = params;
 
   if (
     blockReason === EvaluatorBlockReason.LLM_CONNECTION_AUTH_INVALID ||
     blockReason === EvaluatorBlockReason.LLM_CONNECTION_MISSING
   ) {
-    return "Open LLM connections";
+    return t("Open LLM connections");
   }
 
   if (templateId) {
-    return "Open evaluator template";
+    return t("Open evaluator template");
   }
 
-  return "Open evaluators";
+  return t("Open evaluators");
 }
 
 export function EvaluatorPausedCallout({
@@ -85,8 +89,9 @@ export function EvaluatorPausedCallout({
   const resolutionActionLabel = getResolutionActionLabel({
     blockReason,
     templateId: evalConfig.evalTemplate?.id,
+    t,
   });
-  const blockMessage = evalConfig.blockMessage ?? DEFAULT_BLOCK_MESSAGE;
+  const blockMessage = t(evalConfig.blockMessage ?? DEFAULT_BLOCK_MESSAGE);
   const blockedAt = new Date(evalConfig.blockedAt);
   const blockedAtLabel = Number.isNaN(blockedAt.getTime())
     ? null

@@ -207,7 +207,7 @@ export function DeleteTraceButton(props: DeleteButtonProps) {
           source: isTableAction ? "table-single-row" : "trace",
         })
       }
-      entityToDeleteName="trace"
+      entityToDeleteName={t("trace")}
       executeDeleteMutation={executeDeleteMutation}
       isDeleteMutationLoading={traceMutation.isPending}
       enabled={hasTraceDeletionEntitlement}
@@ -251,7 +251,7 @@ export function DeleteDatasetButton(props: DeleteButtonProps) {
           source: isTableAction ? "table-single-row" : "dataset",
         })
       }
-      entityToDeleteName="dataset"
+      entityToDeleteName={t("dataset")}
       executeDeleteMutation={executeDeleteMutation}
       isDeleteMutationLoading={datasetMutation.isPending}
     />
@@ -295,7 +295,7 @@ export function DeleteDashboardButton(props: DeleteButtonProps) {
       captureDeleteSuccess={(capture) =>
         capture("dashboard:delete_dashboard_button_click")
       }
-      entityToDeleteName="dashboard"
+      entityToDeleteName={t("dashboard")}
       executeDeleteMutation={executeDeleteMutation}
       isDeleteMutationLoading={dashboardMutation.isPending}
     />

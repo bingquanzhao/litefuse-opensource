@@ -194,7 +194,7 @@ export function DashboardWidgetTable() {
       enableSorting: true,
       size: 100,
       cell: (row) =>
-        getChartTypeDisplayName(row.getValue() as DashboardWidgetChartType),
+        getChartTypeDisplayName(row.getValue() as DashboardWidgetChartType, t),
     }),
     columnHelper.accessor("createdAt", {
       header: t("Created At"),
