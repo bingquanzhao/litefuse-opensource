@@ -401,7 +401,7 @@ export function AdvancedJsonSection({
                   size="icon-xs"
                   onClick={handleToggleExpandAll}
                   className="-mr-2 hover:bg-border"
-                  title={allExpanded ? "Collapse all" : "Expand all"}
+                  title={allExpanded ? t("Collapse all") : t("Expand all")}
                 >
                   {allExpanded ? (
                     <FoldVertical className="h-3 w-3" />

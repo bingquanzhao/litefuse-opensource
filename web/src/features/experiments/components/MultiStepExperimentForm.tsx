@@ -285,6 +285,7 @@ export const MultiStepExperimentForm = ({
       selectedPromptName,
       selectedPromptVersion,
       selectedDataset.name,
+      t,
     );
     form.setValue("name", defaultName);
 
@@ -292,6 +293,7 @@ export const MultiStepExperimentForm = ({
       selectedPromptName,
       selectedPromptVersion,
       selectedDataset.name,
+      t,
     );
     form.setValue("description", defaultDescription);
   }, [
@@ -300,6 +302,7 @@ export const MultiStepExperimentForm = ({
     datasetId,
     datasets.data,
     form,
+    t,
   ]);
 
   // Auto-generate run name when experiment name changes

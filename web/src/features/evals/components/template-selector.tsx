@@ -162,7 +162,9 @@ export const TemplateSelector = ({
             <div className="flex items-center gap-1 overflow-hidden">
               <span className="mr-1 truncate">
                 {activeTemplates.length > 0
-                  ? `${activeTemplates.length} active evaluators`
+                  ? t("{{total}} active evaluators", {
+                      total: activeTemplates.length,
+                    })
                   : t("Select evaluators")}
               </span>
             </div>

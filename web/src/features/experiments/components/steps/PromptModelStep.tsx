@@ -122,7 +122,7 @@ export const PromptModelStep: React.FC<PromptModelStepProps> = ({
                     aria-expanded={open}
                     className="w-2/3 justify-between px-2 font-normal"
                   >
-                    {selectedPromptName || "Select a prompt"}
+                    {selectedPromptName || t("Select a prompt")}
                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
@@ -183,7 +183,9 @@ export const PromptModelStep: React.FC<PromptModelStepProps> = ({
                     className="w-1/3 justify-between px-2 font-normal"
                   >
                     {selectedPromptVersion
-                      ? `Version ${selectedPromptVersion}`
+                      ? t("Version {{version}}", {
+                          version: selectedPromptVersion,
+                        })
                       : t("Version")}
                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
@@ -314,7 +316,7 @@ export const PromptModelStep: React.FC<PromptModelStepProps> = ({
                           aria-expanded={schemaPopoverOpen}
                           className="flex-1 justify-between px-2 font-normal"
                         >
-                          {selectedSchema?.name || "Select schema"}
+                          {selectedSchema?.name || t("Select schema")}
                           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
