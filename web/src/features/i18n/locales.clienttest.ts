@@ -15,6 +15,12 @@ const ALLOWED_IDENTIFIER_LIKE_KEYS = new Set<string>([
   "SQL",
   "URL",
   "YAML",
+  // Filter-sidebar toggles, upper-cased by the stylesheet rather than by
+  // meaning. Nothing reads them; they are only ever rendered.
+  "ALL",
+  "SELECT",
+  "SOME",
+  "TEXT",
 ]);
 
 /**
