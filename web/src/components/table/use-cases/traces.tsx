@@ -512,7 +512,7 @@ export default function TracesTable({
         ),
         link: {
           href: `/project/${projectId}/annotation-queues/${data.queueId}`,
-          text: `View queue "${data.queueName}"`,
+          text: t('View queue "{{queue}}"', { queue: data.queueName }),
         },
       });
     },

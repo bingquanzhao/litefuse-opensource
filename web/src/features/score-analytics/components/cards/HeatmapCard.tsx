@@ -202,16 +202,22 @@ export function HeatmapCard() {
   const totalMatchedPairs = statistics.comparison?.matchedCount ?? 0;
 
   const title =
-    dataType === "NUMERIC" ? "Score Comparison Heatmap" : "Confusion Matrix";
+    dataType === "NUMERIC"
+      ? t("Score Comparison Heatmap")
+      : t("Confusion Matrix");
 
   const description =
     mode === "single"
       ? dataType === "NUMERIC"
-        ? "Distribution of matched score pairs showing correlation patterns"
-        : "Agreement matrix between categorical scores"
+        ? t("Distribution of matched score pairs showing correlation patterns")
+        : t("Agreement matrix between categorical scores")
       : dataType === "NUMERIC"
-        ? `${totalMatchedPairs.toLocaleString()} matched pairs showing correlation patterns`
-        : `${totalMatchedPairs.toLocaleString()} matched pairs showing agreement`;
+        ? t("{{total}} matched pairs showing correlation patterns", {
+            total: totalMatchedPairs.toLocaleString(),
+          })
+        : t("{{total}} matched pairs showing agreement", {
+            total: totalMatchedPairs.toLocaleString(),
+          });
 
   // Single score mode - show placeholder
   if (mode === "single") {

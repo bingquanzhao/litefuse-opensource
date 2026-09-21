@@ -1,3 +1,4 @@
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 import { DataTable } from "@/src/components/table/data-table";
 import TableLink from "@/src/components/table/table-link";
 import { type LangfuseColumnDef } from "@/src/components/table/types";
@@ -130,6 +131,14 @@ const QueueItemTableMultiSelectAction = ({
   );
 };
 
+
+/** The stored value is the API's enum, so the label is looked up here. */
+const QUEUE_OBJECT_TYPE_LABELS: Record<string, string> = {
+  TRACE: i18nKey("Trace"),
+  OBSERVATION: i18nKey("Observation"),
+  SESSION: i18nKey("Session"),
+};
+
 export type QueueItemRowData = {
   id: string;
   sourceId: string;
@@ -249,7 +258,7 @@ export function AnnotationQueueItemsTable({
       cell: ({ row }) => {
         const objectType: QueueItemRowData["objectType"] =
           row.getValue("objectType");
-        return <span className="capitalize">{objectType.toLowerCase()}</span>;
+        return <span>{t(QUEUE_OBJECT_TYPE_LABELS[objectType])}</span>;
       },
     },
     {

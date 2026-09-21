@@ -58,9 +58,9 @@ export function ScoreCombobox({
     );
 
     const typeLabels: Record<string, string> = {
-      BOOLEAN: "Boolean",
-      CATEGORICAL: "Categorical",
-      NUMERIC: "Numeric",
+      BOOLEAN: t("Boolean"),
+      CATEGORICAL: t("Categorical"),
+      NUMERIC: t("Numeric"),
     };
     const typeOrder = ["BOOLEAN", "CATEGORICAL", "NUMERIC"];
 
@@ -73,7 +73,7 @@ export function ScoreCombobox({
           label: `${opt.name} • ${opt.source}`,
         })),
       }));
-  }, [filteredOptions]);
+  }, [filteredOptions, t]);
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();

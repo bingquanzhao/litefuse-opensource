@@ -1,3 +1,4 @@
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 import { useState, useMemo } from "react";
 import {
   Card,
@@ -33,6 +34,17 @@ type TimelineTab = "score1" | "score2" | "all" | "matched";
  * - Single vs two-score modes
  * - Numeric vs categorical data types
  */
+
+/** Bucket units come from the API enum; the label carries the plural form. */
+const INTERVAL_UNIT_LABELS: Record<string, string> = {
+  second: i18nKey("{{n}} second"),
+  minute: i18nKey("{{n}} minute"),
+  hour: i18nKey("{{n}} hour"),
+  day: i18nKey("{{n}} day"),
+  month: i18nKey("{{n}} month"),
+  year: i18nKey("{{n}} year"),
+};
+
 export function TimelineChartCard() {
   const { t } = useTranslation();
   const { data, isLoading, params, colorMappings, getColorForScore } =
@@ -179,9 +191,15 @@ export function TimelineChartCard() {
     const { interval } = params;
     const parts: string[] = [];
 
-    // Interval description
+    // Interval description. The bucket unit is an API enum, so the label is
+    // looked up rather than pluralised in English.
+    const intervalLabel = t(INTERVAL_UNIT_LABELS[interval.unit], {
+      n: interval.count,
+    });
     parts.push(
-      `${dataType === "NUMERIC" ? "Average" : "Count"} by ${interval.count} ${interval.unit}${interval.count > 1 ? "s" : ""}`,
+      dataType === "NUMERIC"
+        ? t("Average by {{interval}}", { interval: intervalLabel })
+        : t("Count by {{interval}}", { interval: intervalLabel }),
     );
 
     // Overall average for numeric
@@ -199,7 +217,9 @@ export function TimelineChartCard() {
     if (mode === "two" && statistics.comparison) {
       if (activeTab === "matched") {
         parts.push(
-          `${statistics.comparison.matchedCount.toLocaleString()} matched`,
+          t("{{total}} matched", {
+            total: statistics.comparison.matchedCount.toLocaleString(),
+          }),
         );
       }
     }
