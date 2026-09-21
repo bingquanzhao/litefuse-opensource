@@ -737,7 +737,7 @@
   "Define the structure of your tool parameters using JSON Schema format.": "使用 JSON Schema 格式定义你的工具参数结构。",
   "Define the structure using JSON Schema format.": "使用 JSON Schema 格式定义结构。",
   "Define which dimensions annotators should score for the given queue.": "定义标注者在该队列中需要评分的维度。",
-  "Define your llm-as-a-judge evaluation template. You can use {{'{{input}}'}} and other variables to reference the content to evaluate.": "定义你的 LLM 评估模板。你可以使用 {{'{{input}}'}} 等变量来引用待评估的内容。",
+  "Define your llm-as-a-judge evaluation template. You can use {{variable}} and other variables to reference the content to evaluate.": "定义你的 LLM 评估模板。你可以使用 {{variable}} 等变量来引用待评估的内容。",
   "Define your prompt template. You can use": "定义你的提示词模板。你可以使用",
   "Delay (seconds)": "延迟（秒）",
   "Delayed": "已延迟",
