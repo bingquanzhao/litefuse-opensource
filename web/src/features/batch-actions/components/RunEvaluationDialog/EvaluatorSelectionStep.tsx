@@ -7,7 +7,10 @@ import { Badge } from "@/src/components/ui/badge";
 import { Checkbox } from "@/src/components/ui/checkbox";
 import { Input } from "@/src/components/ui/input";
 import { EvaluatorPromptPreview } from "./EvaluatorPromptPreview";
-import { renderPromptPreviewFromObservation } from "./utils";
+import {
+  renderPromptPreviewFromObservation,
+  TEMPLATE_HAS_NO_PROMPT,
+} from "./utils";
 import { Eye, Plus, X } from "lucide-react";
 
 import { useTranslation } from "react-i18next";
@@ -83,11 +86,13 @@ export function EvaluatorSelectionStep(props: EvaluatorSelectionStepProps) {
       return t("Evaluator mapping is not valid for observation preview.");
     }
 
-    return renderPromptPreviewFromObservation({
+    const preview = renderPromptPreviewFromObservation({
       prompt: evaluator.evalTemplate?.prompt,
       variableMapping: mappingResult.data,
       observation: previewObservation,
     });
+    // Only the sentinel is copy; the rest is the rendered prompt.
+    return preview === TEMPLATE_HAS_NO_PROMPT ? t(preview) : preview;
   };
 
   return (
