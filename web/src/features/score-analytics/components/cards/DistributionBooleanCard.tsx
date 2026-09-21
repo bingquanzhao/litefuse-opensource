@@ -59,9 +59,14 @@ export function DistributionBooleanCard() {
           distribution1Data: distribution.score1,
           distribution2Data: undefined,
           categories: distribution.categories ?? [],
-          description: `${statistics.score1.total.toLocaleString()} observations${
+          description: `${t("{{total}} observations", {
+            total: statistics.score1.total.toLocaleString(),
+          })}${
             statistics.score1.mode
-              ? ` | Most frequent: ${statistics.score1.mode.category} (${statistics.score1.mode.count.toLocaleString()})`
+              ? ` | ${t("Most frequent: {{category}} ({{total}})", {
+                  category: statistics.score1.mode.category,
+                  total: statistics.score1.mode.count.toLocaleString(),
+                })}`
               : ""
           }`,
         };
@@ -74,28 +79,43 @@ export function DistributionBooleanCard() {
             distribution1Data: distribution.score1Individual,
             distribution2Data: undefined,
             categories: distribution.categories ?? [],
-            description: `${score1.name} - ${statistics.score1.total.toLocaleString()} observations`,
+            description: t("{{name}} - {{total}} observations", {
+            name: score1.name,
+            total: statistics.score1.total.toLocaleString(),
+          }),
           };
         case "score2":
           return {
             distribution1Data: distribution.score2Individual,
             distribution2Data: undefined,
             categories: distribution.score2Categories ?? [],
-            description: `${score2?.name ?? "Score 2"} - ${statistics.score2?.total.toLocaleString()} observations`,
+            description: t("{{name}} - {{total}} observations", {
+            name: score2?.name ?? t("Score 2"),
+            total: (statistics.score2?.total ?? 0).toLocaleString(),
+          }),
           };
         case "all":
           return {
             distribution1Data: distribution.score1Individual,
             distribution2Data: distribution.score2Individual,
             categories: distribution.categories ?? [],
-            description: `${score1.name} (${statistics.score1.total.toLocaleString()}) vs ${score2?.name} (${statistics.score2?.total.toLocaleString()})`,
+            description: t("{{name1}} ({{total1}}) vs {{name2}} ({{total2}})", {
+            name1: score1.name,
+            total1: statistics.score1.total.toLocaleString(),
+            name2: score2?.name,
+            total2: statistics.score2?.total.toLocaleString(),
+          }),
           };
         case "matched":
           return {
             distribution1Data: distribution.score1Matched,
             distribution2Data: distribution.score2Matched,
             categories: distribution.categories ?? [],
-            description: `${score1.name} vs ${score2?.name} - ${statistics.comparison?.matchedCount.toLocaleString()} matched`,
+            description: t("{{name1}} vs {{name2}} - {{total}} matched", {
+            name1: score1.name,
+            name2: score2?.name,
+            total: (statistics.comparison?.matchedCount ?? 0).toLocaleString(),
+          }),
           };
       }
     }, [data, activeTab, params]);

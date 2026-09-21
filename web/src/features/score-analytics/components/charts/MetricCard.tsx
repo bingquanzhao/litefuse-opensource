@@ -110,11 +110,16 @@ export function MetricCard({
                     variant={getBadgeVariant(interpretation.color)}
                     className="px-1.5 py-0 text-[10px] font-normal opacity-70"
                   >
-                    {interpretation.strength}
+                    {t(interpretation.strength)}
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-xs">
-                  <p className="text-xs">{t(interpretation.description)}</p>
+                  <p className="text-xs">
+                    {t(
+                      interpretation.description,
+                      interpretation.descriptionParams,
+                    )}
+                  </p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

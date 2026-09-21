@@ -75,7 +75,7 @@ export function TransferProjectButton() {
   const transferProject = api.projects.transfer.useMutation({
     onSuccess: async () => {
       showSuccessToast({
-        title: t(t("Project transferred")),
+        title: t("Project transferred"),
         description: t(
           t(
             "The project is successfully transferred to the new organization. Redirecting...",

@@ -49,6 +49,7 @@ import { Checkbox } from "@/src/components/ui/checkbox";
 import { Separator } from "@/src/components/ui/separator";
 
 import { useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 interface DataTableColumnVisibilityFilterProps<TData, TValue> {
   columns: LangfuseColumnDef<TData, TValue>[];
   columnVisibility: VisibilityState;
@@ -84,6 +85,15 @@ const calculateColumnCounts = <TData, TValue>(
     },
     { count: 0, total: 0 },
   );
+};
+
+/**
+ * A column without a text header falls back to its accessor key, which is an
+ * identifier. These are the labels for the ones a person actually sees.
+ */
+const COLUMN_KEY_LABELS: Record<string, string> = {
+  select: i18nKey("Select"),
+  bookmarked: i18nKey("Bookmarked"),
 };
 
 function ColumnVisibilityListItem<TData, TValue>({
@@ -149,7 +159,9 @@ function ColumnVisibilityListItem<TData, TValue>({
         >
           {column.header && typeof column.header === "string"
             ? column.header
-            : column.accessorKey}
+            : COLUMN_KEY_LABELS[column.accessorKey]
+              ? t(COLUMN_KEY_LABELS[column.accessorKey])
+              : column.accessorKey}
         </span>
         {column.headerTooltip && (
           <DocPopup
@@ -221,7 +233,9 @@ function GroupVisibilityHeader<TData, TValue>({
             <span className="text-sm font-medium">
               {column.header && typeof column.header === "string"
                 ? column.header
-                : column.accessorKey}
+                : COLUMN_KEY_LABELS[column.accessorKey]
+                  ? t(COLUMN_KEY_LABELS[column.accessorKey])
+                  : column.accessorKey}
             </span>
             <span className="text-muted-foreground text-xs">
               ({groupVisibleCount}/{groupTotalCount})

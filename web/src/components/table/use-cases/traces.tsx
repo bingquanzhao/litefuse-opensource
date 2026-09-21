@@ -92,6 +92,7 @@ import TagList from "@/src/features/tag/components/TagList";
 
 import { useTranslation } from "react-i18next";
 import { Trans } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 export type TracesTableRow = {
   // Shown by default
   bookmarked: boolean;
@@ -488,7 +489,7 @@ export default function TracesTable({
   const traceDeleteMutation = api.traces.deleteMany.useMutation({
     onSuccess: () => {
       showSuccessToast({
-        title: t(t("Traces deleted")),
+        title: t("Traces deleted"),
         description: t(
           t(
             "Selected traces will be deleted. Traces are removed asynchronously and may continue to be visible for up to 15 minutes.",
@@ -504,14 +505,14 @@ export default function TracesTable({
   const addToQueueMutation = api.annotationQueueItems.createMany.useMutation({
     onSuccess: (data) => {
       showSuccessToast({
-        title: t(t("Traces added to queue")),
+        title: t("Traces added to queue"),
         description: t(
           'Selected traces will be added to queue "{{queue}}". This may take a minute.',
           { queue: data.queueName },
         ),
         link: {
           href: `/project/${projectId}/annotation-queues/${data.queueId}`,
-          text: `View queue "${data.queueName}"`,
+          text: t('View queue "{{queue}}"', { queue: data.queueName }),
         },
       });
     },
@@ -1368,7 +1369,11 @@ export default function TracesTable({
               controllers: viewControllers,
             }}
             searchConfig={{
-              metadataSearchFields: ["ID", "Trace Name", "User ID"],
+              metadataSearchFields: [
+                i18nKey("ID"),
+                i18nKey("Trace Name"),
+                i18nKey("User ID"),
+              ],
               updateQuery: setSearchQuery,
               currentQuery: searchQuery ?? undefined,
               tableAllowsFullTextSearch: true,

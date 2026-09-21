@@ -182,7 +182,7 @@ export function DeleteTraceButton(props: DeleteButtonProps) {
       return Promise.reject(error);
     }
     showSuccessToast({
-      title: t(t("Trace deleted")),
+      title: t("Trace deleted"),
       description: t(
         t(
           "Selected trace will be deleted. Traces are removed asynchronously and may continue to be visible for up to 24 hours.",
@@ -207,7 +207,7 @@ export function DeleteTraceButton(props: DeleteButtonProps) {
           source: isTableAction ? "table-single-row" : "trace",
         })
       }
-      entityToDeleteName="trace"
+      entityToDeleteName={t("trace")}
       executeDeleteMutation={executeDeleteMutation}
       isDeleteMutationLoading={traceMutation.isPending}
       enabled={hasTraceDeletionEntitlement}
@@ -251,7 +251,7 @@ export function DeleteDatasetButton(props: DeleteButtonProps) {
           source: isTableAction ? "table-single-row" : "dataset",
         })
       }
-      entityToDeleteName="dataset"
+      entityToDeleteName={t("dataset")}
       executeDeleteMutation={executeDeleteMutation}
       isDeleteMutationLoading={datasetMutation.isPending}
     />
@@ -278,8 +278,8 @@ export function DeleteDashboardButton(props: DeleteButtonProps) {
       return Promise.reject(error);
     }
     showSuccessToast({
-      title: t(t("Dashboard deleted")),
-      description: t(t("The dashboard has been deleted successfully")),
+      title: t("Dashboard deleted"),
+      description: t("The dashboard has been deleted successfully"),
     });
     onSuccess();
   };
@@ -295,7 +295,7 @@ export function DeleteDashboardButton(props: DeleteButtonProps) {
       captureDeleteSuccess={(capture) =>
         capture("dashboard:delete_dashboard_button_click")
       }
-      entityToDeleteName="dashboard"
+      entityToDeleteName={t("dashboard")}
       executeDeleteMutation={executeDeleteMutation}
       isDeleteMutationLoading={dashboardMutation.isPending}
     />
@@ -315,7 +315,7 @@ export function DeleteEvalConfigButton(props: DeleteButtonProps) {
   const evaluatorMutation = api.evals.deleteEvalJob.useMutation({
     onSuccess: () => {
       showSuccessToast({
-        title: t(t("Running evaluator deleted")),
+        title: t("Running evaluator deleted"),
         description: t(
           t("The running evaluator has been deleted successfully"),
         ),
@@ -376,7 +376,7 @@ export function DeleteEvaluationModelButton(
     api.defaultLlmModel.deleteDefaultModel.useMutation({
       onSuccess: () => {
         showSuccessToast({
-          title: t(t("Default evaluation model deleted")),
+          title: t("Default evaluation model deleted"),
           description: t(
             t(
               "The default evaluation model has been deleted. Any running evaluations relying on the default model will be inactivated. Queued jobs will fail.",

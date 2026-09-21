@@ -11,8 +11,9 @@ export function ScoresOnboarding() {
   const valuePropositions: ValueProposition[] = [
     {
       title: t("Collect user feedback"),
-      description:
+      description: t(
         "Gather thumbs up/down feedback from users to identify high and low quality outputs",
+      ),
       icon: <ThumbsUp className="h-4 w-4" />,
     },
     {

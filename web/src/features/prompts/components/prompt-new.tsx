@@ -28,22 +28,22 @@ export const NewPrompt = () => {
 
   const breadcrumb: { name: string; href?: string }[] = [
     {
-      name: "Prompts",
+      name: t("Prompts"),
       href: `/project/${projectId}/prompts/`,
     },
     {
-      name: "New prompt",
+      name: t("New prompt"),
     },
   ];
 
   if (initialPrompt) {
-    breadcrumb.pop(); // Remove "New prompt"
+    breadcrumb.pop(); // Remove the "New prompt" entry
     breadcrumb.push(
       {
         name: initialPrompt.name,
         href: `/project/${projectId}/prompts/${encodeURIComponent(initialPrompt.name)}`,
       },
-      { name: "New version" },
+      { name: t("New version") },
     );
   }
 

@@ -12,6 +12,7 @@ import { copyTextToClipboard } from "@/src/utils/clipboard";
 import {
   type ChatMlMessage,
   getMessageTitle,
+  getMessageLabel,
   hasRenderableContent,
   hasAdditionalData,
   hasPassthroughJson,
@@ -56,6 +57,7 @@ export function ChatMessage({
   const [showTableView, setShowTableView] = useState(false);
 
   const title = getMessageTitle(message);
+  const label = getMessageLabel(message, t);
   const toolCalls = parseToolCallsFromMessage(message);
   const hasContent = hasRenderableContent(message);
 
@@ -107,8 +109,8 @@ export function ChatMessage({
     return (
       <div className={cn("hover:bg-muted transition-colors")}>
         <PrettyJsonView
-          title={title || (isOutputMessage ? t("Output") : t("Input"))}
-          titleKey={title || (isOutputMessage ? t("Output") : t("Input"))}
+          title={label || (isOutputMessage ? t("Output") : t("Input"))}
+          titleKey={title || (isOutputMessage ? "Output" : "Input")}
           json={message.json}
           currentView={currentView}
         />
@@ -121,7 +123,7 @@ export function ChatMessage({
     return (
       <div className={cn("hover:bg-muted transition-colors")}>
         <PrettyJsonView
-          title={title}
+          title={label}
           json={message.json}
           currentView="pretty"
           controlButtons={passthroughToggleButton}
@@ -140,7 +142,7 @@ export function ChatMessage({
     return (
       <div className={cn("hover:bg-muted transition-colors")}>
         <MarkdownJsonViewHeader
-          title={title}
+          title={label}
           handleOnValueChange={() => {}}
           handleOnCopy={() => {
             const rawText = JSON.stringify(message, null, 2);
@@ -185,7 +187,7 @@ export function ChatMessage({
         {/* Markdown view */}
         <div style={{ display: shouldRenderMarkdown ? "block" : "none" }}>
           <MarkdownJsonView
-            title={title}
+            title={label}
             content={message.content || ""}
             customCodeHeaderClassName={cn(
               message.role === "assistant" && "bg-secondary",
@@ -208,7 +210,7 @@ export function ChatMessage({
         {/* JSON view */}
         <div style={{ display: shouldRenderMarkdown ? "none" : "block" }}>
           <PrettyJsonView
-            title={title}
+            title={label}
             json={message.content}
             currentView={currentView}
             controlButtons={passthroughToggleButton}
@@ -232,8 +234,8 @@ export function ChatMessage({
     return (
       <div className={cn("hover:bg-muted transition-colors")}>
         <PrettyJsonView
-          title={title || (isOutputMessage ? t("Output") : t("Input"))}
-          titleKey={title || (isOutputMessage ? t("Output") : t("Input"))}
+          title={label || (isOutputMessage ? t("Output") : t("Input"))}
+          titleKey={title || (isOutputMessage ? "Output" : "Input")}
           json={message}
           currentView={currentView}
         />

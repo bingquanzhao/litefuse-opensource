@@ -9,7 +9,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import TableLink from "@/src/components/table/table-link";
 import { LocalIsoDate } from "@/src/components/LocalIsoDate";
 import { useDetailPageLists } from "@/src/features/navigate-detail-pages/context";
-import startCase from "lodash/startCase";
+import { viewLabelKey } from "@/src/features/widgets/utils";
 import { Button } from "@/src/components/ui/button";
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
 import { Trash } from "lucide-react";
@@ -185,7 +185,7 @@ export function DashboardWidgetTable() {
       enableSorting: true,
       size: 100,
       cell: (row) => {
-        return startCase(row.getValue().toLowerCase());
+        return t(viewLabelKey(row.getValue().toLowerCase()));
       },
     }),
     columnHelper.accessor("chartType", {
@@ -194,7 +194,7 @@ export function DashboardWidgetTable() {
       enableSorting: true,
       size: 100,
       cell: (row) =>
-        getChartTypeDisplayName(row.getValue() as DashboardWidgetChartType),
+        getChartTypeDisplayName(row.getValue() as DashboardWidgetChartType, t),
     }),
     columnHelper.accessor("createdAt", {
       header: t("Created At"),

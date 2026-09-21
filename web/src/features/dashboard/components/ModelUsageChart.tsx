@@ -327,14 +327,14 @@ export const ModelUsageChart = ({
       tabTitle: i18nKey("Cost by model"),
       data: costByModel,
       totalMetric: totalCostDashboardFormatted(totalCost),
-      metricDescription: `Cost`,
+      metricDescription: t("Cost"),
       formatter: totalCostDashboardFormatted,
     },
     {
       tabTitle: i18nKey("Cost by type"),
       data: costByType,
       totalMetric: totalCostDashboardFormatted(totalCost),
-      metricDescription: `Cost`,
+      metricDescription: t("Cost"),
       formatter: totalCostDashboardFormatted,
     },
     {
@@ -343,7 +343,7 @@ export const ModelUsageChart = ({
       totalMetric: totalTokens
         ? compactNumberFormatter(totalTokens)
         : compactNumberFormatter(0),
-      metricDescription: `Model Units`,
+      metricDescription: t("Model Units"),
     },
     {
       tabTitle: i18nKey("Usage by type"),
@@ -351,7 +351,7 @@ export const ModelUsageChart = ({
       totalMetric: totalTokens
         ? compactNumberFormatter(totalTokens)
         : compactNumberFormatter(0),
-      metricDescription: `Model Units`,
+      metricDescription: t("Model Units"),
     },
   ];
 

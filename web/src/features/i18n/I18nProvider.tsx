@@ -16,6 +16,7 @@ import {
   type AppLocale,
 } from "@/src/features/i18n/config";
 import { createI18nInstance } from "@/src/features/i18n/instance";
+import { applyRuntimeLocale } from "@/src/features/i18n/runtimeLocale";
 
 /** Resolved on the server for the first render, see getI18nAppProps. */
 export type I18nAppProps = {
@@ -85,6 +86,10 @@ export function I18nProvider({
       setLocale(userLocale);
     }
   }, [userLocale, locale, enabledLocales, setLocale]);
+
+  // Runs during render so the first paint already formats dates in the
+  // resolved locale; a useEffect would hydrate with the wrong ones.
+  applyRuntimeLocale(locale);
 
   useEffect(() => {
     document.documentElement.lang = locale;

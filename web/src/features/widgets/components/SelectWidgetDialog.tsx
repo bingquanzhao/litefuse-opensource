@@ -19,7 +19,7 @@ import {
   TableBody,
   TableCell,
 } from "@/src/components/ui/table";
-import startCase from "lodash/startCase";
+import { viewLabelKey } from "@/src/features/widgets/utils";
 import { getChartTypeDisplayName } from "@/src/features/widgets/chart-library/utils";
 import { type DashboardWidgetChartType } from "@langfuse/shared/src/db";
 
@@ -131,11 +131,12 @@ export function SelectWidgetDialog({
                         {widget.description}
                       </TableCell>
                       <TableCell>
-                        {startCase(widget.view.toLowerCase())}
+                        {t(viewLabelKey(widget.view.toLowerCase()))}
                       </TableCell>
                       <TableCell>
                         {getChartTypeDisplayName(
                           widget.chartType as DashboardWidgetChartType,
+                          t,
                         )}
                       </TableCell>
                     </TableRow>

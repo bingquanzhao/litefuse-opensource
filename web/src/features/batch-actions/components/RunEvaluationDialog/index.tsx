@@ -120,7 +120,7 @@ export function RunEvaluationDialog(props: RunEvaluationDialogProps) {
     }
 
     showSuccessToast({
-      title: t(t("Evaluation queued")),
+      title: t("Evaluation queued"),
       description: t(
         "Scheduled evaluation for {{observations}} selected observations and {{evaluators}} evaluators.",
         {
@@ -130,7 +130,7 @@ export function RunEvaluationDialog(props: RunEvaluationDialogProps) {
       ),
       link: {
         href: `/project/${projectId}/settings/batch-actions`,
-        text: t(t("View batch actions")),
+        text: t("View batch actions"),
       },
     });
 

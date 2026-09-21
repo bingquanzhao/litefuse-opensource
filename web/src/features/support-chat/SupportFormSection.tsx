@@ -160,10 +160,10 @@ function formatFileError(error: Error, t: TFunction): string {
 
   // File type errors
   if (msg.includes("file type") || msg.includes("accept")) {
-    return "File type not supported. Please select a different file.";
+    return t("File type not supported. Please select a different file.");
   }
 
-  return error.message || "File upload failed. Please try again.";
+  return error.message || t("File upload failed. Please try again.");
 }
 
 export function SupportFormSection({

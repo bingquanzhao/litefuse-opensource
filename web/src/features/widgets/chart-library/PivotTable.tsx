@@ -47,6 +47,7 @@ import { type OrderByState } from "@langfuse/shared";
 import { ChartLoadingState } from "@/src/features/widgets/chart-library/ChartLoadingState";
 
 import { useTranslation } from "react-i18next";
+import { type TFunction } from "i18next";
 /**
  * Props interface for the PivotTable component
  * Uses standard chart data structure with pivot-specific configuration
@@ -219,8 +220,8 @@ function formatMetricValue(value: number | string): string {
  * @param metricName - The metric field name
  * @returns Formatted column header
  */
-function formatColumnHeader(metricName: string): string {
-  return formatMetricName(metricName);
+function formatColumnHeader(metricName: string, t: TFunction): string {
+  return formatMetricName(metricName, t);
 }
 
 /**
@@ -399,7 +400,9 @@ export const PivotTable: React.FC<PivotTableProps> = ({
             <StaticHeader
               label={
                 config?.dimensions && config.dimensions.length > 0
-                  ? config.dimensions.map(formatColumnHeader).join(" / ") // Show all dimensions
+                  ? config.dimensions
+                      .map((d) => formatColumnHeader(d, t))
+                      .join(" / ") // Show all dimensions
                   : t("Dimension")
               }
               className="p-2 text-left font-medium first:pl-2"
@@ -410,7 +413,7 @@ export const PivotTable: React.FC<PivotTableProps> = ({
               <SortableHeader
                 key={metric}
                 column={metric}
-                label={formatColumnHeader(metric)}
+                label={formatColumnHeader(metric, t)}
                 sortState={sortState}
                 onSort={handleSort}
                 className="p-2 font-medium"

@@ -1,3 +1,4 @@
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 import { DataTable } from "@/src/components/table/data-table";
 import { type LangfuseColumnDef } from "@/src/components/table/types";
 import { api } from "@/src/utils/api";
@@ -32,6 +33,37 @@ type BatchActionRow = {
   } | null;
 };
 
+/**
+ * `ActionId` and `BatchTableNames` are API enums, so the row stores them
+ * verbatim and the label is looked up here.
+ */
+const ACTION_ID_LABELS: Record<string, string> = {
+  "score-delete": i18nKey("Delete scores"),
+  "trace-delete": i18nKey("Delete traces"),
+  "trace-add-to-annotation-queue": i18nKey("Add traces to annotation queue"),
+  "session-add-to-annotation-queue": i18nKey(
+    "Add sessions to annotation queue",
+  ),
+  "observation-add-to-annotation-queue": i18nKey(
+    "Add observations to annotation queue",
+  ),
+  "observation-add-to-dataset": i18nKey("Add observations to dataset"),
+  "observation-run-batched-evaluation": i18nKey(
+    "Run evaluation on observations",
+  ),
+};
+
+const BATCH_TABLE_LABELS: Record<string, string> = {
+  scores: i18nKey("Scores"),
+  sessions: i18nKey("Sessions"),
+  traces: i18nKey("Traces"),
+  observations: i18nKey("Observations"),
+  events: i18nKey("Events"),
+  dataset_run_items: i18nKey("Dataset run items"),
+  dataset_items: i18nKey("Dataset items"),
+  audit_logs: i18nKey("Audit logs"),
+};
+
 export function BatchActionsTable(props: { projectId: string }) {
   const { t } = useTranslation();
   const [paginationState, setPaginationState] = useQueryParams({
@@ -53,11 +85,7 @@ export function BatchActionsTable(props: { projectId: string }) {
       size: 200,
       cell: ({ row }) => {
         const actionType = row.getValue("actionType") as string;
-        const formattedType = actionType
-          .split("-")
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ");
-        return <span>{formattedType}</span>;
+        return <span>{t(ACTION_ID_LABELS[actionType] ?? actionType)}</span>;
       },
     },
     {
@@ -67,7 +95,7 @@ export function BatchActionsTable(props: { projectId: string }) {
       size: 120,
       cell: ({ row }) => {
         const tableName = row.getValue("tableName") as string;
-        return <span className="capitalize">{tableName}</span>;
+        return <span>{t(BATCH_TABLE_LABELS[tableName] ?? tableName)}</span>;
       },
     },
     {

@@ -30,8 +30,8 @@ export default function NewDashboard() {
   const createDashboard = api.dashboard.createDashboard.useMutation({
     onSuccess: (data) => {
       showSuccessToast({
-        title: t(t("Dashboard created")),
-        description: t(t("Your new dashboard has been created successfully")),
+        title: t("Dashboard created"),
+        description: t("Your new dashboard has been created successfully"),
       });
       // Navigate to the newly created dashboard
       router.push(`/project/${projectId}/dashboards/${data.id}`);

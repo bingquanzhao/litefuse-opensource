@@ -204,8 +204,8 @@ export const PromptDetail = ({
     void utils.datasets.baseRunDataByDatasetId.invalidate();
     void utils.datasets.runsByDatasetId.invalidate();
     showSuccessToast({
-      title: t(t("Experiment triggered successfully")),
-      description: t(t("Waiting for experiment to complete...")),
+      title: t("Experiment triggered successfully"),
+      description: t("Waiting for experiment to complete..."),
       link: {
         text: i18nKey(t("View experiment")),
         href: `/project/${projectId}/datasets/${data.datasetId}/compare?runs=${data.runId}`,

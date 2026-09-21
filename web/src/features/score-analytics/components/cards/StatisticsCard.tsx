@@ -126,8 +126,13 @@ export function StatisticsCard() {
         </CardTitle>
         <CardDescription>
           {score2
-            ? `${score1.name} vs ${score2.name}`
-            : `${score1.name} - Select a second score for comparison`}
+            ? t("{{name1}} vs {{name2}}", {
+                name1: score1.name,
+                name2: score2.name,
+              })
+            : t("{{name}} - Select a second score for comparison", {
+                name: score1.name,
+              })}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

@@ -114,12 +114,66 @@ translated**.) Measure the first of those with:
 grep -rnoE '\breturn\s+"[^"]{6,}"' src --include='*.ts*' | grep -vE 'discover|test'
 ```
 
+and the second with:
+
+```sh
+grep -rnE '(text|title|description|label|header|placeholder|tooltip):\s*`[^`]*[a-z]{3,} [a-z]{2,}' \
+  src --include='*.ts*' | grep -vE 'discover|test|/server/|/routers/'
+```
+
+Four more shapes the rules cannot see, each of which produced defects:
+
+- a literal used as a fallback inside a JSX expression, `{name || "Untitled"}`;
+- a label derived from a query identifier or an API enum with `startCase`,
+  `capitalize` or a hand-rolled split — the widget data model, table columns
+  and status facets were all built this way;
+- a value that is both a label and a discriminator (a panel title, a maintainer
+  badge, a score-column prefix). Translating it at its source breaks the
+  comparison, so it stays English and is translated at the render site;
+- a default value a form writes into the database, e.g. the generated
+  experiment or widget name.
+
+## Checking the rendered page
+
+The cheapest end-to-end check is to read the DOM of a running page and list the
+visible text that is entirely Latin. Run this in the browser console on each
+page (it has no false negatives for chrome, and its false positives are the
+user's own data):
+
+```js
+(() => {
+  const skip = new Set(["SCRIPT", "STYLE", "CODE", "PRE", "TEXTAREA"]);
+  const out = [];
+  const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let n; (n = walk.nextNode()); ) {
+    const p = n.parentElement;
+    if (!p || skip.has(p.tagName) || !p.offsetParent) continue;
+    const t = n.textContent.trim();
+    if (!t || /[\u4e00-\u9fff]/.test(t)) continue;
+    if (!/[A-Za-z]{3,}\s+[A-Za-z]{3,}/.test(t)) continue;
+    out.push(t.slice(0, 90));
+  }
+  return [...new Set(out)];
+})();
+```
+
+A page has to be *used*, not just opened: most of the defects this found were
+behind a dialog, a second wizard step, or a table that was empty until real
+data existed.
+
 ## Rollout rule
 
 zh-CN stays off (`LITEFUSE_I18N_LOCALES=en`) while any user-visible English
 remains. A green gate is necessary but not sufficient: it says no rule-visible
 literal is left, not that the UI is translated. The categories listed above are
 the known gap. Test environments may set `en,zh-CN` to review progress.
+
+Seeded content is the remaining English a user sees: the built-in evaluator
+templates, the managed dashboards and their widgets, the Correctness queue and
+the default score configs. Those are rows a project owns and can rename, and
+their names are the keys the seeders match on, so they are a product decision
+rather than a translation one. The Next.js 404 page is also English; the app
+ships no `pages/404.tsx`.
 
 After every upstream merge: `pnpm i18n:extract`, translate the new keys against
 the glossary, then `pnpm i18n:check` and `pnpm i18n:gate`.

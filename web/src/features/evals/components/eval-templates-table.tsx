@@ -37,6 +37,7 @@ import { useEntitlementLimit } from "@/src/features/entitlements/hooks";
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
 
 import { useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 export type EvalsTemplateRow = {
   name: string;
   maintainer: string;
@@ -134,7 +135,7 @@ export default function EvalsTemplateTable({
       setPendingCloneSubmission(null);
       setShowReferenceUpdateDialog(false);
       showSuccessToast({
-        title: t(t("Evaluator cloned successfully")),
+        title: t("Evaluator cloned successfully"),
         description: t(
           t("This evaluator is now available and maintained on project level."),
         ),
@@ -335,7 +336,7 @@ export default function EvalsTemplateTable({
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         searchConfig={{
-          metadataSearchFields: ["Name"],
+          metadataSearchFields: [i18nKey("Name")],
           updateQuery: setSearchQuery,
           currentQuery: searchQuery ?? undefined,
           tableAllowsFullTextSearch: false,
@@ -393,8 +394,8 @@ export default function EvalsTemplateTable({
               setEditTemplateId(null);
               void utils.evals.templateNames.invalidate();
               showSuccessToast({
-                title: t(t("Evaluator updated successfully")),
-                description: t(t("You can now use this evaluator.")),
+                title: t("Evaluator updated successfully"),
+                description: t("You can now use this evaluator."),
               });
             }}
           />
@@ -458,7 +459,7 @@ export default function EvalsTemplateTable({
               setPendingCloneSubmission(null);
               void utils.evals.templateNames.invalidate();
               showSuccessToast({
-                title: t(t("Evaluator cloned successfully")),
+                title: t("Evaluator cloned successfully"),
                 description: t(
                   t(
                     "This evaluator is now available and maintained on project level. ",

@@ -185,7 +185,7 @@ export default function ScoresTable({
   const scoreDeleteMutation = api.scores.deleteMany.useMutation({
     onSuccess: () => {
       showSuccessToast({
-        title: t(t("Scores deleted")),
+        title: t("Scores deleted"),
         description: t(
           t(
             "Selected scores will be deleted. Scores are removed asynchronously and may continue to be visible for up to 15 minutes.",

@@ -381,7 +381,7 @@ export function CommentList({
     return comments.data
       ?.map((comment) => ({
         ...comment,
-        timestamp: getRelativeTimestampFromNow(comment.createdAt),
+        timestamp: getRelativeTimestampFromNow(comment.createdAt, t),
         strippedLower: stripMarkdown(comment.content).toLowerCase(),
         authorLower: (
           comment.authorUserName ||
@@ -390,7 +390,7 @@ export function CommentList({
         ).toLowerCase(),
       }))
       .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
-  }, [comments.data]);
+  }, [comments.data, t]);
 
   // stripMarkdown imported from utils
 

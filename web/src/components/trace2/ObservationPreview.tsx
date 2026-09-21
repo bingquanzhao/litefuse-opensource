@@ -356,6 +356,7 @@ export const ObservationPreview = ({
                                 aggregatedUsage.output,
                                 aggregatedUsage.total,
                                 true,
+                                t,
                               )}
                             </span>
                             <InfoIcon className="h-3 w-3" />

@@ -160,7 +160,7 @@ export const PeekViewEvaluatorConfigDetail = ({
             setIsEditMode(false);
             utils.evals.invalidate();
             showSuccessToast({
-              title: t(t("Running Evaluator updated")),
+              title: t("Running Evaluator updated"),
               description: t(
                 t("The evaluator configuration has been updated."),
               ),

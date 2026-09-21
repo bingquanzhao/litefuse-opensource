@@ -128,9 +128,14 @@ export function DistributionCategoricalCard() {
         categories: distribution.categories ?? [],
         stackedDistribution: undefined,
         score2Categories: undefined,
-        description: `${statistics.score1.total.toLocaleString()} observations${
+        description: `${t("{{total}} observations", {
+          total: statistics.score1.total.toLocaleString(),
+        })}${
           statistics.score1.mode
-            ? ` | Most frequent: ${statistics.score1.mode.category} (${statistics.score1.mode.count.toLocaleString()})`
+            ? ` | ${t("Most frequent: {{category}} ({{total}})", {
+                category: statistics.score1.mode.category,
+                total: statistics.score1.mode.count.toLocaleString(),
+              })}`
             : ""
         }`,
       };
@@ -144,7 +149,10 @@ export function DistributionCategoricalCard() {
           categories: distribution.categories ?? [],
           stackedDistribution: undefined,
           score2Categories: undefined,
-          description: `${score1.name} - ${statistics.score1.total.toLocaleString()} observations`,
+          description: t("{{name}} - {{total}} observations", {
+            name: score1.name,
+            total: statistics.score1.total.toLocaleString(),
+          }),
         };
       case "score2":
         return {
@@ -152,7 +160,10 @@ export function DistributionCategoricalCard() {
           categories: distribution.score2Categories ?? [],
           stackedDistribution: undefined,
           score2Categories: undefined,
-          description: `${score2?.name ?? "Score 2"} - ${statistics.score2?.total.toLocaleString()} observations`,
+          description: t("{{name}} - {{total}} observations", {
+            name: score2?.name ?? t("Score 2"),
+            total: (statistics.score2?.total ?? 0).toLocaleString(),
+          }),
         };
       case "all": {
         // Calculate unmatched score2 items and augment stackedDistribution
@@ -173,7 +184,12 @@ export function DistributionCategoricalCard() {
           categories: distribution.categories ?? [],
           stackedDistribution: augmentedStackedDistribution,
           score2Categories: distribution.score2Categories ?? [],
-          description: `${score1.name} (${statistics.score1.total.toLocaleString()}) vs ${score2?.name} (${statistics.score2?.total.toLocaleString()})`,
+          description: t("{{name1}} ({{total1}}) vs {{name2}} ({{total2}})", {
+            name1: score1.name,
+            total1: statistics.score1.total.toLocaleString(),
+            name2: score2?.name,
+            total2: statistics.score2?.total.toLocaleString(),
+          }),
         };
       }
       case "matched":
@@ -182,7 +198,11 @@ export function DistributionCategoricalCard() {
           categories: distribution.categories ?? [],
           stackedDistribution: distribution.stackedDistributionMatched,
           score2Categories: distribution.score2Categories ?? [],
-          description: `${score1.name} vs ${score2?.name} - ${statistics.comparison?.matchedCount.toLocaleString()} matched`,
+          description: t("{{name1}} vs {{name2}} - {{total}} matched", {
+            name1: score1.name,
+            name2: score2?.name,
+            total: (statistics.comparison?.matchedCount ?? 0).toLocaleString(),
+          }),
         };
     }
   }, [data, activeTab, params]);

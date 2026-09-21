@@ -10,6 +10,11 @@ import { ResizableFilterLayout } from "@/src/components/table/resizable-filter-l
 import { type LangfuseColumnDef } from "@/src/components/table/types";
 import useColumnVisibility from "@/src/features/column-visibility/hooks/useColumnVisibility";
 import { InlineFilterState } from "@/src/features/filters/components/filter-builder";
+import {
+  evalDatasetFormFilterCols,
+  eventsEvalFilterColumns,
+  evalTraceTableCols,
+} from "@langfuse/shared";
 import { useDetailPageLists } from "@/src/features/navigate-detail-pages/context";
 import { useSidebarFilterState } from "@/src/features/filters/hooks/useSidebarFilterState";
 import { evaluatorFilterConfig } from "@/src/features/filters/config/evaluators-config";
@@ -20,8 +25,10 @@ import { useQueryParam, StringParam, withDefault } from "use-query-params";
 import { usePaginationState } from "@/src/hooks/usePaginationState";
 import {
   isLegacyEvalTarget,
-  isEventTarget,
+  isTraceTarget,
+  isDatasetTarget,
 } from "@/src/features/evals/utils/typeHelpers";
+import { getTargetDisplayName } from "@/src/features/evals/utils/evaluator-form-utils";
 import { useOrderByState } from "@/src/features/orderBy/hooks/useOrderByState";
 import TableIdOrName from "@/src/components/table/table-id";
 import {
@@ -61,6 +68,7 @@ import { Callout } from "@/src/components/ui/callout";
 import Link from "next/link";
 import { Badge } from "@/src/components/ui/badge";
 import { Trans, useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 import {
   Tooltip,
   TooltipContent,
@@ -315,10 +323,11 @@ export default function EvaluatorTable({ projectId }: { projectId: string }) {
       enableHiding: true,
       cell: (row) => {
         const targetObject = row.getValue();
-        const renderText = isEventTarget(targetObject)
-          ? "observations"
-          : targetObject;
-        return <span className="text-muted-foreground">{renderText}</span>;
+        return (
+          <span className="text-muted-foreground">
+            {getTargetDisplayName(targetObject, t)}
+          </span>
+        );
       },
     }),
     columnHelper.accessor("filter", {
@@ -344,9 +353,22 @@ export default function EvaluatorTable({ projectId }: { projectId: string }) {
           return filter;
         });
 
+        // The filter is stored with the column ids of whichever set the
+        // evaluator targets; pass the set so the pill can show the (translated)
+        // display name instead of the raw id.
+        const target = row.row.original.target;
+        const filterColumns = isTraceTarget(target)
+          ? evalTraceTableCols
+          : isDatasetTarget(target)
+            ? evalDatasetFormFilterCols
+            : eventsEvalFilterColumns;
+
         return (
           <div className="flex h-full overflow-x-auto">
-            <InlineFilterState filterState={newFilterState} />
+            <InlineFilterState
+              filterState={newFilterState}
+              columns={filterColumns}
+            />
           </div>
         );
       },
@@ -484,7 +506,7 @@ export default function EvaluatorTable({ projectId }: { projectId: string }) {
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
           searchConfig={{
-            metadataSearchFields: ["Name"],
+            metadataSearchFields: [i18nKey("Name")],
             updateQuery: setSearchQuery,
             currentQuery: searchQuery ?? undefined,
             tableAllowsFullTextSearch: false,
@@ -566,7 +588,7 @@ export default function EvaluatorTable({ projectId }: { projectId: string }) {
                 setEditConfigId(null);
                 void utils.evals.allConfigs.invalidate();
                 showSuccessToast({
-                  title: t(t("Evaluator updated successfully")),
+                  title: t("Evaluator updated successfully"),
                   description: t(
                     t(
                       "Changes will automatically be reflected future evaluator runs",

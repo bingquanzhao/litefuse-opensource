@@ -202,11 +202,11 @@ export function DatePickerWithRange({
             {internalDateRange?.from ? (
               internalDateRange.to ? (
                 <>
-                  {format(internalDateRange.from, "LLL dd, yy : HH:mm")} -{" "}
-                  {format(internalDateRange.to, "LLL dd, yy : HH:mm")}
+                  {format(internalDateRange.from, "P HH:mm")} -{" "}
+                  {format(internalDateRange.to, "P HH:mm")}
                 </>
               ) : (
-                format(internalDateRange.from, "LLL dd, y")
+                format(internalDateRange.from, "P")
               )
             ) : (
               <span>{t("Pick a date")}</span>

@@ -56,8 +56,8 @@ function CloneDashboardButton({
       void utils.dashboard.invalidate();
       capture("dashboard:clone_dashboard");
       showSuccessToast({
-        title: t(t("Dashboard cloned")),
-        description: t(t("The dashboard has been cloned successfully")),
+        title: t("Dashboard cloned"),
+        description: t("The dashboard has been cloned successfully"),
       });
     },
     onError: (e) => {

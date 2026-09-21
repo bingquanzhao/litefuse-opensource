@@ -238,7 +238,7 @@ export const InnerEvalTemplateForm = (props: {
         props.existingEvalTemplateId
       ) {
         showSuccessToast({
-          title: t(t("Updated evaluators")),
+          title: t("Updated evaluators"),
           description: t(
             t("Updated referenced evaluators to use new template version."),
           ),
@@ -458,8 +458,11 @@ export const InnerEvalTemplateForm = (props: {
                   <FormItem>
                     <FormLabel>{t("Evaluation prompt")}</FormLabel>
                     <FormDescription>
+                      {/* The variable syntax is literal text, so it travels
+                          as a value: i18next does not re-interpolate those. */}
                       {t(
-                        "Define your llm-as-a-judge evaluation template. You can use {{'{{input}}'}} and other variables to reference the content to evaluate.",
+                        "Define your llm-as-a-judge evaluation template. You can use {{variable}} and other variables to reference the content to evaluate.",
+                        { variable: "{{input}}" },
                       )}
                     </FormDescription>
                     <FormControl>

@@ -63,6 +63,7 @@ import { useQueryProject } from "@/src/features/projects/hooks";
 import { useLangfuseCloudRegion } from "@/src/features/organizations/hooks";
 
 import { useTranslation } from "react-i18next";
+import { operatorLabelKey } from "@/src/features/filters/lib/operatorLabels";
 /**
  * Extended ColumnDefinition with optional alert for UI display.
  * Alerts are added dynamically in the web layer based on feature availability.
@@ -175,6 +176,7 @@ export function PopoverFilterBuilder({
               {filterState.length > 0 && filterState.length < 3 ? (
                 <InlineFilterState
                   filterState={filterState}
+                  columns={columns}
                   className="hidden @6xl:block"
                 />
               ) : null}
@@ -264,12 +266,22 @@ export function PopoverFilterBuilder({
 
 export function InlineFilterState({
   filterState,
+  columns,
   className,
 }: {
   filterState: FilterState;
+  /** Used to resolve `filter.column` back to a display name, which is what carries a translation. */
+  columns?: ColumnDefinition[];
   className?: string;
 }) {
   const { t } = useTranslation();
+  const columnLabel = (column: string | undefined) => {
+    if (!column) return "";
+    const definition = columns?.find(
+      (col) => col.id === column || col.name === column,
+    );
+    return t(definition?.name ?? column);
+  };
   return filterState.map((filter, i) => {
     return (
       <span
@@ -279,11 +291,11 @@ export function InlineFilterState({
           className,
         )}
       >
-        {filter.column}
+        {columnLabel(filter.column)}
         {filter.type === "stringObject" || filter.type === "numberObject"
           ? `.${filter.key}`
           : ""}{" "}
-        {filter.operator}{" "}
+        {t(operatorLabelKey(filter.operator ?? ""))}{" "}
         {filter.type === "positionInTrace"
           ? (() => {
               // "last" is the sentinel the branches match on, so the default
@@ -697,7 +709,7 @@ function FilterBuilderForm({
                                         )}
                                       />
                                       <span className="flex-1">
-                                        {option.name}
+                                        {t(option.name)}
                                       </span>
                                       {hasAlert && (
                                         <Tooltip>
@@ -859,7 +871,7 @@ function FilterBuilderForm({
                           {filter.type !== undefined
                             ? filterOperators[filter.type].map((option) => (
                                 <SelectItem key={option} value={option}>
-                                  {option}
+                                  {t(operatorLabelKey(option))}
                                 </SelectItem>
                               ))
                             : null}

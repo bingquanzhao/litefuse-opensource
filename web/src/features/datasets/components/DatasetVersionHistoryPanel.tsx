@@ -85,7 +85,7 @@ export function DatasetVersionHistoryPanel({
     const isoTimestamp = version.toISOString();
     navigator.clipboard.writeText(isoTimestamp);
     showSuccessToast({
-      title: t(t("Copied!")),
+      title: t("Copied!"),
       description: t("Version timestamp: {{timestamp}}", {
         timestamp: isoTimestamp,
       }),
@@ -162,7 +162,7 @@ export function DatasetVersionHistoryPanel({
                 />
               )}
               <span className={cn("truncate", isSelected && "text-foreground")}>
-                {format(version, "MMM d, yyyy 'at' h:mm a")}
+                {format(version, "PPp")}
               </span>
             </div>
             {isLatest && (

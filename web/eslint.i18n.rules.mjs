@@ -50,7 +50,7 @@ export const i18nRuleBlock = {
       "error",
       {
         selector:
-          "Property[key.name=/^(header|label|title|description|placeholder|tooltip|message|emptyMessage|heading|helpText|text|required|confirmText|targetLabel|buttonText|emptyText|searchPlaceholder|noResultsMessage|setUpMessage|oldLabel|newLabel|tabTitle|errorMessage|subtitle|question|hint|caption|summary|note)$/] > Literal[value=/^(?=.*[A-Z ])[A-Za-z][A-Za-z0-9 ,.()'!?:;&%$#@*+=-]*$/]",
+          "Property[key.name=/^(header|label|title|description|placeholder|tooltip|message|emptyMessage|heading|helpText|text|required|confirmText|targetLabel|buttonText|emptyText|searchPlaceholder|noResultsMessage|setUpMessage|oldLabel|newLabel|tabTitle|errorMessage|subtitle|question|hint|caption|summary|note)$/] > Literal[value=/^(?=.*[A-Z ])[A-Za-z][A-Za-z0-9 ,.()'!?:;&%$#@*+=\\x2F-]*$/]",
         message:
           "User-facing text in a data property must be an i18n key: wrap it with i18nKey() and translate it where it is rendered.",
       },
@@ -58,13 +58,13 @@ export const i18nRuleBlock = {
         // Toast copy is a call argument, which no JSX rule can see, and it is
         // some of the most visible text in the app.
         selector:
-          "CallExpression[callee.name=/^(showErrorToast|showSuccessToast)$/] Literal[value=/^(?=.*[a-z])(?=.*[A-Z ])[A-Za-z][A-Za-z0-9 ,.()'!?:;&%$#@*+=-]*$/]:not(CallExpression[callee.name=/^(t|i18nKey|translate)$/] > *)",
+          "CallExpression[callee.name=/^(showErrorToast|showSuccessToast)$/] Literal[value=/^(?=.*[a-z])(?=.*[A-Z ])[A-Za-z][A-Za-z0-9 ,.()'!?:;&%$#@*+=\\x2F-]*$/]:not(CallExpression[callee.name=/^(t|i18nKey|translate)$/] > *)",
         message:
           "Toast text must go through t(). Pass the translated string, not the English literal.",
       },
       {
         selector:
-          "CallExpression[callee.object.name='toast'] Literal[value=/^(?=.*[a-z])(?=.*[A-Z ])[A-Za-z][A-Za-z0-9 ,.()'!?:;&%$#@*+=-]*$/]:not(CallExpression[callee.name=/^(t|i18nKey|translate)$/] > *)",
+          "CallExpression[callee.object.name='toast'] Literal[value=/^(?=.*[a-z])(?=.*[A-Z ])[A-Za-z][A-Za-z0-9 ,.()'!?:;&%$#@*+=\\x2F-]*$/]:not(CallExpression[callee.name=/^(t|i18nKey|translate)$/] > *)",
         message:
           "Toast text must go through t(). Pass the translated string, not the English literal.",
       },
@@ -81,7 +81,7 @@ export const i18nRuleBlock = {
         // enum-valued props (variant, side, col, context, ...) out, without
         // the subtree-skipping that an allowlist inside the plugin causes.
         selector:
-          "JSXAttribute[name.name=/^(title|placeholder|label|description|tooltip|alt|aria-label|heading|helpText|text|confirmText|targetLabel|buttonText|emptyText|searchPlaceholder|noResultsMessage|setUpMessage|oldLabel|newLabel|message|errorMessage|subtitle|caption|hint)$/] > Literal[value=/^(?=.*[A-Z ])[A-Za-z][A-Za-z0-9 ,.()'!?:;&%$#@*+=-]*$/]",
+          "JSXAttribute[name.name=/^(title|placeholder|label|description|tooltip|alt|aria-label|heading|helpText|text|confirmText|targetLabel|buttonText|emptyText|searchPlaceholder|noResultsMessage|setUpMessage|oldLabel|newLabel|message|errorMessage|subtitle|caption|hint)$/] > Literal[value=/^(?=.*[A-Z ])[A-Za-z][A-Za-z0-9 ,.()'!?:;&%$#@*+=\\x2F-]*$/]",
         message: "User-facing text in a JSX attribute must go through t().",
       },
     ],

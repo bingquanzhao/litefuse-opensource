@@ -152,6 +152,7 @@ export function DataTableControls({ queryFilter }: DataTableControlsProps) {
                   onChange={filter.onChange}
                   onOnlyChange={filter.onOnlyChange}
                   renderIcon={filter.renderIcon}
+                  formatLabel={filter.formatLabel}
                   isActive={filter.isActive}
                   onReset={filter.onReset}
                   operator={filter.operator}
@@ -319,6 +320,7 @@ interface CategoricalFacetProps extends BaseFacetProps {
   onChange: (values: string[]) => void;
   onOnlyChange?: (value: string) => void;
   renderIcon?: (value: string) => React.ReactNode;
+  formatLabel?: (value: string) => string;
   operator?: "any of" | "all of";
   onOperatorChange?: (operator: "any of" | "all of") => void;
   textFilters?: TextFilterEntry[];
@@ -532,6 +534,7 @@ export function CategoricalFacet({
   onChange,
   onOnlyChange,
   renderIcon,
+  formatLabel,
   isActive,
   isDisabled,
   disabledReason,
@@ -637,7 +640,7 @@ export function CategoricalFacet({
                         : "text-muted-foreground hover:text-foreground",
                     )}
                   >
-                    SOME
+                    {t("SOME")}
                   </button>
                   <div className="bg-border/50 w-px" />
                   <button
@@ -649,7 +652,7 @@ export function CategoricalFacet({
                         : "text-muted-foreground hover:text-foreground",
                     )}
                   >
-                    ALL
+                    {t("ALL")}
                   </button>
                 </div>
               </div>
@@ -736,7 +739,7 @@ export function CategoricalFacet({
                       <FilterValueCheckbox
                         key={option}
                         id={`${filterKey}-${option}`}
-                        label={option}
+                        label={formatLabel ? t(formatLabel(option)) : option}
                         icon={renderIcon?.(option)}
                         count={counts.get(option) || 0}
                         checked={value.includes(option)}
@@ -1303,7 +1306,7 @@ function FilterModeTabs({ mode, onModeChange }: FilterModeTabsProps) {
               : "text-muted-foreground hover:text-foreground",
           )}
         >
-          SELECT
+          {t("SELECT")}
         </button>
         <div className="bg-border/50 h-px @[7.5rem]:h-auto @[7.5rem]:w-px" />
         <button
@@ -1315,7 +1318,7 @@ function FilterModeTabs({ mode, onModeChange }: FilterModeTabsProps) {
               : "text-muted-foreground hover:text-foreground",
           )}
         >
-          TEXT
+          {t("TEXT")}
         </button>
       </div>
     </div>
@@ -1438,6 +1441,17 @@ function TextFilterSection({
   );
 }
 
+/**
+ * A boolean facet's labels double as its filter values, so they cannot be
+ * translated where they are declared. This is the only place they are shown,
+ * and the map is exhaustive on purpose: an option that is not listed is user
+ * data and is rendered verbatim.
+ */
+const BOOLEAN_FACET_LABELS: Record<string, string> = {
+  Bookmarked: i18nKey("Bookmarked"),
+  "Not bookmarked": i18nKey("Not bookmarked"),
+};
+
 interface FilterValueCheckboxProps {
   id: string;
   label: string;
@@ -1461,12 +1475,19 @@ export function FilterValueCheckbox({
   totalSelected,
   disabled = false,
 }: FilterValueCheckboxProps) {
+  const { t } = useTranslation();
   // Show "All" when clicking would reverse selection (only one item selected)
-  const labelText = checked && totalSelected === 1 ? "All" : "Only";
+  const labelText = checked && totalSelected === 1 ? t("All") : t("Only");
 
   // Display placeholder for empty strings to ensure clickable area
-  const displayLabel = label === "" ? "(empty)" : label;
-  const displayTitle = label === "" ? "(empty)" : label;
+  const shown =
+    label === ""
+      ? t("(empty)")
+      : BOOLEAN_FACET_LABELS[label]
+        ? t(BOOLEAN_FACET_LABELS[label])
+        : label;
+  const displayLabel = shown;
+  const displayTitle = shown;
 
   return (
     <div

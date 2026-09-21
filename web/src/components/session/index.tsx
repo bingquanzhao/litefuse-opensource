@@ -81,7 +81,7 @@ const USERS_PER_PAGE_IN_POPOVER = 50;
 const SESSION_DETAIL_SYSTEM_PRESETS: SystemFilterPreset[] = [
   {
     id: `${SYSTEM_PRESET_ID_PREFIX}last_generation__`,
-    name: "Last Generation in Trace",
+    name: i18nKey("Last Generation in Trace"),
     description: i18nKey("Shows only the last generation in each trace"),
     filters: [
       {
@@ -100,7 +100,7 @@ const SESSION_DETAIL_SYSTEM_PRESETS: SystemFilterPreset[] = [
   },
   {
     id: `${SYSTEM_PRESET_ID_PREFIX}root_observation__`,
-    name: "Root Observation",
+    name: i18nKey("Root Observation"),
     description: i18nKey("Shows only the root observation of each trace"),
     filters: [
       {

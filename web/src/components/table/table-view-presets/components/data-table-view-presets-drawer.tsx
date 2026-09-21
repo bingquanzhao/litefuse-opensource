@@ -484,11 +484,11 @@ export function TableViewPresetsDrawer({
                       <div className="flex flex-col">
                         <span className="flex items-center gap-1.5 text-sm">
                           <LangfuseIcon size={14} />
-                          {preset.name}
+                          {t(preset.name)}
                         </span>
                         {preset.description && (
                           <span className="text-muted-foreground w-fit pl-0 text-xs">
-                            {preset.description}
+                            {t(preset.description)}
                           </span>
                         )}
                       </div>
@@ -722,7 +722,7 @@ export function TableViewPresetsDrawer({
                                   itemId={view.id}
                                   projectId={projectId}
                                   scope="TableViewPresets:CUD"
-                                  entityToDeleteName="view"
+                                  entityToDeleteName={t("view")}
                                   executeDeleteMutation={async () => {
                                     await handleDeleteView(view.id);
                                   }}

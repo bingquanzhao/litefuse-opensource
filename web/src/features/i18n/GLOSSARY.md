@@ -55,6 +55,7 @@ commit.
 | Role              | 角色        |                                     |
 | Environment       | 环境        |                                     |
 | Model             | 模型        |                                     |
+| Provider          | 服务商      | LLM / storage vendor. An identity provider stays 身份提供方 |
 | Latency           | 延迟        |                                     |
 | Cost              | 成本        |                                     |
 | Usage             | 用量        |                                     |

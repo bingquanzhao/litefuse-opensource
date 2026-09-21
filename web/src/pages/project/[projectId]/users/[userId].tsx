@@ -1,3 +1,4 @@
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 import { useRouter } from "next/router";
 import { api } from "@/src/utils/api";
 import TracesTable from "@/src/components/table/use-cases/traces";
@@ -15,7 +16,14 @@ import { useV4Beta } from "@/src/features/events/hooks/useV4Beta";
 import { ObservationsEventsTable } from "@/src/features/events/components";
 
 import { useTranslation } from "react-i18next";
+// The tab name is the query-param value, so it stays English; the label is
+// looked up here.
 const tabs = ["Traces", "Sessions", "Scores"] as const;
+const tabLabels: Record<(typeof tabs)[number], string> = {
+  Traces: i18nKey("Traces"),
+  Sessions: i18nKey("Sessions"),
+  Scores: i18nKey("Scores"),
+};
 
 export default function UserPage() {
   const { t } = useTranslation();
@@ -145,7 +153,9 @@ export default function UserPage() {
               onChange={(e) => handleTabChange(e.currentTarget.value)}
             >
               {tabs.map((tab) => (
-                <option key={tab}>{tab}</option>
+                <option key={tab} value={tab}>
+                  {t(tabLabels[tab])}
+                </option>
               ))}
             </select>
           </div>
@@ -164,7 +174,7 @@ export default function UserPage() {
                     aria-current={tab === currentTab ? "page" : undefined}
                     onClick={() => handleTabChange(tab)}
                   >
-                    {tab}
+                    {t(tabLabels[tab])}
                   </button>
                 ))}
               </nav>

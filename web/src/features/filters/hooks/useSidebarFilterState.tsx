@@ -142,6 +142,7 @@ export interface CategoricalUIFilter extends BaseUIFilter {
   onOnlyChange?: (value: string) => void;
   /** Optional function to render an icon next to filter option labels */
   renderIcon?: (value: string) => React.ReactNode;
+  formatLabel?: (value: string) => string;
   /**
    * Current operator for arrayOptions columns (tags, labels, etc.)
    * - "any of": OR logic - match if item has ANY selected value
@@ -1653,6 +1654,8 @@ export function useSidebarFilterState(
           disabledReason: disableState.reason,
           renderIcon:
             facet.type === "categorical" ? facet.renderIcon : undefined,
+          formatLabel:
+            facet.type === "categorical" ? facet.formatLabel : undefined,
           onChange: (values: string[]) => updateFilter(facet.column, values),
           onOnlyChange: (value: string) => {
             if (selectedValues.length === 1 && selectedValues.includes(value)) {

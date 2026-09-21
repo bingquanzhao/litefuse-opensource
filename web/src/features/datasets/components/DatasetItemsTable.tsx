@@ -39,6 +39,7 @@ import { useDatasetVersion } from "../hooks/useDatasetVersion";
 import { EditDatasetItemDialog } from "./EditDatasetItemDialog";
 
 import { useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 type RowData = {
   id: string;
   source?: {
@@ -408,7 +409,7 @@ export function DatasetItemsTable({
         setRowHeight={setRowHeight}
         actionButtons={[menuItems, batchExportButton].filter(Boolean)}
         searchConfig={{
-          metadataSearchFields: ["ID"],
+          metadataSearchFields: [i18nKey("ID")],
           updateQuery: setSearchQueryWithDebounce,
           currentQuery: searchQuery ?? undefined,
           tableAllowsFullTextSearch: true,

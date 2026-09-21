@@ -1,3 +1,4 @@
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 import { DataTable } from "@/src/components/table/data-table";
 import TableLink from "@/src/components/table/table-link";
 import { type LangfuseColumnDef } from "@/src/components/table/types";
@@ -299,7 +300,7 @@ export function DatasetRunsTable(props: {
             datasetRunIds: runs.data?.runs.map((r) => r.id),
           })
         : [],
-      prefix: "Run-level",
+      prefix: i18nKey("Run-level"),
       isFilterDataPending: runs.isPending,
     });
 

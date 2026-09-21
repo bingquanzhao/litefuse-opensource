@@ -314,14 +314,14 @@ export default function SessionsTable({
   const addToQueueMutation = api.annotationQueueItems.createMany.useMutation({
     onSuccess: (data) => {
       showSuccessToast({
-        title: t(t("Sessions added to queue")),
+        title: t("Sessions added to queue"),
         description: t(
           'Selected sessions will be added to queue "{{queue}}". This may take a minute.',
           { queue: data.queueName },
         ),
         link: {
           href: `/project/${projectId}/annotation-queues/${data.queueId}`,
-          text: `View queue "${data.queueName}"`,
+          text: t('View queue "{{queue}}"', { queue: data.queueName }),
         },
       });
     },

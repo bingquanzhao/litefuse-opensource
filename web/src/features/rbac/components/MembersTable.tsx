@@ -41,6 +41,7 @@ import { useQueryParam, withDefault, StringParam } from "use-query-params";
 import { useEffect } from "react";
 
 import { Trans, useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 export type MembersTableRow = {
   user: {
     image: string | null;
@@ -282,7 +283,7 @@ export function MembersTable({
                 "meta",
               ) as MembersTableRow["meta"];
 
-              if (!projectRolesEntitlement) return "N/A on plan";
+              if (!projectRolesEntitlement) return t("N/A on plan");
 
               return (
                 <ProjectRoleDropdown
@@ -400,7 +401,7 @@ export function MembersTable({
           <CreateProjectMemberButton orgId={orgId} project={project} />
         }
         searchConfig={{
-          metadataSearchFields: ["Name", "Email"],
+          metadataSearchFields: [i18nKey("Name"), i18nKey("Email")],
           updateQuery: setSearchQuery,
           currentQuery: searchQuery ?? undefined,
           tableAllowsFullTextSearch: false,
@@ -499,8 +500,8 @@ const OrgRoleDropdown = ({
       utils.members.invalidate();
       if (data.userId === session.data?.user?.id) void session.update();
       showSuccessToast({
-        title: t(t("Saved")),
-        description: t(t("Organization role updated successfully")),
+        title: t("Saved"),
+        description: t("Organization role updated successfully"),
         duration: 2000,
       });
     },
@@ -562,8 +563,8 @@ const ProjectRoleDropdown = ({
       utils.members.invalidate();
       if (data.userId === session.data?.user?.id) void session.update();
       showSuccessToast({
-        title: t(t("Saved")),
-        description: t(t("Project role updated successfully")),
+        title: t("Saved"),
+        description: t("Project role updated successfully"),
         duration: 2000,
       });
     },

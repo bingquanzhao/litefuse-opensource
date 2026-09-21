@@ -32,6 +32,7 @@ import { buildFullPath } from "@/src/features/folders/utils";
 import { FolderBreadcrumbLink } from "@/src/features/folders/components/FolderBreadcrumbLink";
 
 import { useTranslation } from "react-i18next";
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 type DatasetTableRow = {
   key: {
     id: string;
@@ -393,7 +394,7 @@ export function DatasetsTable(props: { projectId: string }) {
         rowHeight={rowHeight}
         setRowHeight={setRowHeight}
         searchConfig={{
-          metadataSearchFields: ["Name"],
+          metadataSearchFields: [i18nKey("Name")],
           updateQuery: setSearchQuery,
           currentQuery: searchQuery ?? undefined,
           tableAllowsFullTextSearch: false,

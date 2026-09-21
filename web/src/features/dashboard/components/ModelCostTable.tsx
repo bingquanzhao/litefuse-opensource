@@ -113,7 +113,7 @@ export const ModelCostTable = ({
     >
       <DashboardTable
         headers={[
-          "Model",
+          t("Model"),
           <RightAlignedCell key="tokens">{t("Tokens")}</RightAlignedCell>,
           <RightAlignedCell key="cost">USD</RightAlignedCell>,
         ]}

@@ -177,7 +177,7 @@ export const ScoreRow = ({
                               ? JSON.stringify(metadata)
                               : "Loading...";
                           } catch {
-                            return "Invalid JSON";
+                            return t("Invalid JSON");
                           }
                         })()}
                       </span>

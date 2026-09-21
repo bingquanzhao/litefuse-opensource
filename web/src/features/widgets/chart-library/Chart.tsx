@@ -1,3 +1,4 @@
+import { getRuntimeLocale } from "@/src/features/i18n/runtimeLocale";
 import React, { useState, useMemo } from "react";
 import { type DataPoint } from "@/src/features/widgets/chart-library/chart-props";
 import { CardContent } from "@/src/components/ui/card";
@@ -70,12 +71,12 @@ export const Chart = ({
         parsed.getUTCSeconds() === 0 &&
         parsed.getUTCMilliseconds() === 0;
       const time_dimension = isMidnight
-        ? parsed.toLocaleDateString("en-US", {
+        ? parsed.toLocaleDateString(getRuntimeLocale(), {
             year: "2-digit",
             month: "numeric",
             day: "numeric",
           })
-        : parsed.toLocaleTimeString("en-US", {
+        : parsed.toLocaleTimeString(getRuntimeLocale(), {
             year: "2-digit",
             month: "numeric",
             day: "numeric",

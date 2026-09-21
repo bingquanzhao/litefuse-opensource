@@ -1,3 +1,4 @@
+import { getRuntimeLocale } from "@/src/features/i18n/runtimeLocale";
 import { type DashboardDateRangeAggregationOption } from "@/src/utils/date-range-utils";
 import { type DatabaseRow } from "@/src/server/api/services/sqlInterface";
 import {
@@ -99,7 +100,7 @@ export function padChartData(chartData: HistogramBin[]) {
 
 // categorical score analytics helpers
 function convertDateToStringTimestamp(date: Date): string {
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString(getRuntimeLocale(), {
     year: "2-digit",
     month: "numeric",
     day: "numeric",

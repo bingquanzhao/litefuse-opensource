@@ -303,8 +303,9 @@ export default function PromptVersionTable({
       enableHiding: true,
       size: 150,
       headerTooltip: {
-        description:
+        description: t(
           "The last time this prompt version was used in a generation. See docs for details on how to link generations/traces to prompt versions.",
+        ),
         href: "https://litefuse.ai/docs/prompt-management/get-started",
       },
       cell: ({ row }) => {
@@ -322,8 +323,9 @@ export default function PromptVersionTable({
       size: 150,
       enableHiding: true,
       headerTooltip: {
-        description:
+        description: t(
           "The first time this prompt version was used in a generation. See docs for details on how to link generations/traces to prompt versions.",
+        ),
         href: "https://litefuse.ai/docs/prompt-management/get-started",
       },
       cell: ({ row }) => {

@@ -250,9 +250,9 @@ export const AutomationForm = ({
 
     if (!validation.isValid) {
       showErrorToast(
-        t(t("Validation Error")),
+        t("Validation Error"),
         validation.errors?.join(", ") ||
-          t(t("Please fill in all required fields")),
+          t("Please fill in all required fields"),
       );
       return;
     }
@@ -274,7 +274,7 @@ export const AutomationForm = ({
       });
 
       showSuccessToast({
-        title: t(t("Automation Updated")),
+        title: t("Automation Updated"),
         description: t('Successfully updated automation "{{name}}".', {
           name: data.name,
         }),
@@ -295,7 +295,7 @@ export const AutomationForm = ({
       });
 
       showSuccessToast({
-        title: t(t("Automation Created")),
+        title: t("Automation Created"),
         description: t('Successfully created automation "{{name}}".', {
           name: data.name,
         }),
@@ -311,7 +311,7 @@ export const AutomationForm = ({
 
   // Update button text based on if we're editing an existing automation
   const submitButtonText =
-    isEditing && automation ? "Update Automation" : "Save Automation";
+    isEditing && automation ? t("Update Automation") : t("Save Automation");
 
   // Update required fields based on action type
   const handleActionTypeChange = (value: ActionTypes) => {
@@ -466,19 +466,24 @@ export const AutomationForm = ({
                       onValueChange={field.onChange}
                       options={[
                         {
+                          // The value travels in the webhook payload, so only
+                          // the label is translated.
                           value: "created",
+                          displayValue: t("created"),
                           description: t(
                             "Whenever a new prompt version is created",
                           ),
                         },
                         {
                           value: "updated",
+                          displayValue: t("updated"),
                           description: t(
                             "Whenever tags or labels on a prompt version are updated",
                           ),
                         },
                         {
                           value: "deleted",
+                          displayValue: t("deleted"),
                           description: t(
                             "Whenever a prompt version is deleted",
                           ),

@@ -1413,6 +1413,8 @@ function stringifyJsonNode(node: unknown) {
     );
   } catch (error) {
     console.error("JSON stringify error", error);
+    // Module-level helper: no hook in scope, and this is a render
+    // fallback rather than copy, so it stays English.
     return "Error: JSON.stringify failed";
   }
 }

@@ -174,7 +174,7 @@ export default function ProtectedLabelsSettings({
                           )}
                           disabled={!hasAccess || !hasEntitlement}
                         >
-                          {field.value || "Select or enter a label"}
+                          {field.value || t("Select or enter a label")}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </FormControl>

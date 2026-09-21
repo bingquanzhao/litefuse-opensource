@@ -206,7 +206,7 @@ export const ScoresTable = ({
     >
       <DashboardTable
         headers={[
-          "Name",
+          t("Name"),
           <RightAlignedCell key="count">#</RightAlignedCell>,
           <RightAlignedCell key="average">{t("Avg")}</RightAlignedCell>,
           <RightAlignedCell key="zero">0</RightAlignedCell>,
