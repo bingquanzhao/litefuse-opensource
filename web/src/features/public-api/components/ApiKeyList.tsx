@@ -1,3 +1,4 @@
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 import Header from "@/src/components/layouts/header";
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
@@ -33,6 +34,12 @@ import { useLangfuseEnvCode } from "@/src/features/public-api/hooks/useLangfuseE
 
 import { useTranslation } from "react-i18next";
 type ApiKeyScope = "project" | "organization";
+
+/** The scope is a permission identifier; these are the words shown for it. */
+const API_KEY_SCOPE_LABELS: Record<ApiKeyScope, string> = {
+  project: i18nKey("project"),
+  organization: i18nKey("organization"),
+};
 type ApiKeyEntity = { id: string; note: string | null };
 
 export function ApiKeyList(props: { entityId: string; scope: ApiKeyScope }) {
@@ -79,9 +86,7 @@ export function ApiKeyList(props: { entityId: string; scope: ApiKeyScope }) {
           <AlertDescription>
             {t(
               "You do not have permission to view API keys for this {{scope}}.",
-              {
-                scope,
-              },
+              { scope: t(API_KEY_SCOPE_LABELS[scope]) },
             )}
           </AlertDescription>
         </Alert>

@@ -1,3 +1,4 @@
+import { i18nKey } from "@/src/features/i18n/i18nKey";
 import { Button } from "@/src/components/ui/button";
 import { api } from "@/src/utils/api";
 import { useState } from "react";
@@ -23,6 +24,12 @@ import { SubHeader } from "@/src/components/layouts/header";
 
 import { useTranslation } from "react-i18next";
 type ApiKeyScope = "project" | "organization";
+
+/** The scope is a permission identifier; these are the words shown for it. */
+const API_KEY_SCOPE_LABELS: Record<ApiKeyScope, string> = {
+  project: i18nKey("project"),
+  organization: i18nKey("organization"),
+};
 
 export function CreateApiKeyButton(props: {
   entityId: string;
@@ -178,7 +185,7 @@ export const ApiKeyRender = ({
         <div className="text-muted-foreground text-sm">
           {t(
             "This key can only be viewed once. You can always create new keys in the {{scope}} settings.",
-            { scope },
+            { scope: t(API_KEY_SCOPE_LABELS[scope]) },
           )}
         </div>
         <CodeView
