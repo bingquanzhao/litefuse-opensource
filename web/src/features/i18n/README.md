@@ -29,13 +29,14 @@ const { t } = useTranslation();
 `account preference (users.locale)` > `NEXT_LOCALE cookie` > `Accept-Language`
 
 > `en`, restricted to `LITEFUSE_I18N_LOCALES` (server env, comma separated,
-> default `en`). The server resolves cookie/header in `_app` / `_document`
+> default `en,zh-CN`; set `en` for an English-only deployment). The server
+> resolves cookie/header in `_app` / `_document`
 > (`getI18nAppProps.ts`); the provider re-syncs to the account preference once
 > the session is loaded. URLs never carry a locale prefix.
 
 The language switcher (`LanguageSwitcher`, account settings, sign-in page)
-renders only when more than one locale is enabled, which is how zh-CN stays
-invisible until the coverage gap is closed.
+renders only when more than one locale is enabled, which is how an
+English-only deployment hides it.
 
 ## Tooling (`web/`)
 
@@ -157,16 +158,17 @@ user's own data):
 })();
 ```
 
-A page has to be *used*, not just opened: most of the defects this found were
+A page has to be _used_, not just opened: most of the defects this found were
 behind a dialog, a second wizard step, or a table that was empty until real
 data existed.
 
 ## Rollout rule
 
-zh-CN stays off (`LITEFUSE_I18N_LOCALES=en`) while any user-visible English
-remains. A green gate is necessary but not sufficient: it says no rule-visible
-literal is left, not that the UI is translated. The categories listed above are
-the known gap. Test environments may set `en,zh-CN` to review progress.
+zh-CN is on by default (`LITEFUSE_I18N_LOCALES=en,zh-CN`) since coverage
+reached 100% on 2026-09-22. The bar for keeping it on: no user-visible English
+outside the seeded content listed below. A green gate is necessary but not
+sufficient: it says no rule-visible literal is left, not that the UI is
+translated, so walk the pages after any sizeable merge.
 
 Seeded content is the remaining English a user sees: the built-in evaluator
 templates, the managed dashboards and their widgets, the Correctness queue and

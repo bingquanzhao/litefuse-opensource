@@ -56,9 +56,10 @@ export const env = createEnv({
     STRIPE_TEAMS_MONTHLY_ADDON_PRICE_ID: z.string().min(1).optional(),
     STRIPE_USAGE_PRICE_ID: z.string().min(1).optional(),
     // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
-    // UI locales exposed to users, comma separated (e.g. "en,zh-CN"). "en" is
-    // always enabled. The language switcher only shows with >1 locale.
-    LITEFUSE_I18N_LOCALES: z.string().default("en"),
+    // UI locales exposed to users, comma separated. "en" is always enabled;
+    // the language switcher only shows with >1 locale. Set to "en" for an
+    // English-only deployment.
+    LITEFUSE_I18N_LOCALES: z.string().default("en,zh-CN"),
     LITEFUSE_ENABLE_EXPERIMENTAL_FEATURES: z.enum(["true", "false"]).optional(),
     SALT: z.string({
       required_error:
