@@ -404,8 +404,8 @@ export function PromptTable() {
             setSearchType,
             searchType,
             customDropdownLabels: {
-              metadata: "Names, Tags",
-              fullText: "Full Text",
+              metadata: t("Names, Tags"),
+              fullText: t("Full Text"),
             },
             hidePerformanceWarning: true,
           }}

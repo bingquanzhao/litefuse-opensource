@@ -256,7 +256,7 @@ export function DashboardWidget({
         time_dimension: item["time_dimension"],
       };
     });
-  }, [queryResult.data, widget.data]);
+  }, [queryResult.data, widget.data, t]);
 
   const handleEdit = () => {
     router.push(

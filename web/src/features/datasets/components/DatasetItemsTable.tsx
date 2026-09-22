@@ -416,8 +416,8 @@ export function DatasetItemsTable({
           setSearchType,
           searchType,
           customDropdownLabels: {
-            metadata: "IDs",
-            fullText: "Full Text",
+            metadata: t("IDs"),
+            fullText: t("Full Text"),
           },
           hidePerformanceWarning: true,
         }}

@@ -274,8 +274,9 @@ export function DataTableToolbar<TData, TValue>({
                           ) ? (
                             <p className="text-primary text-xs font-normal">
                               {t("Searches in Input/Output and {{fields}}.", {
-                                fields:
-                                  searchConfig.metadataSearchFields?.join(", "),
+                                fields: searchConfig.metadataSearchFields
+                                  ?.map((field) => t(field))
+                                  .join("、"),
                               })}
                               {!searchConfig.hidePerformanceWarning &&
                                 ` ${t("For improved performance, please filter the table down.")}`}
@@ -283,8 +284,9 @@ export function DataTableToolbar<TData, TValue>({
                           ) : (
                             <p className="text-primary text-xs font-normal">
                               {t("Searches in {{fields}}.", {
-                                fields:
-                                  searchConfig.metadataSearchFields?.join(", "),
+                                fields: searchConfig.metadataSearchFields
+                                  ?.map((field) => t(field))
+                                  .join("、"),
                               })}
                             </p>
                           )

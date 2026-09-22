@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -75,9 +76,15 @@ export function I18nProvider({
   );
 
   // The account preference wins over the device cookie once the session is
-  // known (e.g. first visit from a new device).
+  // known (e.g. first visit from a new device). It is applied only when the
+  // account value itself changes: the switcher updates the local state first
+  // and persists to the account afterwards, so keying this on `locale` would
+  // revert every switch until the session has been refetched.
   const userLocale = session.data?.user?.locale;
+  const syncedUserLocale = useRef(userLocale);
   useEffect(() => {
+    if (userLocale === syncedUserLocale.current) return;
+    syncedUserLocale.current = userLocale;
     if (
       isAppLocale(userLocale) &&
       userLocale !== locale &&
