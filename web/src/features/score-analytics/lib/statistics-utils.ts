@@ -193,7 +193,6 @@ export function calculateOverallAgreement(
   return Math.round(agreement * 1000) / 1000;
 }
 
-
 /**
  * A correlation reads differently in each direction, and Chinese puts the sign
  * before the noun, so each (strength, direction) pair is its own key rather
@@ -527,7 +526,7 @@ export function interpretOverallAgreement(
     strength: i18nKey("Very Poor"),
     color: "red",
     description: i18nKey("{{percentage}}% of predictions match"),
-      descriptionParams: { percentage },
+    descriptionParams: { percentage },
   };
 }
 
@@ -591,7 +590,7 @@ export function interpretMAE(
       strength: i18nKey("Very Poor"),
       color: "red",
       description: i18nKey("Very high error ({{percent}}% of range)"),
-        descriptionParams: { percent: (relativeError * 100).toFixed(1) },
+      descriptionParams: { percent: (relativeError * 100).toFixed(1) },
     };
   }
 
@@ -665,7 +664,7 @@ export function interpretRMSE(
       strength: i18nKey("Very Poor"),
       color: "red",
       description: i18nKey("Very high error ({{percent}}% of range)"),
-        descriptionParams: { percent: (relativeError * 100).toFixed(1) },
+      descriptionParams: { percent: (relativeError * 100).toFixed(1) },
     };
   }
 

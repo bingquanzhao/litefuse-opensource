@@ -124,11 +124,7 @@ export const StatusBadge = ({
           ></span>
         </span>
       )}
-      {showText && type && (
-        <span>
-          {t(statusLabelKey(type))}
-        </span>
-      )}
+      {showText && type && <span>{t(statusLabelKey(type))}</span>}
       {children}
     </div>
   );

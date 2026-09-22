@@ -131,7 +131,6 @@ const QueueItemTableMultiSelectAction = ({
   );
 };
 
-
 /** The stored value is the API's enum, so the label is looked up here. */
 const QUEUE_OBJECT_TYPE_LABELS: Record<string, string> = {
   TRACE: i18nKey("Trace"),

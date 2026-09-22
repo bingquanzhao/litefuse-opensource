@@ -207,9 +207,7 @@ export const UpsertModelFormDialog = (({
       setOpen(false);
       showSuccessToast({
         title:
-          props.action === "edit"
-            ? t("Model updated")
-            : t("Model created"),
+          props.action === "edit" ? t("Model updated") : t("Model created"),
         description:
           props.action === "edit"
             ? t(

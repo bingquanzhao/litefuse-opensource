@@ -80,9 +80,9 @@ export function DistributionBooleanCard() {
             distribution2Data: undefined,
             categories: distribution.categories ?? [],
             description: t("{{name}} - {{total}} observations", {
-            name: score1.name,
-            total: statistics.score1.total.toLocaleString(),
-          }),
+              name: score1.name,
+              total: statistics.score1.total.toLocaleString(),
+            }),
           };
         case "score2":
           return {
@@ -90,9 +90,9 @@ export function DistributionBooleanCard() {
             distribution2Data: undefined,
             categories: distribution.score2Categories ?? [],
             description: t("{{name}} - {{total}} observations", {
-            name: score2?.name ?? t("Score 2"),
-            total: (statistics.score2?.total ?? 0).toLocaleString(),
-          }),
+              name: score2?.name ?? t("Score 2"),
+              total: (statistics.score2?.total ?? 0).toLocaleString(),
+            }),
           };
         case "all":
           return {
@@ -100,11 +100,11 @@ export function DistributionBooleanCard() {
             distribution2Data: distribution.score2Individual,
             categories: distribution.categories ?? [],
             description: t("{{name1}} ({{total1}}) vs {{name2}} ({{total2}})", {
-            name1: score1.name,
-            total1: statistics.score1.total.toLocaleString(),
-            name2: score2?.name,
-            total2: statistics.score2?.total.toLocaleString(),
-          }),
+              name1: score1.name,
+              total1: statistics.score1.total.toLocaleString(),
+              name2: score2?.name,
+              total2: statistics.score2?.total.toLocaleString(),
+            }),
           };
         case "matched":
           return {
@@ -112,10 +112,12 @@ export function DistributionBooleanCard() {
             distribution2Data: distribution.score2Matched,
             categories: distribution.categories ?? [],
             description: t("{{name1}} vs {{name2}} - {{total}} matched", {
-            name1: score1.name,
-            name2: score2?.name,
-            total: (statistics.comparison?.matchedCount ?? 0).toLocaleString(),
-          }),
+              name1: score1.name,
+              name2: score2?.name,
+              total: (
+                statistics.comparison?.matchedCount ?? 0
+              ).toLocaleString(),
+            }),
           };
       }
     }, [data, activeTab, params]);
