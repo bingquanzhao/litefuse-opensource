@@ -60,6 +60,7 @@ commit.
 | Cost              | 成本        |                                                             |
 | Usage             | 用量        |                                                             |
 | Token             | 词元        | The LLM unit. An auth token is 令牌                         |
+| Temperature       | 温度        | The sampling parameter. Top P stays English                 |
 | Metadata          | 元数据      |                                                             |
 | Tag               | 标签        |                                                             |
 | Label (prompt)    | 版本标签    | Tags stay 标签                                              |
