@@ -827,7 +827,7 @@ export function WidgetForm({
       .sort((a, b) =>
         a.label.localeCompare(b.label, "en", { sensitivity: "base" }),
       );
-  }, [selectedView, selectedChartType, selectedMetrics, viewVersion]);
+  }, [selectedView, selectedChartType, selectedMetrics, viewVersion, t]);
 
   // Get available aggregations for a specific metric index in pivot tables
   const getAvailableAggregations = (
@@ -902,7 +902,7 @@ export function WidgetForm({
       .sort((a, b) =>
         a.label.localeCompare(b.label, "en", { sensitivity: "base" }),
       );
-  }, [selectedView, viewVersion]);
+  }, [selectedView, viewVersion, t]);
 
   // Create a dynamic query based on the selected view
   const query = useMemo<QueryType>(() => {
@@ -1085,6 +1085,7 @@ export function WidgetForm({
       selectedMeasure,
       selectedChartType,
       pivotDimensions,
+      t,
     ],
   );
 
@@ -1507,7 +1508,9 @@ export function WidgetForm({
                                             key={aggregation}
                                             value={aggregation}
                                           >
-                                            {t(aggregationLabelKey(aggregation))}
+                                            {t(
+                                              aggregationLabelKey(aggregation),
+                                            )}
                                           </SelectItem>
                                         ),
                                       )}

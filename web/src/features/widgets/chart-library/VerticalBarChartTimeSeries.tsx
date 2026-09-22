@@ -12,7 +12,6 @@ import {
 } from "@/src/features/widgets/chart-library/utils";
 import { compactNumberFormatter } from "@/src/utils/numbers";
 
-import { useTranslation } from "react-i18next";
 /**
  * VerticalBarChartTimeSeries component
  * @param data - Data to be displayed. Expects an array of objects with time_dimension, dimension, and metric properties.
@@ -33,7 +32,6 @@ export const VerticalBarChartTimeSeries: React.FC<ChartProps> = ({
   valueFormatter = compactNumberFormatter,
   subtleFill = false,
 }) => {
-  const { t } = useTranslation();
   const groupedData = useMemo(() => groupDataByTimeDimension(data), [data]);
   const dimensions = useMemo(() => getUniqueDimensions(data), [data]);
 

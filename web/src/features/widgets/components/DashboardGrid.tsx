@@ -6,7 +6,6 @@ import { DashboardWidget } from "@/src/features/widgets";
 import { type FilterState } from "@langfuse/shared";
 import { useState, useCallback, useEffect } from "react";
 
-import { useTranslation } from "react-i18next";
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 // Hook to detect screen size
@@ -50,7 +49,6 @@ export function DashboardGrid({
   dashboardOwner: "LANGFUSE" | "PROJECT" | undefined;
   getWidgetSchedulerId?: (widgetPlacementId: string) => string;
 }) {
-  const { t } = useTranslation();
   const [rowHeight, setRowHeight] = useState(150);
 
   // Detect if screen is medium or smaller (1024px and below)

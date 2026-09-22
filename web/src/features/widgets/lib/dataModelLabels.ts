@@ -94,5 +94,7 @@ export function dataModelLabelKey(key: string): string {
 
 /** The i18n key for an aggregation, or its start-cased name. */
 export function aggregationLabelKey(aggregation: string): string {
-  return AGGREGATION_LABELS[aggregation.toLowerCase()] ?? startCase(aggregation);
+  return (
+    AGGREGATION_LABELS[aggregation.toLowerCase()] ?? startCase(aggregation)
+  );
 }

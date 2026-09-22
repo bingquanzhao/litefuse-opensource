@@ -269,9 +269,9 @@ const MixpanelIntegrationSettingsForm = ({
                     >
                       {EXPORT_SOURCE_OPTIONS.map((option) => (
                         <div key={option.value} className="space-y-0.5">
-                          <div className="font-medium">{option.label}</div>
+                          <div className="font-medium">{t(option.label)}</div>
                           <div className="text-muted-foreground text-xs">
-                            {option.description}
+                            {t(option.description)}
                           </div>
                         </div>
                       ))}
@@ -298,7 +298,7 @@ const MixpanelIntegrationSettingsForm = ({
                   <SelectContent>
                     {EXPORT_SOURCE_OPTIONS.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
-                        {option.label}
+                        {t(option.label)}
                       </SelectItem>
                     ))}
                   </SelectContent>
