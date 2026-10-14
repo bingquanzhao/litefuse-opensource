@@ -1273,10 +1273,15 @@ export default function ObservationsTable({
       itemType: "TRACE",
       customTitlePrefix: "Observation ID:",
       detailNavigationKey: "observations",
-      children: <PeekViewObservationDetail projectId={projectId} />,
+      children: (
+        <PeekViewObservationDetail
+          projectId={projectId}
+          observationReferences={previewReferences}
+        />
+      ),
       ...peekNavigationProps,
     };
-  }, [projectId, peekNavigationProps, hideControls]);
+  }, [projectId, peekNavigationProps, hideControls, previewReferences]);
 
   const rows: ObservationsTableRow[] = useMemo(() => {
     return generations.isSuccess
